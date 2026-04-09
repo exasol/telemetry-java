@@ -1,4 +1,4 @@
-package io.telemetryjava;
+package com.exasol.telemetry;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;

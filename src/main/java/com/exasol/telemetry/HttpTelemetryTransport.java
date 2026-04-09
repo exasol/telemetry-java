@@ -1,4 +1,4 @@
-package io.telemetryjava;
+package com.exasol.telemetry;
 
 import java.io.IOException;
 import java.io.OutputStream;

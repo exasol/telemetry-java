@@ -1,4 +1,4 @@
-package io.telemetryjava;
+package com.exasol.telemetry;
 
 import java.net.URI;
 import java.time.Duration;

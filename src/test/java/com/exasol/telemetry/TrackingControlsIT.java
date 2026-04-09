@@ -1,4 +1,4 @@
-package io.telemetryjava;
+package com.exasol.telemetry;
 
 import org.junit.jupiter.api.Test;
 
