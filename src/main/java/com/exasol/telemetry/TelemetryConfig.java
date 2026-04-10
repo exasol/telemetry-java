@@ -6,8 +6,8 @@ import java.util.Objects;
 
 public final class TelemetryConfig
 {
-    public static final String DISABLED_ENV = "TELEMETRY_JAVA_DISABLED";
-    public static final String ENDPOINT_ENV = "TELEMETRY_JAVA_ENDPOINT";
+    public static final String DISABLED_ENV = "EXASOL_TELEMETRY_DISABLE";
+    public static final String ENDPOINT_ENV = "EXASOL_TELEMETRY_ENDPOINT";
 
     private final String projectTag;
     private final URI endpoint;

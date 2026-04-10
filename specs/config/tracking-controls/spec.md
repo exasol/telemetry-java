@@ -4,7 +4,7 @@ Allows host applications and deployment environments to disable tracking or redi
 
 ## Background
 
-Tracking can be deactivated by environment variable. The configured endpoint can be overridden by environment variable.
+Tracking can be deactivated by `EXASOL_TELEMETRY_DISABLE`. The configured endpoint can be overridden by `EXASOL_TELEMETRY_ENDPOINT`.
 
 ## Scenarios
 

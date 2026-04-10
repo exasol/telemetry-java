@@ -8,6 +8,6 @@ The library is designed to send feature-usage events only. It does not collect l
 
 ## Opt-Out
 
-Host applications can disable telemetry globally by setting `TELEMETRY_JAVA_DISABLED=true`.
+Host applications can disable telemetry globally by setting `EXASOL_TELEMETRY_DISABLE=true`.
 
 When telemetry is disabled, the library does not enqueue or send usage events.
