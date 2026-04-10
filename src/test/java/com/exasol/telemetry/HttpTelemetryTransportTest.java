@@ -2,12 +2,14 @@ package com.exasol.telemetry;
 
 import org.junit.jupiter.api.Test;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.ProtocolException;
 import java.net.URI;
+import java.net.http.HttpRequest;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Flow;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -16,95 +18,120 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class HttpTelemetryTransportTest
 {
     @Test
-    void sendsJsonPayloadToConfiguredConnection() throws Exception
+    void sendsJsonPayloadToConfiguredClient() throws Exception
     {
-        FakeHttpURLConnection connection = new FakeHttpURLConnection(202);
+        CapturingRequestSender requestSender = new CapturingRequestSender(202);
         HttpTelemetryTransport transport = new HttpTelemetryTransport(
                 TelemetryConfig.builder("project").endpoint(URI.create("https://example.com")).build(),
-                endpoint -> connection);
+                requestSender);
 
-        transport.send(TelemetryMessage.fromEvents(java.util.List.of(new TelemetryEvent("project.feature", 10))));
+        transport.send(TelemetryMessage.fromEvents(List.of(new TelemetryEvent("project.feature", 10))));
 
-        assertEquals("POST", connection.requestMethod);
-        assertTrue(connection.doOutput);
-        assertEquals("application/json", connection.contentType);
-        assertTrue(connection.payloadAsString().contains("\"features\":{\"project.feature\":[10]}"));
+        HttpRequest request = requestSender.request;
+        assertEquals("POST", request.method());
+        assertEquals(URI.create("https://example.com"), request.uri());
+        assertEquals("application/json", request.headers().firstValue("Content-Type").orElseThrow());
+        assertTrue(bodyToString(request).contains("\"features\":{\"project.feature\":[10]}"));
     }
 
     @Test
     void rejectsNonSuccessStatusCodes() throws Exception
     {
-        FakeHttpURLConnection connection = new FakeHttpURLConnection(500);
         HttpTelemetryTransport transport = new HttpTelemetryTransport(
                 TelemetryConfig.builder("project").endpoint(URI.create("https://example.com")).build(),
-                endpoint -> connection);
+                request -> 500);
 
         IOException exception = assertThrows(IOException.class,
-                () -> transport.send(TelemetryMessage.fromEvents(java.util.List.of(new TelemetryEvent("project.feature", 10)))));
+                () -> transport.send(TelemetryMessage.fromEvents(List.of(new TelemetryEvent("project.feature", 10)))));
         assertTrue(exception.getMessage().contains("Unexpected response status"));
     }
 
-    private static final class FakeHttpURLConnection extends HttpURLConnection
+    @Test
+    void convertsInterruptedExceptionToIoException() throws Exception
     {
-        private final ByteArrayOutputStream payload = new ByteArrayOutputStream();
-        private final int responseCode;
-        private String requestMethod;
-        private boolean doOutput;
-        private String contentType;
+        HttpTelemetryTransport transport = new HttpTelemetryTransport(
+                TelemetryConfig.builder("project").endpoint(URI.create("https://example.com")).build(),
+                request -> {
+                    throw new InterruptedException("interrupted");
+                });
 
-        private FakeHttpURLConnection(int responseCode)
+        IOException exception = assertThrows(IOException.class,
+                () -> transport.send(TelemetryMessage.fromEvents(List.of(new TelemetryEvent("project.feature", 10)))));
+        assertTrue(exception.getMessage().contains("Interrupted while sending telemetry"));
+        assertTrue(Thread.currentThread().isInterrupted());
+        Thread.interrupted();
+    }
+
+    private static String bodyToString(HttpRequest request) throws Exception
+    {
+        HttpRequest.BodyPublisher publisher = request.bodyPublisher().orElseThrow();
+        CollectingSubscriber subscriber = new CollectingSubscriber();
+        publisher.subscribe(subscriber);
+        return subscriber.body();
+    }
+
+    private static final class CapturingRequestSender implements HttpTelemetryTransport.RequestSender
+    {
+        private final int statusCode;
+        private HttpRequest request;
+
+        private CapturingRequestSender(int statusCode)
         {
-            super(null);
-            this.responseCode = responseCode;
+            this.statusCode = statusCode;
         }
 
         @Override
-        public void disconnect() {}
+        public int send(HttpRequest request)
+        {
+            this.request = request;
+            return statusCode;
+        }
+    }
+
+    private static final class CollectingSubscriber implements Flow.Subscriber<ByteBuffer>
+    {
+        private final List<ByteBuffer> buffers = new ArrayList<>();
+        private Flow.Subscription subscription;
 
         @Override
-        public boolean usingProxy()
+        public void onSubscribe(Flow.Subscription subscription)
         {
-            return false;
+            this.subscription = subscription;
+            subscription.request(Long.MAX_VALUE);
         }
 
         @Override
-        public void connect() {}
-
-        @Override
-        public void setRequestMethod(String method) throws ProtocolException
+        public void onNext(ByteBuffer item)
         {
-            this.requestMethod = method;
+            buffers.add(item);
         }
 
         @Override
-        public void setDoOutput(boolean dooutput)
+        public void onError(Throwable throwable)
         {
-            this.doOutput = dooutput;
+            throw new AssertionError(throwable);
         }
 
         @Override
-        public void setRequestProperty(String key, String value)
+        public void onComplete()
         {
-            if ("Content-Type".equals(key)) {
-                this.contentType = value;
+            if (subscription != null) {
+                subscription.cancel();
             }
         }
 
-        @Override
-        public OutputStream getOutputStream()
+        private String body()
         {
-            return payload;
-        }
-
-        @Override
-        public int getResponseCode()
-        {
-            return responseCode;
-        }
-
-        private String payloadAsString()
-        {
-            return payload.toString(java.nio.charset.StandardCharsets.UTF_8);
+            int total = buffers.stream().mapToInt(ByteBuffer::remaining).sum();
+            byte[] all = new byte[total];
+            int offset = 0;
+            for (ByteBuffer buffer : buffers) {
+                ByteBuffer copy = buffer.asReadOnlyBuffer();
+                int length = copy.remaining();
+                copy.get(all, offset, length);
+                offset += length;
+            }
+            return new String(all, StandardCharsets.UTF_8);
         }
     }
 }
