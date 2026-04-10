@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 final class TelemetryMessage
 {
@@ -85,5 +86,24 @@ final class TelemetryMessage
             }
         }
         return escaped.toString();
+    }
+
+    @Override
+    public boolean equals(Object other)
+    {
+        if (this == other) {
+            return true;
+        }
+        if (other == null || getClass() != other.getClass()) {
+            return false;
+        }
+        TelemetryMessage that = (TelemetryMessage) other;
+        return timestamp == that.timestamp && Objects.equals(features, that.features);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(timestamp, features);
     }
 }

@@ -1,5 +1,7 @@
 package com.exasol.telemetry;
 
+import java.util.Objects;
+
 final class TelemetryEvent
 {
     private final String feature;
@@ -19,5 +21,24 @@ final class TelemetryEvent
     long getTimestamp()
     {
         return timestamp;
+    }
+
+    @Override
+    public boolean equals(Object other)
+    {
+        if (this == other) {
+            return true;
+        }
+        if (other == null || getClass() != other.getClass()) {
+            return false;
+        }
+        TelemetryEvent that = (TelemetryEvent) other;
+        return timestamp == that.timestamp && Objects.equals(feature, that.feature);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(feature, timestamp);
     }
 }

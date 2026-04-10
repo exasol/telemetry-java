@@ -1,5 +1,6 @@
 package com.exasol.telemetry;
 
+import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -8,6 +9,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class TelemetryMessageTest
 {
+    @Test
+    void verifiesEqualsAndHashCode()
+    {
+        EqualsVerifier.forClass(TelemetryMessage.class).verify();
+    }
+
     @Test
     void groupsEventsByFeatureAndSerializesProtocolShape()
     {

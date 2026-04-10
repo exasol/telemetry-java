@@ -1,11 +1,19 @@
 package com.exasol.telemetry;
 
-import org.junit.jupiter.api.Test;
+import nl.jqno.equalsverifier.EqualsVerifier;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import org.junit.jupiter.api.Test;
+
 class TelemetryEventTest
 {
+    @Test
+    void verifiesEqualsAndHashCode()
+    {
+        EqualsVerifier.forClass(TelemetryEvent.class).verify();
+    }
+
     @Test
     void exposesFeatureAndTimestamp()
     {
