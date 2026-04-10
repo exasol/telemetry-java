@@ -2,18 +2,10 @@ package com.exasol.telemetry;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
+import java.util.concurrent.*;
 
-public final class TelemetryClient implements AutoCloseable
-{
+public final class TelemetryClient implements AutoCloseable {
     private final TelemetryConfig config;
     private final BlockingQueue<TelemetryEvent> queue;
     private final HttpTelemetryTransport transport;
@@ -21,8 +13,7 @@ public final class TelemetryClient implements AutoCloseable
     private final CountDownLatch terminated = new CountDownLatch(1);
     private volatile boolean closed;
 
-    private TelemetryClient(TelemetryConfig config)
-    {
+    private TelemetryClient(final TelemetryConfig config) {
         this.config = config;
         this.queue = new ArrayBlockingQueue<>(config.getQueueCapacity());
         this.transport = new HttpTelemetryTransport(config);
@@ -30,24 +21,20 @@ public final class TelemetryClient implements AutoCloseable
         this.senderThread.setDaemon(true);
         if (!config.isTrackingDisabled()) {
             this.senderThread.start();
-        }
-        else {
+        } else {
             terminated.countDown();
         }
     }
 
-    public static TelemetryClient create(TelemetryConfig config)
-    {
+    public static TelemetryClient create(final TelemetryConfig config) {
         return new TelemetryClient(Objects.requireNonNull(config, "config"));
     }
 
-    public TrackingResult track(String feature)
-    {
+    public TrackingResult track(final String feature) {
         return track(feature, Map.of());
     }
 
-    public TrackingResult track(String feature, Map<String, ?> attributes)
-    {
+    public TrackingResult track(final String feature, final Map<String, ?> attributes) {
         if (closed) {
             return TrackingResult.CLOSED;
         }
@@ -55,35 +42,34 @@ public final class TelemetryClient implements AutoCloseable
             return TrackingResult.DISABLED;
         }
 
-        String sanitizedFeature = sanitizeText(feature);
-        Map<String, String> sanitizedAttributes = sanitizeAttributes(attributes);
+        final String sanitizedFeature = sanitizeText(feature);
+        final Map<String, String> sanitizedAttributes = sanitizeAttributes(attributes);
         if (sanitizedFeature == null || sanitizedAttributes == null || !sanitizedAttributes.isEmpty()) {
             return TrackingResult.REJECTED;
         }
 
-        TelemetryEvent event = new TelemetryEvent(namespacedFeature(sanitizedFeature), Instant.now().getEpochSecond());
+        final TelemetryEvent event = new TelemetryEvent(namespacedFeature(sanitizedFeature), Instant.now().getEpochSecond());
         return queue.offer(event) ? TrackingResult.ACCEPTED : TrackingResult.REJECTED;
     }
 
-    private Map<String, String> sanitizeAttributes(Map<String, ?> attributes)
-    {
+    private Map<String, String> sanitizeAttributes(final Map<String, ?> attributes) {
         if (attributes == null) {
             return Map.of();
         }
 
-        Map<String, String> sanitized = new LinkedHashMap<>();
-        for (Map.Entry<String, ?> entry : attributes.entrySet()) {
-            String key = sanitizeText(entry.getKey());
+        final Map<String, String> sanitized = new LinkedHashMap<>();
+        for (final Map.Entry<String, ?> entry : attributes.entrySet()) {
+            final String key = sanitizeText(entry.getKey());
             if (key == null) {
                 return null;
             }
 
-            Object value = entry.getValue();
+            final Object value = entry.getValue();
             if (!(value instanceof String)) {
                 return null;
             }
 
-            String sanitizedValue = sanitizeText((String) value);
+            final String sanitizedValue = sanitizeText((String) value);
             if (sanitizedValue == null) {
                 return null;
             }
@@ -92,96 +78,82 @@ public final class TelemetryClient implements AutoCloseable
         return sanitized;
     }
 
-    private String namespacedFeature(String feature)
-    {
+    private String namespacedFeature(final String feature) {
         return config.getProjectTag() + "." + feature;
     }
 
-    private String sanitizeText(String value)
-    {
+    private String sanitizeText(final String value) {
         if (value == null || value.trim().isEmpty()) {
             return null;
         }
         return value.trim();
     }
 
-    private void runSender()
-    {
+    private void runSender() {
         try {
             while (!closed || !queue.isEmpty()) {
-                TelemetryEvent event = queue.poll(100, TimeUnit.MILLISECONDS);
+                final TelemetryEvent event = queue.poll(100, TimeUnit.MILLISECONDS);
                 if (event != null) {
                     sendWithRetry(drainBatch(event));
                 }
             }
-        }
-        catch (InterruptedException ignored) {
+        } catch (final InterruptedException ignored) {
             Thread.currentThread().interrupt();
-        }
-        finally {
+        } finally {
             terminated.countDown();
         }
     }
 
-    private List<TelemetryEvent> drainBatch(TelemetryEvent firstEvent)
-    {
-        List<TelemetryEvent> batch = new ArrayList<>();
+    private List<TelemetryEvent> drainBatch(final TelemetryEvent firstEvent) {
+        final List<TelemetryEvent> batch = new ArrayList<>();
         batch.add(firstEvent);
         queue.drainTo(batch);
         return batch;
     }
 
-    private void sendWithRetry(List<TelemetryEvent> events)
-    {
-        TelemetryMessage message = TelemetryMessage.fromEvents(events);
-        Instant deadline = Instant.now().plus(config.getRetryTimeout());
+    private void sendWithRetry(final List<TelemetryEvent> events) {
+        final TelemetryMessage message = TelemetryMessage.fromEvents(events);
+        final Instant deadline = Instant.now().plus(config.getRetryTimeout());
         Duration delay = config.getInitialRetryDelay();
 
         while (true) {
             try {
                 transport.send(message);
                 return;
-            }
-            catch (Exception ignored) {
-                Instant now = Instant.now();
+            } catch (final Exception ignored) {
+                final Instant now = Instant.now();
                 if (!now.isBefore(deadline)) {
                     return;
                 }
-                Duration remaining = Duration.between(now, deadline);
+                final Duration remaining = Duration.between(now, deadline);
                 sleep(min(delay, remaining));
                 delay = min(delay.multipliedBy(2), config.getMaxRetryDelay());
             }
         }
     }
 
-    private static Duration min(Duration left, Duration right)
-    {
+    private static Duration min(final Duration left, final Duration right) {
         return left.compareTo(right) <= 0 ? left : right;
     }
 
-    private void sleep(Duration duration)
-    {
+    private void sleep(final Duration duration) {
         try {
             Thread.sleep(Math.max(1, duration.toMillis()));
-        }
-        catch (InterruptedException ignored) {
+        } catch (final InterruptedException ignored) {
             Thread.currentThread().interrupt();
         }
     }
 
-    boolean awaitStopped(Duration timeout) throws InterruptedException
-    {
+    boolean awaitStopped(final Duration timeout) throws InterruptedException {
         return terminated.await(timeout.toMillis(), TimeUnit.MILLISECONDS);
     }
 
-    boolean isRunning()
-    {
+    boolean isRunning() {
         return senderThread.isAlive();
     }
 
     @Override
-    public void close()
-    {
+    public void close() {
         if (closed) {
             return;
         }
@@ -189,8 +161,7 @@ public final class TelemetryClient implements AutoCloseable
         if (!config.isTrackingDisabled()) {
             try {
                 senderThread.join();
-            }
-            catch (InterruptedException ignored) {
+            } catch (final InterruptedException ignored) {
                 Thread.currentThread().interrupt();
             }
         }

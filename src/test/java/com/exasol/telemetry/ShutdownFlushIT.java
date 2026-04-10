@@ -1,22 +1,18 @@
 package com.exasol.telemetry;
 
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.time.Duration;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.Test;
 
-class ShutdownFlushIT
-{
+class ShutdownFlushIT {
     @Test
-    void flushesPendingEventsOnClose() throws Exception
-    {
+    void flushesPendingEventsOnClose() throws Exception {
         List<RecordingHttpServer.RecordedRequest> requests;
         try (RecordingHttpServer server = RecordingHttpServer.createDelayedSuccessServer(150)) {
-            TelemetryClient client = TelemetryClient.create(TelemetryConfig.builder("shop-ui").endpoint(server.endpoint())
+            final TelemetryClient client = TelemetryClient.create(TelemetryConfig.builder("shop-ui").endpoint(server.endpoint())
                     .retryTimeout(Duration.ofSeconds(1))
                     .build());
             client.track("checkout-started");
@@ -30,8 +26,7 @@ class ShutdownFlushIT
     }
 
     @Test
-    void stopsBackgroundThreadsAfterClose() throws Exception
-    {
+    void stopsBackgroundThreadsAfterClose() throws Exception {
         TelemetryClient client;
         try (RecordingHttpServer server = RecordingHttpServer.createSuccessServer()) {
             client = TelemetryClient.create(TelemetryConfig.builder("shop-ui").endpoint(server.endpoint()).build());

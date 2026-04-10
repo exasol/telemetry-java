@@ -1,22 +1,17 @@
 package com.exasol.telemetry;
 
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.net.URI;
 import java.time.Duration;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.Test;
 
-class TelemetryConfigTest
-{
+class TelemetryConfigTest {
     @Test
-    void usesDefaultsAndConfiguredValues()
-    {
-        TelemetryConfig config = TelemetryConfig.builder("project")
+    void usesDefaultsAndConfiguredValues() {
+        final TelemetryConfig config = TelemetryConfig.builder("project")
                 .build();
 
         assertEquals("project", config.getProjectTag());
@@ -27,9 +22,8 @@ class TelemetryConfigTest
     }
 
     @Test
-    void usesEndpointOverrideAndDisableEnvironmentValues()
-    {
-        TelemetryConfig config = TelemetryConfig.builder("project").endpoint(URI.create("https://example.com"))
+    void usesEndpointOverrideAndDisableEnvironmentValues() {
+        final TelemetryConfig config = TelemetryConfig.builder("project").endpoint(URI.create("https://example.com"))
                 .environment(new MapTelemetryEnvironment(Map.of(
                         TelemetryConfig.ENDPOINT_ENV, "https://override.example.com",
                         TelemetryConfig.DISABLED_ENV, "disabled")))
@@ -40,9 +34,8 @@ class TelemetryConfigTest
     }
 
     @Test
-    void disablesTrackingAutomaticallyInCi()
-    {
-        TelemetryConfig config = TelemetryConfig.builder("project").endpoint(URI.create("https://example.com"))
+    void disablesTrackingAutomaticallyInCi() {
+        final TelemetryConfig config = TelemetryConfig.builder("project").endpoint(URI.create("https://example.com"))
                 .environment(new MapTelemetryEnvironment(Map.of(TelemetryConfig.CI_ENV, "github-actions")))
                 .build();
 
@@ -50,8 +43,7 @@ class TelemetryConfigTest
     }
 
     @Test
-    void treatsAnyNonEmptyEnvironmentValueAsDisabled()
-    {
+    void treatsAnyNonEmptyEnvironmentValueAsDisabled() {
         assertFalse(TelemetryConfig.isDisabled(null));
         assertFalse(TelemetryConfig.isDisabled("   "));
         assertTrue(TelemetryConfig.isDisabled("false"));
@@ -62,24 +54,21 @@ class TelemetryConfigTest
     }
 
     @Test
-    void rejectsBlankProjectTag()
-    {
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+    void rejectsBlankProjectTag() {
+        final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                 () -> TelemetryConfig.builder("  ").build());
         assertTrue(exception.getMessage().contains("projectTag"));
     }
 
     @Test
-    void usesDefaultEndpointWhenNoEndpointIsConfigured()
-    {
-        TelemetryConfig config = TelemetryConfig.builder("project").build();
+    void usesDefaultEndpointWhenNoEndpointIsConfigured() {
+        final TelemetryConfig config = TelemetryConfig.builder("project").build();
 
         assertEquals(TelemetryConfig.DEFAULT_ENDPOINT, config.getEndpoint());
     }
 
     @Test
-    void rejectsNonPositiveNumbersAndDurations()
-    {
+    void rejectsNonPositiveNumbersAndDurations() {
         assertThrows(IllegalArgumentException.class, () -> TelemetryConfig.builder("project").endpoint(URI.create("https://example.com"))
                 .queueCapacity(0)
                 .build());

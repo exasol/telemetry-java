@@ -1,50 +1,42 @@
 package com.exasol.telemetry;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
-final class TelemetryMessage
-{
+final class TelemetryMessage {
     static final String VERSION = "0.1";
 
     private final long timestamp;
     private final Map<String, List<Long>> features;
 
-    private TelemetryMessage(long timestamp, Map<String, List<Long>> features)
-    {
+    private TelemetryMessage(final long timestamp, final Map<String, List<Long>> features) {
         this.timestamp = timestamp;
         this.features = features;
     }
 
-    static TelemetryMessage fromEvents(List<TelemetryEvent> events)
-    {
-        Map<String, List<Long>> features = new LinkedHashMap<>();
-        for (TelemetryEvent event : events) {
+    static TelemetryMessage fromEvents(final List<TelemetryEvent> events) {
+        final Map<String, List<Long>> features = new LinkedHashMap<>();
+        for (final TelemetryEvent event : events) {
             features.computeIfAbsent(event.getFeature(), ignored -> new ArrayList<>()).add(event.getTimestamp());
         }
         return new TelemetryMessage(Instant.now().getEpochSecond(), features);
     }
 
-    String toJson()
-    {
-        StringBuilder builder = new StringBuilder();
+    String toJson() {
+        final StringBuilder builder = new StringBuilder();
         builder.append('{');
         builder.append("\"version\":\"").append(VERSION).append("\",");
         builder.append("\"timestamp\":").append(timestamp).append(',');
         builder.append("\"features\":{");
 
         boolean firstFeature = true;
-        for (Map.Entry<String, List<Long>> entry : features.entrySet()) {
+        for (final Map.Entry<String, List<Long>> entry : features.entrySet()) {
             if (!firstFeature) {
                 builder.append(',');
             }
             builder.append('"').append(escape(entry.getKey())).append('"').append(':').append('[');
             boolean firstTimestamp = true;
-            for (Long featureTimestamp : entry.getValue()) {
+            for (final Long featureTimestamp : entry.getValue()) {
                 if (!firstTimestamp) {
                     builder.append(',');
                 }
@@ -59,11 +51,10 @@ final class TelemetryMessage
         return builder.toString();
     }
 
-    private static String escape(String value)
-    {
-        StringBuilder escaped = new StringBuilder();
+    private static String escape(final String value) {
+        final StringBuilder escaped = new StringBuilder();
         for (int index = 0; index < value.length(); index++) {
-            char current = value.charAt(index);
+            final char current = value.charAt(index);
             switch (current) {
                 case '\\':
                     escaped.append("\\\\");
@@ -89,21 +80,19 @@ final class TelemetryMessage
     }
 
     @Override
-    public boolean equals(Object other)
-    {
+    public boolean equals(final Object other) {
         if (this == other) {
             return true;
         }
         if (other == null || getClass() != other.getClass()) {
             return false;
         }
-        TelemetryMessage that = (TelemetryMessage) other;
+        final TelemetryMessage that = (TelemetryMessage) other;
         return timestamp == that.timestamp && Objects.equals(features, that.features);
     }
 
     @Override
-    public int hashCode()
-    {
+    public int hashCode() {
         return Objects.hash(timestamp, features);
     }
 }

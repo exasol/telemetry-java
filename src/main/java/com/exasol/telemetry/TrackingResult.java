@@ -1,7 +1,6 @@
 package com.exasol.telemetry;
 
-public enum TrackingResult
-{
+public enum TrackingResult {
     ACCEPTED,
     REJECTED,
     DISABLED,

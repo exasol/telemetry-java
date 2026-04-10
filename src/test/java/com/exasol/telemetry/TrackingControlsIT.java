@@ -1,22 +1,20 @@
 package com.exasol.telemetry;
 
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.Duration;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.Test;
 
-class TrackingControlsIT
-{
+class TrackingControlsIT {
     @Test
-    void disablesTrackingViaEnvironmentVariables() throws Exception
-    {
+    void disablesTrackingViaEnvironmentVariables() throws Exception {
         try (RecordingHttpServer server = RecordingHttpServer.createSuccessServer();
                 TelemetryClient client = TelemetryClient.create(TelemetryConfig.builder("shop-ui").endpoint(server.endpoint())
                         .environment(new MapTelemetryEnvironment(Map.of(TelemetryConfig.DISABLED_ENV, "disabled")))
                         .build())) {
-            TrackingResult result = client.track("checkout-started");
+            final TrackingResult result = client.track("checkout-started");
 
             Thread.sleep(150);
             assertEquals(TrackingResult.DISABLED, result);
@@ -25,13 +23,12 @@ class TrackingControlsIT
     }
 
     @Test
-    void disablesTrackingAutomaticallyWhenCiIsNonEmpty() throws Exception
-    {
+    void disablesTrackingAutomaticallyWhenCiIsNonEmpty() throws Exception {
         try (RecordingHttpServer server = RecordingHttpServer.createSuccessServer();
                 TelemetryClient client = TelemetryClient.create(TelemetryConfig.builder("shop-ui").endpoint(server.endpoint())
                         .environment(new MapTelemetryEnvironment(Map.of(TelemetryConfig.CI_ENV, "github-actions")))
                         .build())) {
-            TrackingResult result = client.track("checkout-started");
+            final TrackingResult result = client.track("checkout-started");
 
             Thread.sleep(150);
             assertEquals(TrackingResult.DISABLED, result);
@@ -40,14 +37,13 @@ class TrackingControlsIT
     }
 
     @Test
-    void overridesConfiguredEndpointViaEnvironmentVariable() throws Exception
-    {
+    void overridesConfiguredEndpointViaEnvironmentVariable() throws Exception {
         try (RecordingHttpServer configuredServer = RecordingHttpServer.createSuccessServer();
                 RecordingHttpServer overrideServer = RecordingHttpServer.createSuccessServer();
                 TelemetryClient client = TelemetryClient.create(TelemetryConfig.builder("shop-ui").endpoint(configuredServer.endpoint())
                         .environment(new MapTelemetryEnvironment(Map.of(TelemetryConfig.ENDPOINT_ENV, overrideServer.endpoint().toString())))
                         .build())) {
-            TrackingResult result = client.track("checkout-started");
+            final TrackingResult result = client.track("checkout-started");
 
             assertEquals(TrackingResult.ACCEPTED, result);
             assertEquals(1, overrideServer.awaitRequests(1, Duration.ofSeconds(2)).size());

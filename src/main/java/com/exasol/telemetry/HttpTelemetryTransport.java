@@ -1,15 +1,11 @@
 package com.exasol.telemetry;
 
 import java.io.IOException;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
+import java.net.http.*;
 import java.nio.charset.StandardCharsets;
 
-final class HttpTelemetryTransport
-{
-    interface RequestSender
-    {
+final class HttpTelemetryTransport {
+    interface RequestSender {
         int send(HttpRequest request)
                 throws IOException, InterruptedException;
     }
@@ -17,29 +13,25 @@ final class HttpTelemetryTransport
     private final TelemetryConfig config;
     private final RequestSender requestSender;
 
-    HttpTelemetryTransport(TelemetryConfig config)
-    {
+    HttpTelemetryTransport(final TelemetryConfig config) {
         this(config, defaultSender(config));
     }
 
-    HttpTelemetryTransport(TelemetryConfig config, RequestSender requestSender)
-    {
+    HttpTelemetryTransport(final TelemetryConfig config, final RequestSender requestSender) {
         this.config = config;
         this.requestSender = requestSender;
     }
 
-    private static RequestSender defaultSender(TelemetryConfig config)
-    {
-        HttpClient client = HttpClient.newBuilder()
+    private static RequestSender defaultSender(final TelemetryConfig config) {
+        final HttpClient client = HttpClient.newBuilder()
                 .connectTimeout(config.getConnectTimeout())
                 .build();
         return request -> client.send(request, HttpResponse.BodyHandlers.discarding()).statusCode();
     }
 
-    void send(TelemetryMessage message)
-            throws IOException
-    {
-        HttpRequest request = HttpRequest.newBuilder(config.getEndpoint())
+    void send(final TelemetryMessage message)
+            throws IOException {
+        final HttpRequest request = HttpRequest.newBuilder(config.getEndpoint())
                 .header("Content-Type", "application/json")
                 .timeout(config.getRequestTimeout())
                 .POST(HttpRequest.BodyPublishers.ofString(message.toJson(), StandardCharsets.UTF_8))
@@ -48,8 +40,7 @@ final class HttpTelemetryTransport
         final int statusCode;
         try {
             statusCode = requestSender.send(request);
-        }
-        catch (InterruptedException exception) {
+        } catch (final InterruptedException exception) {
             Thread.currentThread().interrupt();
             throw new IOException("Interrupted while sending telemetry", exception);
         }

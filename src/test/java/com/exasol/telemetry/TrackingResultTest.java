@@ -1,21 +1,19 @@
 package com.exasol.telemetry;
 
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.EnumSet;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.Test;
 
-class TrackingResultTest
-{
+class TrackingResultTest {
     @Test
-    void exposesExpectedEnumValues()
-    {
+    void exposesExpectedEnumValues() {
         assertEquals(EnumSet.of(
-                        TrackingResult.ACCEPTED,
-                        TrackingResult.REJECTED,
-                        TrackingResult.DISABLED,
-                        TrackingResult.CLOSED),
+                TrackingResult.ACCEPTED,
+                TrackingResult.REJECTED,
+                TrackingResult.DISABLED,
+                TrackingResult.CLOSED),
                 EnumSet.allOf(TrackingResult.class));
     }
 }

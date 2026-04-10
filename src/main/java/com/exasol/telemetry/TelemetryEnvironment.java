@@ -1,19 +1,17 @@
 package com.exasol.telemetry;
 
-interface TelemetryEnvironment
-{
+interface TelemetryEnvironment {
     String getenv(String name);
 
     final class SystemEnvironment
-            implements TelemetryEnvironment
-    {
+            implements TelemetryEnvironment {
         static final SystemEnvironment INSTANCE = new SystemEnvironment();
 
-        private SystemEnvironment() {}
+        private SystemEnvironment() {
+        }
 
         @Override
-        public String getenv(String name)
-        {
+        public String getenv(final String name) {
             return System.getenv(name);
         }
     }

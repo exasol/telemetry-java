@@ -1,29 +1,27 @@
 package com.exasol.telemetry;
 
-import nl.jqno.equalsverifier.EqualsVerifier;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.Test;
 
-class TelemetryMessageTest
-{
+import nl.jqno.equalsverifier.EqualsVerifier;
+
+class TelemetryMessageTest {
     @Test
-    void verifiesEqualsAndHashCode()
-    {
+    void verifiesEqualsAndHashCode() {
         EqualsVerifier.forClass(TelemetryMessage.class).verify();
     }
 
     @Test
-    void groupsEventsByFeatureAndSerializesProtocolShape()
-    {
-        TelemetryMessage message = TelemetryMessage.fromEvents(List.of(
+    void groupsEventsByFeatureAndSerializesProtocolShape() {
+        final TelemetryMessage message = TelemetryMessage.fromEvents(List.of(
                 new TelemetryEvent("project.a", 10),
                 new TelemetryEvent("project.a", 20),
                 new TelemetryEvent("project.b", 30)));
 
-        String json = message.toJson();
+        final String json = message.toJson();
 
         assertTrue(json.contains("\"version\":\"0.1\""));
         assertTrue(json.contains("\"timestamp\":"));
@@ -31,20 +29,18 @@ class TelemetryMessageTest
     }
 
     @Test
-    void escapesFeatureNamesInJson()
-    {
-        TelemetryMessage message = TelemetryMessage.fromEvents(List.of(
+    void escapesFeatureNamesInJson() {
+        final TelemetryMessage message = TelemetryMessage.fromEvents(List.of(
                 new TelemetryEvent("proj.\"x\"\n\t\\", 10)));
 
-        String json = message.toJson();
+        final String json = message.toJson();
 
         assertTrue(json.contains("proj.\\\"x\\\"\\n\\t\\\\"));
     }
 
     @Test
-    void serializesEmptyFeatureCollection()
-    {
-        TelemetryMessage message = TelemetryMessage.fromEvents(List.of());
+    void serializesEmptyFeatureCollection() {
+        final TelemetryMessage message = TelemetryMessage.fromEvents(List.of());
 
         assertTrue(message.toJson().contains("\"features\":{}"));
     }
