@@ -15,7 +15,7 @@ class TelemetryClientTest
     @Test
     void returnsDisabledAndDoesNotRunSenderWhenTrackingIsDisabled() throws Exception
     {
-        TelemetryConfig config = TelemetryConfig.builder("project", URI.create("https://example.com"))
+        TelemetryConfig config = TelemetryConfig.builder("project").endpoint(URI.create("https://example.com"))
                 .environment(new MapTelemetryEnvironment(Map.of(TelemetryConfig.DISABLED_ENV, "true")))
                 .build();
 
@@ -33,7 +33,7 @@ class TelemetryClientTest
     @Test
     void returnsRejectedForBlankFeatureOrUnsupportedAttributes()
     {
-        TelemetryConfig config = TelemetryConfig.builder("project", URI.create("https://example.com")).build();
+        TelemetryConfig config = TelemetryConfig.builder("project").endpoint(URI.create("https://example.com")).build();
         TelemetryClient client = TelemetryClient.create(config);
         try {
             assertEquals(TrackingResult.REJECTED, client.track(" "));
@@ -49,7 +49,7 @@ class TelemetryClientTest
     @Test
     void returnsClosedAfterCloseAndCloseIsIdempotent()
     {
-        TelemetryConfig config = TelemetryConfig.builder("project", URI.create("https://example.com"))
+        TelemetryConfig config = TelemetryConfig.builder("project").endpoint(URI.create("https://example.com"))
                 .environment(new MapTelemetryEnvironment(Map.of(TelemetryConfig.DISABLED_ENV, "true")))
                 .build();
         TelemetryClient client = TelemetryClient.create(config);

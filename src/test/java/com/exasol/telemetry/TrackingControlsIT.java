@@ -13,7 +13,7 @@ class TrackingControlsIT
     void disablesTrackingViaEnvironmentVariables() throws Exception
     {
         try (RecordingHttpServer server = RecordingHttpServer.createSuccessServer();
-                TelemetryClient client = TelemetryClient.create(TelemetryConfig.builder("shop-ui", server.endpoint())
+                TelemetryClient client = TelemetryClient.create(TelemetryConfig.builder("shop-ui").endpoint(server.endpoint())
                         .environment(new MapTelemetryEnvironment(Map.of(TelemetryConfig.DISABLED_ENV, "true")))
                         .build())) {
             TrackingResult result = client.track("checkout-started");
@@ -28,7 +28,7 @@ class TrackingControlsIT
     void disablesTrackingAutomaticallyWhenCiIsTrue() throws Exception
     {
         try (RecordingHttpServer server = RecordingHttpServer.createSuccessServer();
-                TelemetryClient client = TelemetryClient.create(TelemetryConfig.builder("shop-ui", server.endpoint())
+                TelemetryClient client = TelemetryClient.create(TelemetryConfig.builder("shop-ui").endpoint(server.endpoint())
                         .environment(new MapTelemetryEnvironment(Map.of(TelemetryConfig.CI_ENV, "true")))
                         .build())) {
             TrackingResult result = client.track("checkout-started");
@@ -44,7 +44,7 @@ class TrackingControlsIT
     {
         try (RecordingHttpServer configuredServer = RecordingHttpServer.createSuccessServer();
                 RecordingHttpServer overrideServer = RecordingHttpServer.createSuccessServer();
-                TelemetryClient client = TelemetryClient.create(TelemetryConfig.builder("shop-ui", configuredServer.endpoint())
+                TelemetryClient client = TelemetryClient.create(TelemetryConfig.builder("shop-ui").endpoint(configuredServer.endpoint())
                         .environment(new MapTelemetryEnvironment(Map.of(TelemetryConfig.ENDPOINT_ENV, overrideServer.endpoint().toString())))
                         .build())) {
             TrackingResult result = client.track("checkout-started");

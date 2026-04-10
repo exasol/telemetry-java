@@ -7,8 +7,7 @@
 Example integration:
 
 ```java
-TelemetryConfig config = TelemetryConfig.builder("shop-ui", URI.create("https://collector.example/telemetry"))
-        .build();
+TelemetryConfig config = TelemetryConfig.builder("shop-ui").build();
 
 try (TelemetryClient client = TelemetryClient.create(config)) {
     client.track("checkout-started");
@@ -18,7 +17,7 @@ try (TelemetryClient client = TelemetryClient.create(config)) {
 ## Required Configuration
 
 - A project short tag at startup. The library adds it to every accepted telemetry event.
-- A configured HTTP endpoint for JSON `POST` delivery.
+- An optional HTTP endpoint for JSON `POST` delivery. If omitted, the default endpoint is `https://metrics.exasol.com`.
 
 ## Environment Variables
 

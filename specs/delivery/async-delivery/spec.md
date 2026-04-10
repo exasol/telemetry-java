@@ -1,10 +1,10 @@
 # Feature: async-delivery
 
-Delivers accepted usage events to a configured HTTP endpoint without blocking the host application's main execution path.
+Delivers accepted usage events to an HTTP endpoint without blocking the host application's main execution path.
 
 ## Background
 
-Accepted telemetry events are serialized to JSON and delivered via HTTP `POST` to a configured endpoint. The JSON payload contains `version`, `timestamp`, and `features` fields, and the library uses bounded in-memory buffering with no persistent local storage.
+Accepted telemetry events are serialized to JSON and delivered via HTTP `POST` to a configured endpoint or the default endpoint `https://metrics.exasol.com`. The JSON payload contains `version`, `timestamp`, and `features` fields, and the library uses bounded in-memory buffering with no persistent local storage.
 
 ## Scenarios
 

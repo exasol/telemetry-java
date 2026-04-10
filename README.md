@@ -40,13 +40,7 @@ The project uses `speq` skills and recorded specs to drive planning, implementat
 ```java
 import com.exasol.telemetry.TelemetryClient;
 import com.exasol.telemetry.TelemetryConfig;
-
-import java.net.URI;
-
-TelemetryConfig config = TelemetryConfig.builder(
-        "my-app",
-        URI.create("https://collector.example.com/telemetry"))
-        .build();
+TelemetryConfig config = TelemetryConfig.builder("my-app").build();
 
 try (TelemetryClient client = TelemetryClient.create(config)) {
     client.track("startup");
@@ -59,6 +53,8 @@ try (TelemetryClient client = TelemetryClient.create(config)) {
   Disables telemetry collection and delivery when set to `true`, `1`, `yes`, or `on`.
 - `EXASOL_TELEMETRY_ENDPOINT`
   Overrides the endpoint configured in code.
+
+The default endpoint is `https://metrics.exasol.com`.
 
 ## Documentation
 

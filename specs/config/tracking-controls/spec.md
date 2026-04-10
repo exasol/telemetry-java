@@ -4,7 +4,7 @@ Allows host applications and deployment environments to disable tracking or redi
 
 ## Background
 
-Tracking can be deactivated by `EXASOL_TELEMETRY_DISABLE` or automatically by `CI=true`. The configured endpoint can be overridden by `EXASOL_TELEMETRY_ENDPOINT`.
+Tracking can be deactivated by `EXASOL_TELEMETRY_DISABLE` or automatically by `CI=true`. If the host application does not configure an endpoint, the library uses `https://metrics.exasol.com`. The configured endpoint can be overridden by `EXASOL_TELEMETRY_ENDPOINT`.
 
 ## Scenarios
 

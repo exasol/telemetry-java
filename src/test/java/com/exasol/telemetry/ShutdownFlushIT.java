@@ -16,7 +16,7 @@ class ShutdownFlushIT
     {
         List<RecordingHttpServer.RecordedRequest> requests;
         try (RecordingHttpServer server = RecordingHttpServer.createDelayedSuccessServer(150)) {
-            TelemetryClient client = TelemetryClient.create(TelemetryConfig.builder("shop-ui", server.endpoint())
+            TelemetryClient client = TelemetryClient.create(TelemetryConfig.builder("shop-ui").endpoint(server.endpoint())
                     .retryTimeout(Duration.ofSeconds(1))
                     .build());
             client.track("checkout-started");
@@ -34,7 +34,7 @@ class ShutdownFlushIT
     {
         TelemetryClient client;
         try (RecordingHttpServer server = RecordingHttpServer.createSuccessServer()) {
-            client = TelemetryClient.create(TelemetryConfig.builder("shop-ui", server.endpoint()).build());
+            client = TelemetryClient.create(TelemetryConfig.builder("shop-ui").endpoint(server.endpoint()).build());
             client.track("checkout-started");
             client.close();
         }

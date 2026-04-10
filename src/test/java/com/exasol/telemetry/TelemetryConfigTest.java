@@ -16,11 +16,11 @@ class TelemetryConfigTest
     @Test
     void usesDefaultsAndConfiguredValues()
     {
-        TelemetryConfig config = TelemetryConfig.builder("project", URI.create("https://example.com"))
+        TelemetryConfig config = TelemetryConfig.builder("project")
                 .build();
 
         assertEquals("project", config.getProjectTag());
-        assertEquals(URI.create("https://example.com"), config.getEndpoint());
+        assertEquals(TelemetryConfig.DEFAULT_ENDPOINT, config.getEndpoint());
         assertEquals(256, config.getQueueCapacity());
         assertEquals(Duration.ofSeconds(5), config.getRetryTimeout());
         assertFalse(config.isTrackingDisabled());
@@ -29,7 +29,7 @@ class TelemetryConfigTest
     @Test
     void usesEndpointOverrideAndDisableEnvironmentValues()
     {
-        TelemetryConfig config = TelemetryConfig.builder("project", URI.create("https://example.com"))
+        TelemetryConfig config = TelemetryConfig.builder("project").endpoint(URI.create("https://example.com"))
                 .environment(new MapTelemetryEnvironment(Map.of(
                         TelemetryConfig.ENDPOINT_ENV, "https://override.example.com",
                         TelemetryConfig.DISABLED_ENV, "yes")))
@@ -42,7 +42,7 @@ class TelemetryConfigTest
     @Test
     void disablesTrackingAutomaticallyInCi()
     {
-        TelemetryConfig config = TelemetryConfig.builder("project", URI.create("https://example.com"))
+        TelemetryConfig config = TelemetryConfig.builder("project").endpoint(URI.create("https://example.com"))
                 .environment(new MapTelemetryEnvironment(Map.of(TelemetryConfig.CI_ENV, "true")))
                 .build();
 
@@ -64,37 +64,37 @@ class TelemetryConfigTest
     void rejectsBlankProjectTag()
     {
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> TelemetryConfig.builder("  ", URI.create("https://example.com")).build());
+                () -> TelemetryConfig.builder("  ").build());
         assertTrue(exception.getMessage().contains("projectTag"));
     }
 
     @Test
-    void rejectsMissingEndpointWithoutOverride()
+    void usesDefaultEndpointWhenNoEndpointIsConfigured()
     {
-        NullPointerException exception = assertThrows(NullPointerException.class,
-                () -> TelemetryConfig.builder("project", null).build());
-        assertEquals("endpoint", exception.getMessage());
+        TelemetryConfig config = TelemetryConfig.builder("project").build();
+
+        assertEquals(TelemetryConfig.DEFAULT_ENDPOINT, config.getEndpoint());
     }
 
     @Test
     void rejectsNonPositiveNumbersAndDurations()
     {
-        assertThrows(IllegalArgumentException.class, () -> TelemetryConfig.builder("project", URI.create("https://example.com"))
+        assertThrows(IllegalArgumentException.class, () -> TelemetryConfig.builder("project").endpoint(URI.create("https://example.com"))
                 .queueCapacity(0)
                 .build());
-        assertThrows(IllegalArgumentException.class, () -> TelemetryConfig.builder("project", URI.create("https://example.com"))
+        assertThrows(IllegalArgumentException.class, () -> TelemetryConfig.builder("project").endpoint(URI.create("https://example.com"))
                 .retryTimeout(Duration.ZERO)
                 .build());
-        assertThrows(IllegalArgumentException.class, () -> TelemetryConfig.builder("project", URI.create("https://example.com"))
+        assertThrows(IllegalArgumentException.class, () -> TelemetryConfig.builder("project").endpoint(URI.create("https://example.com"))
                 .initialRetryDelay(Duration.ofMillis(-1))
                 .build());
-        assertThrows(IllegalArgumentException.class, () -> TelemetryConfig.builder("project", URI.create("https://example.com"))
+        assertThrows(IllegalArgumentException.class, () -> TelemetryConfig.builder("project").endpoint(URI.create("https://example.com"))
                 .maxRetryDelay(Duration.ZERO)
                 .build());
-        assertThrows(IllegalArgumentException.class, () -> TelemetryConfig.builder("project", URI.create("https://example.com"))
+        assertThrows(IllegalArgumentException.class, () -> TelemetryConfig.builder("project").endpoint(URI.create("https://example.com"))
                 .connectTimeout(Duration.ZERO)
                 .build());
-        assertThrows(IllegalArgumentException.class, () -> TelemetryConfig.builder("project", URI.create("https://example.com"))
+        assertThrows(IllegalArgumentException.class, () -> TelemetryConfig.builder("project").endpoint(URI.create("https://example.com"))
                 .requestTimeout(Duration.ZERO)
                 .build());
     }

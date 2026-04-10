@@ -8,6 +8,8 @@ The library is designed to send feature-usage events only. It does not collect l
 
 Messages sent to the server contain the protocol version, the message timestamp, and a `features` map from feature name to a list of usage timestamps.
 
+By default, the library sends telemetry to `https://metrics.exasol.com` unless the host application or environment overrides the endpoint.
+
 ## Opt-Out
 
 Host applications can disable telemetry globally by setting `EXASOL_TELEMETRY_DISABLE=true`.

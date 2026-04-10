@@ -20,7 +20,7 @@ class HttpTelemetryTransportTest
     {
         FakeHttpURLConnection connection = new FakeHttpURLConnection(202);
         HttpTelemetryTransport transport = new HttpTelemetryTransport(
-                TelemetryConfig.builder("project", URI.create("https://example.com")).build(),
+                TelemetryConfig.builder("project").endpoint(URI.create("https://example.com")).build(),
                 endpoint -> connection);
 
         transport.send(TelemetryMessage.fromEvents(java.util.List.of(new TelemetryEvent("project.feature", 10))));
@@ -36,7 +36,7 @@ class HttpTelemetryTransportTest
     {
         FakeHttpURLConnection connection = new FakeHttpURLConnection(500);
         HttpTelemetryTransport transport = new HttpTelemetryTransport(
-                TelemetryConfig.builder("project", URI.create("https://example.com")).build(),
+                TelemetryConfig.builder("project").endpoint(URI.create("https://example.com")).build(),
                 endpoint -> connection);
 
         IOException exception = assertThrows(IOException.class,

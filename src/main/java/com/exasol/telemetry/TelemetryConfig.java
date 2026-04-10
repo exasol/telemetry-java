@@ -9,6 +9,7 @@ public final class TelemetryConfig
     public static final String CI_ENV = "CI";
     public static final String DISABLED_ENV = "EXASOL_TELEMETRY_DISABLE";
     public static final String ENDPOINT_ENV = "EXASOL_TELEMETRY_ENDPOINT";
+    public static final URI DEFAULT_ENDPOINT = URI.create("https://metrics.exasol.com");
 
     private final String projectTag;
     private final URI endpoint;
@@ -35,9 +36,9 @@ public final class TelemetryConfig
         this.trackingDisabled = isDisabled(environment.getenv(DISABLED_ENV)) || isDisabled(environment.getenv(CI_ENV));
     }
 
-    public static Builder builder(String projectTag, URI endpoint)
+    public static Builder builder(String projectTag)
     {
-        return new Builder(projectTag, endpoint);
+        return new Builder(projectTag, null);
     }
 
     public String getProjectTag()
@@ -100,7 +101,7 @@ public final class TelemetryConfig
         if (override != null && !override.trim().isEmpty()) {
             return URI.create(override.trim());
         }
-        return Objects.requireNonNull(configuredEndpoint, "endpoint");
+        return configuredEndpoint != null ? configuredEndpoint : DEFAULT_ENDPOINT;
     }
 
     private static String requireText(String value, String field)
@@ -131,7 +132,7 @@ public final class TelemetryConfig
     public static final class Builder
     {
         private final String projectTag;
-        private final URI endpoint;
+        private URI endpoint;
         private int queueCapacity = 256;
         private Duration retryTimeout = Duration.ofSeconds(5);
         private Duration initialRetryDelay = Duration.ofMillis(100);
@@ -144,6 +145,12 @@ public final class TelemetryConfig
         {
             this.projectTag = projectTag;
             this.endpoint = endpoint;
+        }
+
+        public Builder endpoint(URI endpoint)
+        {
+            this.endpoint = endpoint;
+            return this;
         }
 
         public Builder queueCapacity(int queueCapacity)

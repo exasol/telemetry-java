@@ -16,7 +16,7 @@ class TrackingApiIT
     void recordsTaggedFeatureUsageEvent() throws Exception
     {
         try (RecordingHttpServer server = RecordingHttpServer.createSuccessServer();
-                TelemetryClient client = TelemetryClient.create(TelemetryConfig.builder("shop-ui", server.endpoint())
+                TelemetryClient client = TelemetryClient.create(TelemetryConfig.builder("shop-ui").endpoint(server.endpoint())
                         .retryTimeout(Duration.ofMillis(500))
                         .build())) {
             TrackingResult result = client.track("checkout-started");
@@ -35,7 +35,7 @@ class TrackingApiIT
     void rejectsUnsupportedUsagePayloads() throws Exception
     {
         try (RecordingHttpServer server = RecordingHttpServer.createSuccessServer();
-                TelemetryClient client = TelemetryClient.create(TelemetryConfig.builder("shop-ui", server.endpoint()).build())) {
+                TelemetryClient client = TelemetryClient.create(TelemetryConfig.builder("shop-ui").endpoint(server.endpoint()).build())) {
             TrackingResult result = client.track("checkout-started", Map.of("screen", "basket"));
 
             Thread.sleep(150);
