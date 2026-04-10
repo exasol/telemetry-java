@@ -47,4 +47,4 @@ Standard Maven commands are used:
 
 ## Project Workflow
 
-This project uses `speq` skills and recorded specs for mission definition, planning, implementation, verification, and recording into the permanent spec library.
+This project uses `speq-skill` and recorded specs for mission definition, planning, implementation, verification, and recording into the permanent spec library. See [speq-skill documentation](https://github.com/marconae/speq-skill?tab=readme-ov-file) for details.
