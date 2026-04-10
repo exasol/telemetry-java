@@ -3,21 +3,34 @@ package com.exasol.telemetry;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 
 final class HttpTelemetryTransport
 {
+    interface ConnectionFactory
+    {
+        HttpURLConnection openConnection(URI endpoint) throws IOException;
+    }
+
     private final TelemetryConfig config;
+    private final ConnectionFactory connectionFactory;
 
     HttpTelemetryTransport(TelemetryConfig config)
     {
+        this(config, endpoint -> (HttpURLConnection) endpoint.toURL().openConnection());
+    }
+
+    HttpTelemetryTransport(TelemetryConfig config, ConnectionFactory connectionFactory)
+    {
         this.config = config;
+        this.connectionFactory = connectionFactory;
     }
 
     void send(TelemetryMessage message)
             throws IOException
     {
-        HttpURLConnection connection = (HttpURLConnection) config.getEndpoint().toURL().openConnection();
+        HttpURLConnection connection = connectionFactory.openConnection(config.getEndpoint());
         connection.setRequestMethod("POST");
         connection.setDoOutput(true);
         connection.setConnectTimeout((int) config.getConnectTimeout().toMillis());
