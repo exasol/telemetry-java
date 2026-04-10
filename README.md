@@ -3,7 +3,7 @@
 `telemetry-java` is a minimal Java library for collecting feature-usage telemetry and sending it to a server over HTTP.
 
 [![Build Status](https://github.com/exasol/telemetry-java/actions/workflows/ci-build.yml/badge.svg)](https://github.com/exasol/telemetry-java/actions/workflows/ci-build.yml)
-[![Maven Central – telemetry-java](https://img.shields.io/maven-central/v/com.exasol/telemetry-java)](https://search.maven.org/artifact/com.exasol/telemetry-java)
+[![Maven Central &ndash; telemetry-java](https://img.shields.io/maven-central/v/com.exasol/telemetry-java)](https://search.maven.org/artifact/com.exasol/telemetry-java)
 
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=com.exasol%3Atelemetry-java&metric=alert_status)](https://sonarcloud.io/dashboard?id=com.exasol%3Atelemetry-java)
 
@@ -49,24 +49,24 @@ try (TelemetryClient client = TelemetryClient.create(config)) {
 
 ## Environment Variables
 
-- `EXASOL_TELEMETRY_DISABLE`
+* `EXASOL_TELEMETRY_DISABLE`
   Disables telemetry collection and delivery when set to `true`, `1`, `yes`, or `on`.
-- `EXASOL_TELEMETRY_ENDPOINT`
+* `EXASOL_TELEMETRY_ENDPOINT`
   Overrides the endpoint configured in code.
 
 The default endpoint is `https://metrics.exasol.com`.
 
 ## Documentation
 
-- [Developer Guide](doc/developer-guide.md)
-- [App User Guide](doc/app-user-guide.md)
-- [Mission](specs/mission.md)
-- [Dependencies](dependencies.md)
-- [Changelog](doc/changes/changelog.md)
+* [Developer Guide](doc/developer-guide.md)
+* [App User Guide](doc/app-user-guide.md)
+* [Mission](specs/mission.md)
+* [Dependencies](dependencies.md)
+* [Changelog](doc/changes/changelog.md)
 
 ## Specifications
 
-- [Tracking API](specs/tracking/tracking-api/spec.md)
-- [Async Delivery](specs/delivery/async-delivery/spec.md)
-- [Shutdown Flush](specs/lifecycle/shutdown-flush/spec.md)
-- [Tracking Controls](specs/config/tracking-controls/spec.md)
+* [Tracking API](specs/tracking/tracking-api/spec.md)
+* [Async Delivery](specs/delivery/async-delivery/spec.md)
+* [Shutdown Flush](specs/lifecycle/shutdown-flush/spec.md)
+* [Tracking Controls](specs/config/tracking-controls/spec.md)
