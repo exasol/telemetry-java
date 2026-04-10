@@ -1,0 +1,5 @@
+error-tags:
+  TELJ:
+    packages:
+      - com.exasol.telemetry
+    highest-index: 1
