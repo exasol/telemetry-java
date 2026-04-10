@@ -50,7 +50,7 @@ try (TelemetryClient client = TelemetryClient.create(config)) {
 ## Environment Variables
 
 * `EXASOL_TELEMETRY_DISABLE`
-  Disables telemetry collection and delivery when set to `true`, `1`, `yes`, or `on`.
+  Disables telemetry collection and delivery when set to any non-empty value.
 * `EXASOL_TELEMETRY_ENDPOINT`
   Overrides the endpoint configured in code.
 

@@ -24,3 +24,10 @@ Accepted telemetry events are serialized to JSON and delivered via HTTP `POST` t
 * *THEN* the library SHALL retry delivery using exponential backoff
 * *AND* the library SHALL stop retrying that event when the retry timeout is reached
 * *AND* the library MUST use bounded memory while retrying
+
+### Scenario: Batches multiple drained events into a single protocol message
+
+* *GIVEN* multiple accepted telemetry events are present when the background sender drains the queue
+* *WHEN* the background sender emits the next protocol message
+* *THEN* the library SHALL include the queued events in a single JSON payload
+* *AND* the library SHALL group timestamps by fully qualified feature name in the `features` map

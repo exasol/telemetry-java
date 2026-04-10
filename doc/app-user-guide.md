@@ -12,8 +12,8 @@ By default, the library sends telemetry to `https://metrics.exasol.com` unless t
 
 ## Opt-Out
 
-Host applications can disable telemetry globally by setting `EXASOL_TELEMETRY_DISABLE=true`.
+Host applications can disable telemetry globally by setting `EXASOL_TELEMETRY_DISABLE` to any non-empty value.
 
-Telemetry is also disabled automatically when `CI=true`, so CI and test environments do not emit usage data by default.
+Telemetry is also disabled automatically when `CI` is set to any non-empty value, so CI and test environments do not emit usage data by default.
 
 When telemetry is disabled, the library does not enqueue or send usage events.

@@ -23,3 +23,10 @@ The host application configures the library at startup with a project short tag.
 * *THEN* the library SHALL reject the event
 * *AND* the library MUST NOT enqueue the rejected payload for delivery
 * *AND* the library MUST NOT emit logs, stack traces, or PII in the protocol payload
+
+### Scenario: Rejects tracking after the client is closed
+
+* *GIVEN* the host application has closed the telemetry client
+* *WHEN* the host application records a feature-usage event
+* *THEN* the library SHALL report that the client is closed
+* *AND* the library MUST NOT enqueue the event for delivery

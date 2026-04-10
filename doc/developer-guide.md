@@ -22,20 +22,22 @@ try (TelemetryClient client = TelemetryClient.create(config)) {
 ## Environment Variables
 
 - `EXASOL_TELEMETRY_DISABLE`
-  Disables collection and delivery when set to `true`, `1`, `yes`, or `on`.
+  Disables collection and delivery when set to any non-empty value.
 - `EXASOL_TELEMETRY_ENDPOINT`
   Overrides the endpoint configured in code.
 - `CI`
-  Disables telemetry automatically when set to `true`, `1`, `yes`, or `on`.
+  Disables telemetry automatically when set to any non-empty value.
 
 ## Runtime Behavior
 
 - Tracking calls are non-blocking and enqueue events into a bounded in-memory queue.
 - Delivery happens on a background sender thread.
 - The JSON payload format matches the Python protocol shape: `version`, `timestamp`, and `features`.
+- Multiple queued events may be batched into a single payload, with timestamps grouped by fully qualified feature name.
 - The configured project short tag prefixes feature names in the payload, for example `shop-ui.checkout-started`.
 - Failed delivery uses exponential backoff and stops when the configured retry timeout is reached.
 - Closing `TelemetryClient` flushes pending work before returning and stops background threads.
+- Calling `track(...)` after `TelemetryClient` is closed returns `TrackingResult.CLOSED`.
 
 ## Build and Test
 

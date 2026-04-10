@@ -4,20 +4,20 @@ Allows host applications and deployment environments to disable tracking or redi
 
 ## Background
 
-Tracking can be deactivated by `EXASOL_TELEMETRY_DISABLE` or automatically by `CI=true`. If the host application does not configure an endpoint, the library uses `https://metrics.exasol.com`. The configured endpoint can be overridden by `EXASOL_TELEMETRY_ENDPOINT`.
+Tracking can be deactivated by `EXASOL_TELEMETRY_DISABLE` or automatically by `CI` when either environment variable is set to any non-empty value. If the host application does not configure an endpoint, the library uses `https://metrics.exasol.com`. The configured endpoint can be overridden by `EXASOL_TELEMETRY_ENDPOINT`.
 
 ## Scenarios
 
 ### Scenario: Disables tracking via environment variables
 
-* *GIVEN* the host environment sets tracking to disabled
+* *GIVEN* the host environment sets `EXASOL_TELEMETRY_DISABLE` to a non-empty value
 * *WHEN* the host application initializes the library and records feature usage
 * *THEN* the library SHALL disable telemetry collection and delivery
 * *AND* the library MUST NOT enqueue or send usage events while disabled
 
 ### Scenario: Disables tracking automatically in CI
 
-* *GIVEN* the host environment sets `CI=true`
+* *GIVEN* the host environment sets `CI` to a non-empty value
 * *WHEN* the host application initializes the library and records feature usage
 * *THEN* the library SHALL disable telemetry collection and delivery
 * *AND* the library MUST NOT enqueue or send usage events while disabled

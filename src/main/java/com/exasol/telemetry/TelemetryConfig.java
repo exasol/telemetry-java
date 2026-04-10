@@ -88,11 +88,7 @@ public final class TelemetryConfig
 
     static boolean isDisabled(String value)
     {
-        if (value == null) {
-            return false;
-        }
-        String normalized = value.trim().toLowerCase();
-        return normalized.equals("true") || normalized.equals("1") || normalized.equals("yes") || normalized.equals("on");
+        return value != null && !value.trim().isEmpty();
     }
 
     private static URI resolveEndpoint(URI configuredEndpoint, TelemetryEnvironment environment)
@@ -153,7 +149,7 @@ public final class TelemetryConfig
             return this;
         }
 
-        public Builder queueCapacity(int queueCapacity)
+        Builder queueCapacity(int queueCapacity)
         {
             this.queueCapacity = queueCapacity;
             return this;
@@ -165,25 +161,25 @@ public final class TelemetryConfig
             return this;
         }
 
-        public Builder initialRetryDelay(Duration initialRetryDelay)
+        Builder initialRetryDelay(Duration initialRetryDelay)
         {
             this.initialRetryDelay = initialRetryDelay;
             return this;
         }
 
-        public Builder maxRetryDelay(Duration maxRetryDelay)
+        Builder maxRetryDelay(Duration maxRetryDelay)
         {
             this.maxRetryDelay = maxRetryDelay;
             return this;
         }
 
-        public Builder connectTimeout(Duration connectTimeout)
+        Builder connectTimeout(Duration connectTimeout)
         {
             this.connectTimeout = connectTimeout;
             return this;
         }
 
-        public Builder requestTimeout(Duration requestTimeout)
+        Builder requestTimeout(Duration requestTimeout)
         {
             this.requestTimeout = requestTimeout;
             return this;
