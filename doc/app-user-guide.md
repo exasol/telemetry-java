@@ -17,3 +17,5 @@ Host applications can disable telemetry globally by setting `EXASOL_TELEMETRY_DI
 Telemetry is also disabled automatically when `CI` is set to any non-empty value, so CI and test environments do not emit usage data by default.
 
 When telemetry is disabled, the library does not enqueue or send usage events.
+
+The library also emits lifecycle log messages so users can see whether telemetry is enabled or disabled, when data is sent, and when telemetry stops.

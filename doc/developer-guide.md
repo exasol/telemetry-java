@@ -38,6 +38,7 @@ try (TelemetryClient client = TelemetryClient.create(config)) {
 - Failed delivery uses exponential backoff and stops when the configured retry timeout is reached.
 - Closing `TelemetryClient` flushes pending work before returning and stops background threads.
 - Calling `track(...)` after `TelemetryClient` is closed returns `TrackingResult.CLOSED`.
+- The client logs an `INFO` lifecycle message when telemetry is enabled or disabled, and debug-level lifecycle messages when telemetry sends data or stops.
 
 ## Build and Test
 

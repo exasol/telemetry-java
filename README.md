@@ -33,6 +33,7 @@ The project uses `speq` skills and recorded specs to drive planning, implementat
 - Exponential backoff with retry timeout
 - Clean shutdown via `AutoCloseable`
 - Environment-variable control for disabling telemetry and overriding the endpoint
+- Lifecycle log messages for enabled, disabled, sent-count, and stopped telemetry states
 - Zero runtime dependencies
 
 ## Quick Start

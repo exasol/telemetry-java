@@ -29,10 +29,12 @@ Application end users use the host application and, when they allow it, the appl
 
 The library does not collect:
 
-- logs
+- general-purpose diagnostic logs
 - stack traces
 - high-frequency data
 - numeric data
+
+Operational lifecycle logs that inform users when telemetry is enabled, disabled, sending data, or stopped are allowed.
 
 ## Technical Stack
 

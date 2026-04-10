@@ -12,6 +12,8 @@ public final class TelemetryConfig {
 
     private final String projectTag;
     private final URI endpoint;
+    private final String disabledEnvValue;
+    private final String ciEnvValue;
     private final int queueCapacity;
     private final Duration retryTimeout;
     private final Duration initialRetryDelay;
@@ -24,6 +26,8 @@ public final class TelemetryConfig {
     private TelemetryConfig(final Builder builder) {
         this.projectTag = requireText(builder.projectTag, "projectTag");
         this.environment = Objects.requireNonNull(builder.environment, "environment");
+        this.disabledEnvValue = environment.getenv(DISABLED_ENV);
+        this.ciEnvValue = environment.getenv(CI_ENV);
         this.endpoint = resolveEndpoint(builder.endpoint, environment);
         this.queueCapacity = positive(builder.queueCapacity, "queueCapacity");
         this.retryTimeout = positive(builder.retryTimeout, "retryTimeout");
@@ -31,7 +35,7 @@ public final class TelemetryConfig {
         this.maxRetryDelay = positive(builder.maxRetryDelay, "maxRetryDelay");
         this.connectTimeout = positive(builder.connectTimeout, "connectTimeout");
         this.requestTimeout = positive(builder.requestTimeout, "requestTimeout");
-        this.trackingDisabled = isDisabled(environment.getenv(DISABLED_ENV)) || isDisabled(environment.getenv(CI_ENV));
+        this.trackingDisabled = isDisabled(disabledEnvValue) || isDisabled(ciEnvValue);
     }
 
     public static Builder builder(final String projectTag) {
@@ -72,6 +76,34 @@ public final class TelemetryConfig {
 
     public boolean isTrackingDisabled() {
         return trackingDisabled;
+    }
+
+    String getDisabledEnvValue() {
+        return disabledEnvValue;
+    }
+
+    String getCiEnvValue() {
+        return ciEnvValue;
+    }
+
+    String getDisableMechanism() {
+        if (isDisabled(disabledEnvValue)) {
+            return DISABLED_ENV;
+        }
+        if (isDisabled(ciEnvValue)) {
+            return CI_ENV;
+        }
+        return null;
+    }
+
+    String getDisableMechanismValue() {
+        if (isDisabled(disabledEnvValue)) {
+            return disabledEnvValue;
+        }
+        if (isDisabled(ciEnvValue)) {
+            return ciEnvValue;
+        }
+        return null;
     }
 
     static boolean isDisabled(final String value) {

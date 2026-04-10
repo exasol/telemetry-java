@@ -4,8 +4,12 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public final class TelemetryClient implements AutoCloseable {
+    private static final Logger LOGGER = Logger.getLogger(TelemetryClient.class.getName());
+
     private final TelemetryConfig config;
     private final BlockingQueue<TelemetryEvent> queue;
     private final HttpTelemetryTransport transport;
@@ -21,8 +25,10 @@ public final class TelemetryClient implements AutoCloseable {
         this.senderThread.setDaemon(true);
         if (!config.isTrackingDisabled()) {
             this.senderThread.start();
+            logEnabled();
         } else {
             terminated.countDown();
+            logDisabled();
         }
     }
 
@@ -119,6 +125,7 @@ public final class TelemetryClient implements AutoCloseable {
         while (true) {
             try {
                 transport.send(message);
+                LOGGER.fine("Telemetry sent to the server with " + events.size() + " event(s).");
                 return;
             } catch (final Exception ignored) {
                 final Instant now = Instant.now();
@@ -165,5 +172,24 @@ public final class TelemetryClient implements AutoCloseable {
                 Thread.currentThread().interrupt();
             }
         }
+        LOGGER.fine("Telemetry is stopped.");
+    }
+
+    private void logEnabled() {
+        LOGGER.info("Telemetry is enabled. Set EXASOL_TELEMETRY_DISABLE to any non-empty value to disable telemetry. "
+                + TelemetryConfig.DISABLED_ENV + "=" + formatEnvValue(config.getDisabledEnvValue()) + ", "
+                + TelemetryConfig.CI_ENV + "=" + formatEnvValue(config.getCiEnvValue()) + ".");
+    }
+
+    private void logDisabled() {
+        LOGGER.info("Telemetry is disabled via " + config.getDisableMechanism() + "="
+                + formatEnvValue(config.getDisableMechanismValue()) + ".");
+    }
+
+    private static String formatEnvValue(final String value) {
+        if (value == null) {
+            return "<unset>";
+        }
+        return "'" + value + "'";
     }
 }
