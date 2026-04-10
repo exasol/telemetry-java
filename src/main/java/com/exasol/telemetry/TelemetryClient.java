@@ -2,7 +2,9 @@ package com.exasol.telemetry;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -12,10 +14,6 @@ import java.util.concurrent.TimeUnit;
 
 public final class TelemetryClient implements AutoCloseable
 {
-    private static final String FEATURE_KEY = "feature";
-    private static final String PROJECT_TAG_KEY = "projectTag";
-    private static final String ATTRIBUTES_KEY = "attributes";
-
     private final TelemetryConfig config;
     private final BlockingQueue<TelemetryEvent> queue;
     private final HttpTelemetryTransport transport;
@@ -59,11 +57,11 @@ public final class TelemetryClient implements AutoCloseable
 
         String sanitizedFeature = sanitizeText(feature);
         Map<String, String> sanitizedAttributes = sanitizeAttributes(attributes);
-        if (sanitizedFeature == null || sanitizedAttributes == null) {
+        if (sanitizedFeature == null || sanitizedAttributes == null || !sanitizedAttributes.isEmpty()) {
             return TrackingResult.REJECTED;
         }
 
-        TelemetryEvent event = new TelemetryEvent(config.getProjectTag(), sanitizedFeature, sanitizedAttributes);
+        TelemetryEvent event = new TelemetryEvent(namespacedFeature(sanitizedFeature), Instant.now().getEpochSecond());
         return queue.offer(event) ? TrackingResult.ACCEPTED : TrackingResult.REJECTED;
     }
 
@@ -76,7 +74,7 @@ public final class TelemetryClient implements AutoCloseable
         Map<String, String> sanitized = new LinkedHashMap<>();
         for (Map.Entry<String, ?> entry : attributes.entrySet()) {
             String key = sanitizeText(entry.getKey());
-            if (key == null || isReservedKey(key)) {
+            if (key == null) {
                 return null;
             }
 
@@ -94,9 +92,9 @@ public final class TelemetryClient implements AutoCloseable
         return sanitized;
     }
 
-    private boolean isReservedKey(String key)
+    private String namespacedFeature(String feature)
     {
-        return FEATURE_KEY.equals(key) || PROJECT_TAG_KEY.equals(key) || ATTRIBUTES_KEY.equals(key);
+        return config.getProjectTag() + "." + feature;
     }
 
     private String sanitizeText(String value)
@@ -113,7 +111,7 @@ public final class TelemetryClient implements AutoCloseable
             while (!closed || !queue.isEmpty()) {
                 TelemetryEvent event = queue.poll(100, TimeUnit.MILLISECONDS);
                 if (event != null) {
-                    sendWithRetry(event);
+                    sendWithRetry(drainBatch(event));
                 }
             }
         }
@@ -125,14 +123,23 @@ public final class TelemetryClient implements AutoCloseable
         }
     }
 
-    private void sendWithRetry(TelemetryEvent event)
+    private List<TelemetryEvent> drainBatch(TelemetryEvent firstEvent)
     {
+        List<TelemetryEvent> batch = new ArrayList<>();
+        batch.add(firstEvent);
+        queue.drainTo(batch);
+        return batch;
+    }
+
+    private void sendWithRetry(List<TelemetryEvent> events)
+    {
+        TelemetryMessage message = TelemetryMessage.fromEvents(events);
         Instant deadline = Instant.now().plus(config.getRetryTimeout());
         Duration delay = config.getInitialRetryDelay();
 
         while (true) {
             try {
-                transport.send(event);
+                transport.send(message);
                 return;
             }
             catch (Exception ignored) {

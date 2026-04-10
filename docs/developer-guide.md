@@ -11,7 +11,7 @@ TelemetryConfig config = TelemetryConfig.builder("shop-ui", URI.create("https://
         .build();
 
 try (TelemetryClient client = TelemetryClient.create(config)) {
-    client.track("checkout-started", Map.of("screen", "basket"));
+    client.track("checkout-started");
 }
 ```
 
@@ -31,5 +31,7 @@ try (TelemetryClient client = TelemetryClient.create(config)) {
 
 - Tracking calls are non-blocking and enqueue events into a bounded in-memory queue.
 - Delivery happens on a background sender thread.
+- The JSON payload format matches the Python protocol shape: `version`, `timestamp`, and `features`.
+- The configured project short tag prefixes feature names in the payload, for example `shop-ui.checkout-started`.
 - Failed delivery uses exponential backoff and stops when the configured retry timeout is reached.
 - Closing `TelemetryClient` flushes pending work before returning and stops background threads.

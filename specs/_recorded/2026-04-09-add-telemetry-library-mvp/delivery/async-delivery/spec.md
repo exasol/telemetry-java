@@ -4,7 +4,7 @@ Delivers accepted usage events to a configured HTTP endpoint without blocking th
 
 ## Background
 
-Accepted telemetry events are serialized to JSON and delivered via HTTP `POST` to a configured endpoint. The library uses bounded in-memory buffering and no persistent local storage.
+Accepted telemetry events are serialized to JSON and delivered via HTTP `POST` to a configured endpoint. The JSON payload contains `version`, `timestamp`, and `features` fields, and the library uses bounded in-memory buffering with no persistent local storage.
 
 ## Scenarios
 
@@ -13,7 +13,7 @@ Accepted telemetry events are serialized to JSON and delivered via HTTP `POST` t
 * *GIVEN* the library is configured with an endpoint
 * *AND* an accepted usage event is queued for delivery
 * *WHEN* the background sender processes the queue
-* *THEN* the library SHALL submit the event as JSON using HTTP `POST`
+* *THEN* the library SHALL submit a protocol message as JSON using HTTP `POST`
 * *AND* the library SHALL perform network delivery without blocking the calling thread
 
 ### Scenario: Retries failed delivery with exponential backoff until timeout

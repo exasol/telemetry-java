@@ -4,7 +4,7 @@ Enables host applications to record allowed feature-usage events with minimal in
 
 ## Background
 
-The host application configures the library at startup with a project short tag. Every accepted usage event includes that project short tag.
+The host application configures the library at startup with a project short tag. Every accepted usage event uses that project short tag to namespace the feature name in the telemetry protocol.
 
 ## Scenarios
 
@@ -12,14 +12,14 @@ The host application configures the library at startup with a project short tag.
 
 * *GIVEN* the library is configured with a project short tag
 * *AND* tracking is enabled
-* *WHEN* the host application records a feature-usage event with allowed string data
+* *WHEN* the host application records a feature-usage event
 * *THEN* the library SHALL accept the event for delivery
-* *AND* the library SHALL add the configured project short tag to the event payload
+* *AND* the library SHALL prefix the feature name with the configured project short tag in the emitted protocol payload
 
 ### Scenario: Rejects unsupported usage payloads
 
 * *GIVEN* the library is configured and tracking is enabled
-* *WHEN* the host application records usage data that contains numeric values or unsupported fields
+* *WHEN* the host application records usage data that contains unsupported fields
 * *THEN* the library SHALL reject the event
 * *AND* the library MUST NOT enqueue the rejected payload for delivery
-* *AND* the library MUST NOT emit logs, stack traces, or PII as telemetry fields
+* *AND* the library MUST NOT emit logs, stack traces, or PII in the protocol payload

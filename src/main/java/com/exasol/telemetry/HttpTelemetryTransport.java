@@ -14,7 +14,7 @@ final class HttpTelemetryTransport
         this.config = config;
     }
 
-    void send(TelemetryEvent event)
+    void send(TelemetryMessage message)
             throws IOException
     {
         HttpURLConnection connection = (HttpURLConnection) config.getEndpoint().toURL().openConnection();
@@ -24,7 +24,7 @@ final class HttpTelemetryTransport
         connection.setReadTimeout((int) config.getRequestTimeout().toMillis());
         connection.setRequestProperty("Content-Type", "application/json");
 
-        byte[] payload = event.toJson().getBytes(StandardCharsets.UTF_8);
+        byte[] payload = message.toJson().getBytes(StandardCharsets.UTF_8);
         try (OutputStream outputStream = connection.getOutputStream()) {
             outputStream.write(payload);
         }

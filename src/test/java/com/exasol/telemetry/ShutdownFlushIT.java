@@ -26,7 +26,7 @@ class ShutdownFlushIT
         }
 
         assertEquals(1, requests.size());
-        assertTrue(requests.get(0).body().contains("\"feature\":\"checkout-started\""));
+        assertTrue(requests.get(0).body().contains("\"features\":{\"shop-ui.checkout-started\":["));
     }
 
     @Test
