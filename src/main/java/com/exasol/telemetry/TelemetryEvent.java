@@ -1,12 +1,13 @@
 package com.exasol.telemetry;
 
+import java.time.Instant;
 import java.util.Objects;
 
 final class TelemetryEvent {
     private final String feature;
-    private final long timestamp;
+    private final Instant timestamp;
 
-    TelemetryEvent(final String feature, final long timestamp) {
+    TelemetryEvent(final String feature, final Instant timestamp) {
         this.feature = feature;
         this.timestamp = timestamp;
     }
@@ -15,7 +16,7 @@ final class TelemetryEvent {
         return feature;
     }
 
-    long getTimestamp() {
+    Instant getTimestamp() {
         return timestamp;
     }
 
@@ -28,7 +29,7 @@ final class TelemetryEvent {
             return false;
         }
         final TelemetryEvent that = (TelemetryEvent) other;
-        return timestamp == that.timestamp && Objects.equals(feature, that.feature);
+        return Objects.equals(feature, that.feature) && Objects.equals(timestamp, that.timestamp);
     }
 
     @Override

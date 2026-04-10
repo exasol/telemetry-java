@@ -7,6 +7,7 @@ import java.net.URI;
 import java.net.http.HttpRequest;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Flow;
@@ -21,7 +22,7 @@ class HttpTelemetryTransportTest {
                 TelemetryConfig.builder("project").endpoint(URI.create("https://example.com")).build(),
                 requestSender);
 
-        transport.send(TelemetryMessage.fromEvents(List.of(new TelemetryEvent("project.feature", 10))));
+        transport.send(TelemetryMessage.fromEvents(List.of(new TelemetryEvent("project.feature", Instant.ofEpochSecond(10)))));
 
         final HttpRequest request = requestSender.request;
         assertEquals("POST", request.method());
@@ -37,7 +38,7 @@ class HttpTelemetryTransportTest {
                 request -> 500);
 
         final IOException exception = assertThrows(IOException.class,
-                () -> transport.send(TelemetryMessage.fromEvents(List.of(new TelemetryEvent("project.feature", 10)))));
+                () -> transport.send(TelemetryMessage.fromEvents(List.of(new TelemetryEvent("project.feature", Instant.ofEpochSecond(10))))));
         assertTrue(exception.getMessage().contains("Unexpected response status"));
     }
 
@@ -50,7 +51,7 @@ class HttpTelemetryTransportTest {
                 });
 
         final IOException exception = assertThrows(IOException.class,
-                () -> transport.send(TelemetryMessage.fromEvents(List.of(new TelemetryEvent("project.feature", 10)))));
+                () -> transport.send(TelemetryMessage.fromEvents(List.of(new TelemetryEvent("project.feature", Instant.ofEpochSecond(10))))));
         assertTrue(exception.getMessage().contains("Interrupted while sending telemetry"));
         assertTrue(Thread.currentThread().isInterrupted());
         Thread.interrupted();

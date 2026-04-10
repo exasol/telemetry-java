@@ -48,7 +48,7 @@ public final class TelemetryClient implements AutoCloseable {
             return TrackingResult.REJECTED;
         }
 
-        final TelemetryEvent event = new TelemetryEvent(namespacedFeature(sanitizedFeature), Instant.now().getEpochSecond());
+        final TelemetryEvent event = new TelemetryEvent(namespacedFeature(sanitizedFeature), Instant.now());
         return queue.offer(event) ? TrackingResult.ACCEPTED : TrackingResult.REJECTED;
     }
 

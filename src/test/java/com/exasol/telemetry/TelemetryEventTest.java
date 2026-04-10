@@ -2,6 +2,8 @@ package com.exasol.telemetry;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.time.Instant;
+
 import org.junit.jupiter.api.Test;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
@@ -14,9 +16,10 @@ class TelemetryEventTest {
 
     @Test
     void exposesFeatureAndTimestamp() {
-        final TelemetryEvent event = new TelemetryEvent("project.feature", 42L);
+        final Instant timestamp = Instant.ofEpochSecond(42);
+        final TelemetryEvent event = new TelemetryEvent("project.feature", timestamp);
 
         assertEquals("project.feature", event.getFeature());
-        assertEquals(42L, event.getTimestamp());
+        assertEquals(timestamp, event.getTimestamp());
     }
 }

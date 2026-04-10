@@ -2,6 +2,7 @@ package com.exasol.telemetry;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.time.Instant;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -17,9 +18,9 @@ class TelemetryMessageTest {
     @Test
     void groupsEventsByFeatureAndSerializesProtocolShape() {
         final TelemetryMessage message = TelemetryMessage.fromEvents(List.of(
-                new TelemetryEvent("project.a", 10),
-                new TelemetryEvent("project.a", 20),
-                new TelemetryEvent("project.b", 30)));
+                new TelemetryEvent("project.a", Instant.ofEpochSecond(10)),
+                new TelemetryEvent("project.a", Instant.ofEpochSecond(20)),
+                new TelemetryEvent("project.b", Instant.ofEpochSecond(30))));
 
         final String json = message.toJson();
 
@@ -31,7 +32,7 @@ class TelemetryMessageTest {
     @Test
     void escapesFeatureNamesInJson() {
         final TelemetryMessage message = TelemetryMessage.fromEvents(List.of(
-                new TelemetryEvent("proj.\"x\"\n\t\\", 10)));
+                new TelemetryEvent("proj.\"x\"\n\t\\", Instant.ofEpochSecond(10))));
 
         final String json = message.toJson();
 
