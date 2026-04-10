@@ -3,11 +3,12 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.exasol</groupId>
     <artifactId>telemetry-java</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>0.1.0</version>
     <name>telemetry-java</name>
     <description>Minimal, zero-dependency telemetry library for Java applications.</description>
     <url>https://github.com/exasol/telemetry-java/</url>
     <properties>
+        <java.version>11</java.version>
         <junit.jupiter.version>5.13.4</junit.jupiter.version>
     </properties>
     <dependencies>
@@ -45,7 +46,7 @@
     <parent>
         <artifactId>telemetry-java-generated-parent</artifactId>
         <groupId>com.exasol</groupId>
-        <version>0.1.0-SNAPSHOT</version>
+        <version>0.1.0</version>
         <relativePath>pk_generated_parent.pom</relativePath>
     </parent>
 </project>
