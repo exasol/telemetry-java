@@ -40,6 +40,16 @@ class TelemetryConfigTest
     }
 
     @Test
+    void disablesTrackingAutomaticallyInCi()
+    {
+        TelemetryConfig config = TelemetryConfig.builder("project", URI.create("https://example.com"))
+                .environment(new MapTelemetryEnvironment(Map.of(TelemetryConfig.CI_ENV, "true")))
+                .build();
+
+        assertTrue(config.isTrackingDisabled());
+    }
+
+    @Test
     void detectsEnabledAndDisabledEnvironmentVariants()
     {
         assertFalse(TelemetryConfig.isDisabled(null));

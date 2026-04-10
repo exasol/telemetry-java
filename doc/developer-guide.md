@@ -26,6 +26,8 @@ try (TelemetryClient client = TelemetryClient.create(config)) {
   Disables collection and delivery when set to `true`, `1`, `yes`, or `on`.
 - `EXASOL_TELEMETRY_ENDPOINT`
   Overrides the endpoint configured in code.
+- `CI`
+  Disables telemetry automatically when set to `true`, `1`, `yes`, or `on`.
 
 ## Runtime Behavior
 

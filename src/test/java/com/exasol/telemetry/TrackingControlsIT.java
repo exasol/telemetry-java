@@ -25,6 +25,21 @@ class TrackingControlsIT
     }
 
     @Test
+    void disablesTrackingAutomaticallyWhenCiIsTrue() throws Exception
+    {
+        try (RecordingHttpServer server = RecordingHttpServer.createSuccessServer();
+                TelemetryClient client = TelemetryClient.create(TelemetryConfig.builder("shop-ui", server.endpoint())
+                        .environment(new MapTelemetryEnvironment(Map.of(TelemetryConfig.CI_ENV, "true")))
+                        .build())) {
+            TrackingResult result = client.track("checkout-started");
+
+            Thread.sleep(150);
+            assertEquals(TrackingResult.DISABLED, result);
+            assertEquals(0, server.awaitRequests(1, Duration.ofMillis(150)).size());
+        }
+    }
+
+    @Test
     void overridesConfiguredEndpointViaEnvironmentVariable() throws Exception
     {
         try (RecordingHttpServer configuredServer = RecordingHttpServer.createSuccessServer();

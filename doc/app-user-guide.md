@@ -12,4 +12,6 @@ Messages sent to the server contain the protocol version, the message timestamp,
 
 Host applications can disable telemetry globally by setting `EXASOL_TELEMETRY_DISABLE=true`.
 
+Telemetry is also disabled automatically when `CI=true`, so CI and test environments do not emit usage data by default.
+
 When telemetry is disabled, the library does not enqueue or send usage events.

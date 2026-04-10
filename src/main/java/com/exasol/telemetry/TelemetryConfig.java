@@ -6,6 +6,7 @@ import java.util.Objects;
 
 public final class TelemetryConfig
 {
+    public static final String CI_ENV = "CI";
     public static final String DISABLED_ENV = "EXASOL_TELEMETRY_DISABLE";
     public static final String ENDPOINT_ENV = "EXASOL_TELEMETRY_ENDPOINT";
 
@@ -31,7 +32,7 @@ public final class TelemetryConfig
         this.maxRetryDelay = positive(builder.maxRetryDelay, "maxRetryDelay");
         this.connectTimeout = positive(builder.connectTimeout, "connectTimeout");
         this.requestTimeout = positive(builder.requestTimeout, "requestTimeout");
-        this.trackingDisabled = isDisabled(environment.getenv(DISABLED_ENV));
+        this.trackingDisabled = isDisabled(environment.getenv(DISABLED_ENV)) || isDisabled(environment.getenv(CI_ENV));
     }
 
     public static Builder builder(String projectTag, URI endpoint)
