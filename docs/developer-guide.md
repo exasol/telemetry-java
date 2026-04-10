@@ -35,3 +35,15 @@ try (TelemetryClient client = TelemetryClient.create(config)) {
 - The configured project short tag prefixes feature names in the payload, for example `shop-ui.checkout-started`.
 - Failed delivery uses exponential backoff and stops when the configured retry timeout is reached.
 - Closing `TelemetryClient` flushes pending work before returning and stops background threads.
+
+## Build and Test
+
+Standard Maven commands are used:
+
+- `mvn test`
+- `mvn verify`
+- `mvn package`
+
+## Project Workflow
+
+This project uses `speq` skills and recorded specs for mission definition, planning, implementation, verification, and recording into the permanent spec library.
