@@ -43,6 +43,12 @@ final class RecordingHttpServer implements AutoCloseable {
         return new RecordingHttpServer(failuresBeforeSuccess, 0);
     }
 
+    TelemetryConfig.Builder configBuilder(final String projectTag) {
+        return TelemetryConfig.builder(projectTag)
+                .endpoint(endpoint())
+                .environment(MapEnvironment.empty());
+    }
+
     URI endpoint() {
         return URI.create("http://localhost:" + server.getAddress().getPort() + "/telemetry");
     }

@@ -14,7 +14,7 @@ class TelemetryConfigTest {
     @Test
     void usesDefaultsAndConfiguredValues() {
         final TelemetryConfig config = TelemetryConfig.builder("project")
-                .environment(new MapEnvironment(Map.of()))
+                .environment(MapEnvironment.empty())
                 .build();
 
         assertEquals("project", config.getProjectTag());

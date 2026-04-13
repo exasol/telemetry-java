@@ -14,7 +14,7 @@ class AsyncDeliveryIT {
     @Test
     void sendsQueuedEventsAsynchronouslyOverHttp() throws Exception {
         try (RecordingHttpServer server = RecordingHttpServer.createDelayedSuccessServer(300);
-                TelemetryClient client = TelemetryClient.create(TelemetryConfig.builder("shop-ui").endpoint(server.endpoint())
+                TelemetryClient client = TelemetryClient.create(server.configBuilder("shop-ui")
                         .retryTimeout(Duration.ofMillis(500))
                         .build())) {
             final long start = System.nanoTime();
@@ -30,7 +30,7 @@ class AsyncDeliveryIT {
     @Test
     void retriesFailedDeliveryWithExponentialBackoffUntilTimeout() throws Exception {
         try (RecordingHttpServer server = RecordingHttpServer.createFlakyServer(2);
-                TelemetryClient client = TelemetryClient.create(TelemetryConfig.builder("shop-ui").endpoint(server.endpoint())
+                TelemetryClient client = TelemetryClient.create(server.configBuilder("shop-ui")
                         .retryTimeout(Duration.ofSeconds(1))
                         .initialRetryDelay(Duration.ofMillis(50))
                         .maxRetryDelay(Duration.ofMillis(200))
@@ -44,7 +44,7 @@ class AsyncDeliveryIT {
         }
 
         try (RecordingHttpServer server = RecordingHttpServer.createFlakyServer(Integer.MAX_VALUE)) {
-            final TelemetryClient client = TelemetryClient.create(TelemetryConfig.builder("shop-ui").endpoint(server.endpoint())
+            final TelemetryClient client = TelemetryClient.create(server.configBuilder("shop-ui")
                     .retryTimeout(Duration.ofMillis(220))
                     .initialRetryDelay(Duration.ofMillis(20))
                     .maxRetryDelay(Duration.ofMillis(80))

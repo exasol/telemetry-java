@@ -9,6 +9,10 @@ final class MapEnvironment implements Environment {
         this.values = values;
     }
 
+    static Environment empty() {
+        return new MapEnvironment(Map.of());
+    }
+
     @Override
     public String getenv(final String name) {
         return values.get(name);

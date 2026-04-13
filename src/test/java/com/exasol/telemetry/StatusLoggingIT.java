@@ -20,9 +20,7 @@ class StatusLoggingIT {
     void logsWhenTelemetryIsEnabled() throws Exception {
         try (LogCapture capture = new LogCapture(CAPTURED_LOGGER);
                 RecordingHttpServer server = RecordingHttpServer.createSuccessServer();
-                TelemetryClient client = TelemetryClient.create(TelemetryConfig.builder("shop-ui").endpoint(server.endpoint())
-                        .environment(new MapEnvironment(Map.of()))
-                        .build())) {
+                TelemetryClient client = TelemetryClient.create(server.configBuilder("shop-ui").build())) {
             final LogRecord enabledRecord = capture.await(logRecord -> logRecord.getLevel() == Level.INFO
                     && logRecord.getMessage().contains("Telemetry is enabled"), Duration.ofSeconds(1));
 
@@ -37,7 +35,7 @@ class StatusLoggingIT {
     void logsWhenTelemetryIsDisabledWithMechanism() throws Exception {
         try (LogCapture capture = new LogCapture(CAPTURED_LOGGER);
                 RecordingHttpServer server = RecordingHttpServer.createSuccessServer();
-                TelemetryClient client = TelemetryClient.create(TelemetryConfig.builder("shop-ui").endpoint(server.endpoint())
+                TelemetryClient client = TelemetryClient.create(server.configBuilder("shop-ui")
                         .environment(new MapEnvironment(Map.of(TelemetryConfig.DISABLED_ENV, "disabled")))
                         .build())) {
             client.track("checkout-started");
@@ -49,7 +47,7 @@ class StatusLoggingIT {
 
         try (LogCapture capture = new LogCapture(CAPTURED_LOGGER);
                 RecordingHttpServer server = RecordingHttpServer.createSuccessServer();
-                TelemetryClient client = TelemetryClient.create(TelemetryConfig.builder("shop-ui").endpoint(server.endpoint())
+                TelemetryClient client = TelemetryClient.create(server.configBuilder("shop-ui")
                         .environment(new MapEnvironment(Map.of(TelemetryConfig.CI_ENV, "github-actions")))
                         .build())) {
             final LogRecord ciRecord = capture.await(record -> record.getLevel() == Level.INFO
@@ -64,8 +62,7 @@ class StatusLoggingIT {
     void logsSentMessageCount() throws Exception {
         try (LogCapture capture = new LogCapture(CAPTURED_LOGGER);
                 RecordingHttpServer server = RecordingHttpServer.createSuccessServer()) {
-            final TelemetryClient client = TelemetryClient.create(TelemetryConfig.builder("shop-ui").endpoint(server.endpoint())
-                    .environment(new MapEnvironment(Map.of()))
+            final TelemetryClient client = TelemetryClient.create(server.configBuilder("shop-ui")
                     .build());
             try {
                 client.track("checkout-started");
@@ -84,11 +81,10 @@ class StatusLoggingIT {
     void logsWhenTelemetrySendingFails() throws Exception {
         try (LogCapture capture = new LogCapture(CAPTURED_LOGGER);
                 RecordingHttpServer server = RecordingHttpServer.createFlakyServer(1)) {
-            final TelemetryClient client = TelemetryClient.create(TelemetryConfig.builder("shop-ui").endpoint(server.endpoint())
+            final TelemetryClient client = TelemetryClient.create(server.configBuilder("shop-ui")
                     .retryTimeout(Duration.ofMillis(500))
                     .initialRetryDelay(Duration.ofMillis(25))
                     .maxRetryDelay(Duration.ofMillis(25))
-                    .environment(new MapEnvironment(Map.of()))
                     .build());
             try {
                 client.track("checkout-started");
@@ -110,9 +106,7 @@ class StatusLoggingIT {
     void logsWhenTelemetryStops() throws Exception {
         try (LogCapture capture = new LogCapture(CAPTURED_LOGGER);
                 RecordingHttpServer server = RecordingHttpServer.createSuccessServer()) {
-            final TelemetryClient client = TelemetryClient.create(TelemetryConfig.builder("shop-ui").endpoint(server.endpoint())
-                    .environment(new MapEnvironment(Map.of()))
-                    .build());
+            final TelemetryClient client = TelemetryClient.create(server.configBuilder("shop-ui").build());
             try {
                 client.close();
 

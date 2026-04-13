@@ -12,7 +12,7 @@ class ShutdownFlushIT {
     void flushesPendingEventsOnClose() throws Exception {
         final List<RecordingHttpServer.RecordedRequest> requests;
         try (RecordingHttpServer server = RecordingHttpServer.createDelayedSuccessServer(150)) {
-            final TelemetryClient client = TelemetryClient.create(TelemetryConfig.builder("shop-ui").endpoint(server.endpoint())
+            final TelemetryClient client = TelemetryClient.create(server.configBuilder("shop-ui")
                     .retryTimeout(Duration.ofSeconds(1))
                     .build());
             client.track("checkout-started");
@@ -29,7 +29,7 @@ class ShutdownFlushIT {
     void stopsBackgroundThreadsAfterClose() throws Exception {
         final TelemetryClient client;
         try (RecordingHttpServer server = RecordingHttpServer.createSuccessServer()) {
-            client = TelemetryClient.create(TelemetryConfig.builder("shop-ui").endpoint(server.endpoint()).build());
+            client = TelemetryClient.create(server.configBuilder("shop-ui").build());
             client.track("checkout-started");
             client.close();
         }

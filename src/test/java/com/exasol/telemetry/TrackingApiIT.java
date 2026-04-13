@@ -11,7 +11,7 @@ class TrackingApiIT {
     @Test
     void recordsTaggedFeatureUsageEvent() throws Exception {
         try (RecordingHttpServer server = RecordingHttpServer.createSuccessServer();
-                TelemetryClient client = TelemetryClient.create(TelemetryConfig.builder("shop-ui").endpoint(server.endpoint())
+                TelemetryClient client = TelemetryClient.create(server.configBuilder("shop-ui")
                         .retryTimeout(Duration.ofMillis(500))
                         .build())) {
             client.track("checkout-started");
@@ -28,7 +28,7 @@ class TrackingApiIT {
     @Test
     void ignoresInvalidFeatureNames() throws Exception {
         try (RecordingHttpServer server = RecordingHttpServer.createSuccessServer();
-                TelemetryClient client = TelemetryClient.create(TelemetryConfig.builder("shop-ui").endpoint(server.endpoint()).build())) {
+                TelemetryClient client = TelemetryClient.create(server.configBuilder("shop-ui").build())) {
             client.track(" ");
 
             Thread.sleep(150);
