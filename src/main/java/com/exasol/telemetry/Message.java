@@ -1,5 +1,7 @@
 package com.exasol.telemetry;
 
+import static java.util.Objects.requireNonNull;
+
 import java.time.Instant;
 import java.util.*;
 
@@ -10,17 +12,16 @@ final class Message {
     private final Map<String, List<Instant>> features;
 
     private Message(final Instant timestamp, final Map<String, List<Instant>> features) {
-        this.timestamp = timestamp;
-        this.features = features;
+        this.timestamp = requireNonNull(timestamp, "timestamp");
+        this.features = requireNonNull(features, "features");
     }
 
-    static Message fromEvents(final List<TelemetryEvent> events) {
+    static Message fromEvents(final Instant timestamp, final List<TelemetryEvent> events) {
         final Map<String, List<Instant>> features = new LinkedHashMap<>();
         for (final TelemetryEvent event : events) {
             features.computeIfAbsent(event.getFeature(), ignored -> new ArrayList<>()).add(event.getTimestamp());
         }
-        // TODO: get clock or timestamp injected
-        return new Message(Instant.now(), features);
+        return new Message(timestamp, features);
     }
 
     String toJson() {

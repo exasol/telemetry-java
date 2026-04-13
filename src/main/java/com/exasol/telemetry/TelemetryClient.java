@@ -1,7 +1,8 @@
 package com.exasol.telemetry;
 
-import java.time.Duration;
-import java.time.Instant;
+import static java.util.Objects.requireNonNull;
+
+import java.time.*;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.logging.Logger;
@@ -18,11 +19,17 @@ public final class TelemetryClient implements AutoCloseable {
     private final BlockingQueue<TelemetryEvent> queue;
     private final HttpTransport transport;
     private final Thread senderThread;
+    private final Clock clock;
     private final CountDownLatch terminated = new CountDownLatch(1);
     private volatile boolean closed;
 
     private TelemetryClient(final TelemetryConfig config) {
-        this.config = config;
+        this(config, Clock.systemUTC());
+    }
+
+    TelemetryClient(final TelemetryConfig config, final Clock clock) {
+        this.config = requireNonNull(config, "config");
+        this.clock = requireNonNull(clock, "clock");
         this.queue = new ArrayBlockingQueue<>(config.getQueueCapacity());
         this.transport = new HttpTransport(config);
         this.senderThread = new Thread(this::runSender, "telemetry-java-sender");
@@ -65,8 +72,7 @@ public final class TelemetryClient implements AutoCloseable {
             return;
         }
 
-        // TODO: get clock injected
-        final TelemetryEvent event = new TelemetryEvent(namespacedFeature(sanitizedFeature), Instant.now());
+        final TelemetryEvent event = new TelemetryEvent(namespacedFeature(sanitizedFeature), clock.instant());
         enqueue(event);
     }
 
@@ -109,9 +115,9 @@ public final class TelemetryClient implements AutoCloseable {
     }
 
     private void sendWithRetry(final List<TelemetryEvent> events) {
-        final Message message = Message.fromEvents(events);
-        // Todo: get clock injected
-        final Instant deadline = Instant.now().plus(config.getRetryTimeout());
+        final Instant start = clock.instant();
+        final Message message = Message.fromEvents(start, events);
+        final Instant deadline = start.plus(config.getRetryTimeout());
         Duration delay = config.getInitialRetryDelay();
 
         while (true) {
@@ -122,7 +128,7 @@ public final class TelemetryClient implements AutoCloseable {
             } catch (final Exception exception) {
                 LOGGER.fine("Telemetry sending failed for " + events.size() + " event(s): "
                         + rootCauseMessage(exception));
-                final Instant now = Instant.now();
+                final Instant now = clock.instant();
                 if (!now.isBefore(deadline)) {
                     return;
                 }

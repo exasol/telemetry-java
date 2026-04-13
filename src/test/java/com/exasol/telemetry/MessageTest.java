@@ -17,7 +17,7 @@ class MessageTest {
 
     @Test
     void groupsEventsByFeatureAndSerializesProtocolShape() {
-        final Message message = Message.fromEvents(List.of(
+        final Message message = Message.fromEvents(Instant.ofEpochSecond(30), List.of(
                 new TelemetryEvent("project.a", Instant.ofEpochSecond(10)),
                 new TelemetryEvent("project.a", Instant.ofEpochSecond(20)),
                 new TelemetryEvent("project.b", Instant.ofEpochSecond(30))));
@@ -31,7 +31,7 @@ class MessageTest {
 
     @Test
     void escapesFeatureNamesInJson() {
-        final Message message = Message.fromEvents(List.of(
+        final Message message = Message.fromEvents(Instant.ofEpochSecond(30), List.of(
                 new TelemetryEvent("proj.\"x\"\n\t\\", Instant.ofEpochSecond(10))));
 
         final String json = message.toJson();
@@ -41,7 +41,7 @@ class MessageTest {
 
     @Test
     void serializesEmptyFeatureCollection() {
-        final Message message = Message.fromEvents(List.of());
+        final Message message = Message.fromEvents(Instant.ofEpochSecond(30), List.of());
 
         assertTrue(message.toJson().contains("\"features\":{}"));
     }

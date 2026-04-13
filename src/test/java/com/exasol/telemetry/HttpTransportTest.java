@@ -22,7 +22,7 @@ class HttpTransportTest {
                 TelemetryConfig.builder("project").endpoint(URI.create("https://example.com")).build(),
                 requestSender);
 
-        transport.send(Message.fromEvents(List.of(new TelemetryEvent("project.feature", Instant.ofEpochSecond(10)))));
+        transport.send(Message.fromEvents(Instant.ofEpochMilli(30), List.of(new TelemetryEvent("project.feature", Instant.ofEpochSecond(10)))));
 
         final HttpRequest request = requestSender.request;
         assertEquals("POST", request.method());
@@ -38,7 +38,7 @@ class HttpTransportTest {
                 request -> new HttpTransport.Response(500, "server says no"));
 
         final HttpException exception = assertThrows(HttpException.class,
-                () -> transport.send(Message.fromEvents(List.of(new TelemetryEvent("project.feature", Instant.ofEpochSecond(10))))));
+                () -> transport.send(Message.fromEvents(Instant.ofEpochSecond(30), List.of(new TelemetryEvent("project.feature", Instant.ofEpochSecond(10))))));
         assertEquals(500, exception.getStatusCode());
         assertEquals("server says no", exception.getServerStatus());
         assertEquals("server says no", exception.getMessage());
@@ -53,7 +53,7 @@ class HttpTransportTest {
                 });
 
         final IOException exception = assertThrows(IOException.class,
-                () -> transport.send(Message.fromEvents(List.of(new TelemetryEvent("project.feature", Instant.ofEpochSecond(10))))));
+                () -> transport.send(Message.fromEvents(Instant.ofEpochSecond(30), List.of(new TelemetryEvent("project.feature", Instant.ofEpochSecond(10))))));
         assertTrue(exception.getMessage().contains("Interrupted while sending telemetry"));
         assertTrue(Thread.currentThread().isInterrupted());
         Thread.interrupted();

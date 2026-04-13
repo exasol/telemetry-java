@@ -1,5 +1,7 @@
 package com.exasol.telemetry;
 
+import static java.util.Objects.requireNonNull;
+
 import java.net.URI;
 import java.time.Duration;
 import java.util.Objects;
@@ -40,7 +42,7 @@ public final class TelemetryConfig {
 
     private TelemetryConfig(final Builder builder) {
         this.projectTag = requireText(builder.projectTag, "projectTag");
-        this.environment = Objects.requireNonNull(builder.environment, "environment");
+        this.environment = requireNonNull(builder.environment, "environment");
         this.disabledEnvValue = environment.getenv(DISABLED_ENV);
         this.ciEnvValue = environment.getenv(CI_ENV);
         this.endpoint = resolveEndpoint(builder.endpoint, environment);

@@ -1,5 +1,7 @@
 package com.exasol.telemetry;
 
+import static java.util.Objects.requireNonNull;
+
 import java.time.Instant;
 import java.util.Objects;
 
@@ -8,8 +10,8 @@ final class TelemetryEvent {
     private final Instant timestamp;
 
     TelemetryEvent(final String feature, final Instant timestamp) {
-        this.feature = feature;
-        this.timestamp = timestamp;
+        this.feature = requireNonNull(feature, "feature");
+        this.timestamp = requireNonNull(timestamp, "timestamp");
     }
 
     String getFeature() {
