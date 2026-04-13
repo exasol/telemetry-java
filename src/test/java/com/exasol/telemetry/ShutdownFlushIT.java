@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 class ShutdownFlushIT {
     @Test
     void flushesPendingEventsOnClose() throws Exception {
-        List<RecordingHttpServer.RecordedRequest> requests;
+        final List<RecordingHttpServer.RecordedRequest> requests;
         try (RecordingHttpServer server = RecordingHttpServer.createDelayedSuccessServer(150)) {
             final TelemetryClient client = TelemetryClient.create(TelemetryConfig.builder("shop-ui").endpoint(server.endpoint())
                     .retryTimeout(Duration.ofSeconds(1))
@@ -27,7 +27,7 @@ class ShutdownFlushIT {
 
     @Test
     void stopsBackgroundThreadsAfterClose() throws Exception {
-        TelemetryClient client;
+        final TelemetryClient client;
         try (RecordingHttpServer server = RecordingHttpServer.createSuccessServer()) {
             client = TelemetryClient.create(TelemetryConfig.builder("shop-ui").endpoint(server.endpoint()).build());
             client.track("checkout-started");

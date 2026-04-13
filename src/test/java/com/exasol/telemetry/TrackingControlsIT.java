@@ -12,7 +12,7 @@ class TrackingControlsIT {
     void disablesTrackingViaEnvironmentVariables() throws Exception {
         try (RecordingHttpServer server = RecordingHttpServer.createSuccessServer();
                 TelemetryClient client = TelemetryClient.create(TelemetryConfig.builder("shop-ui").endpoint(server.endpoint())
-                        .environment(new MapTelemetryEnvironment(Map.of(TelemetryConfig.DISABLED_ENV, "disabled")))
+                        .environment(new MapEnvironment(Map.of(TelemetryConfig.DISABLED_ENV, "disabled")))
                         .build())) {
             client.track("checkout-started");
 
@@ -25,7 +25,7 @@ class TrackingControlsIT {
     void disablesTrackingAutomaticallyWhenCiIsNonEmpty() throws Exception {
         try (RecordingHttpServer server = RecordingHttpServer.createSuccessServer();
                 TelemetryClient client = TelemetryClient.create(TelemetryConfig.builder("shop-ui").endpoint(server.endpoint())
-                        .environment(new MapTelemetryEnvironment(Map.of(TelemetryConfig.CI_ENV, "github-actions")))
+                        .environment(new MapEnvironment(Map.of(TelemetryConfig.CI_ENV, "github-actions")))
                         .build())) {
             client.track("checkout-started");
 
@@ -39,7 +39,7 @@ class TrackingControlsIT {
         try (RecordingHttpServer configuredServer = RecordingHttpServer.createSuccessServer();
                 RecordingHttpServer overrideServer = RecordingHttpServer.createSuccessServer();
                 TelemetryClient client = TelemetryClient.create(TelemetryConfig.builder("shop-ui").endpoint(configuredServer.endpoint())
-                        .environment(new MapTelemetryEnvironment(Map.of(TelemetryConfig.ENDPOINT_ENV, overrideServer.endpoint().toString())))
+                        .environment(new MapEnvironment(Map.of(TelemetryConfig.ENDPOINT_ENV, overrideServer.endpoint().toString())))
                         .build())) {
             client.track("checkout-started");
 

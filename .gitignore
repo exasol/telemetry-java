@@ -22,5 +22,7 @@ pom.xml.versionsBackup
 *.old
 *.md.html
 *.flattened-pom.xml
-.settings/org.eclipse.jdt.apt.core.prefs
-.settings/org.eclipse.core.resources.prefs
+/.settings/org.eclipse.jdt.apt.core.prefs
+/.settings/org.eclipse.core.resources.prefs
+/.settings/org.eclipse.m2e.core.prefs
+/.serena/

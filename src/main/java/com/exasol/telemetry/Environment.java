@@ -1,9 +1,10 @@
 package com.exasol.telemetry;
 
-interface TelemetryEnvironment {
+interface Environment {
     String getenv(String name);
 
-    final class SystemEnvironment implements TelemetryEnvironment {
+    @SuppressWarnings("java:S6548") // It's OK to use a singleton here
+    final class SystemEnvironment implements Environment {
         static final SystemEnvironment INSTANCE = new SystemEnvironment();
 
         private SystemEnvironment() {

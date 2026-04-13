@@ -9,15 +9,15 @@ import org.junit.jupiter.api.Test;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
 
-class TelemetryMessageTest {
+class MessageTest {
     @Test
     void verifiesEqualsAndHashCode() {
-        EqualsVerifier.forClass(TelemetryMessage.class).verify();
+        EqualsVerifier.forClass(Message.class).verify();
     }
 
     @Test
     void groupsEventsByFeatureAndSerializesProtocolShape() {
-        final TelemetryMessage message = TelemetryMessage.fromEvents(List.of(
+        final Message message = Message.fromEvents(List.of(
                 new TelemetryEvent("project.a", Instant.ofEpochSecond(10)),
                 new TelemetryEvent("project.a", Instant.ofEpochSecond(20)),
                 new TelemetryEvent("project.b", Instant.ofEpochSecond(30))));
@@ -31,7 +31,7 @@ class TelemetryMessageTest {
 
     @Test
     void escapesFeatureNamesInJson() {
-        final TelemetryMessage message = TelemetryMessage.fromEvents(List.of(
+        final Message message = Message.fromEvents(List.of(
                 new TelemetryEvent("proj.\"x\"\n\t\\", Instant.ofEpochSecond(10))));
 
         final String json = message.toJson();
@@ -41,7 +41,7 @@ class TelemetryMessageTest {
 
     @Test
     void serializesEmptyFeatureCollection() {
-        final TelemetryMessage message = TelemetryMessage.fromEvents(List.of());
+        final Message message = Message.fromEvents(List.of());
 
         assertTrue(message.toJson().contains("\"features\":{}"));
     }

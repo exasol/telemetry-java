@@ -13,14 +13,15 @@ import java.util.logging.*;
 import org.junit.jupiter.api.Test;
 
 class StatusLoggingIT {
-    private static final Logger LOGGER = Logger.getLogger(TelemetryClient.class.getName());
+    @SuppressWarnings("java:S3416") // Using captured logger name by intention
+    private static final Logger CAPTURED_LOGGER = Logger.getLogger(TelemetryClient.class.getName());
 
     @Test
     void logsWhenTelemetryIsEnabled() throws Exception {
-        try (LogCapture capture = new LogCapture(LOGGER);
+        try (LogCapture capture = new LogCapture(CAPTURED_LOGGER);
                 RecordingHttpServer server = RecordingHttpServer.createSuccessServer();
                 TelemetryClient client = TelemetryClient.create(TelemetryConfig.builder("shop-ui").endpoint(server.endpoint())
-                        .environment(new MapTelemetryEnvironment(Map.of()))
+                        .environment(new MapEnvironment(Map.of()))
                         .build())) {
             final LogRecord enabledRecord = capture.await(logRecord -> logRecord.getLevel() == Level.INFO
                     && logRecord.getMessage().contains("Telemetry is enabled"), Duration.ofSeconds(1));
@@ -34,10 +35,10 @@ class StatusLoggingIT {
 
     @Test
     void logsWhenTelemetryIsDisabledWithMechanism() throws Exception {
-        try (LogCapture capture = new LogCapture(LOGGER);
+        try (LogCapture capture = new LogCapture(CAPTURED_LOGGER);
                 RecordingHttpServer server = RecordingHttpServer.createSuccessServer();
                 TelemetryClient client = TelemetryClient.create(TelemetryConfig.builder("shop-ui").endpoint(server.endpoint())
-                        .environment(new MapTelemetryEnvironment(Map.of(TelemetryConfig.DISABLED_ENV, "disabled")))
+                        .environment(new MapEnvironment(Map.of(TelemetryConfig.DISABLED_ENV, "disabled")))
                         .build())) {
             client.track("checkout-started");
             final LogRecord envRecord = capture.await(record -> record.getLevel() == Level.INFO
@@ -46,10 +47,10 @@ class StatusLoggingIT {
             assertTrue(envRecord.getMessage().contains("EXASOL_TELEMETRY_DISABLE='disabled'"));
         }
 
-        try (LogCapture capture = new LogCapture(LOGGER);
+        try (LogCapture capture = new LogCapture(CAPTURED_LOGGER);
                 RecordingHttpServer server = RecordingHttpServer.createSuccessServer();
                 TelemetryClient client = TelemetryClient.create(TelemetryConfig.builder("shop-ui").endpoint(server.endpoint())
-                        .environment(new MapTelemetryEnvironment(Map.of(TelemetryConfig.CI_ENV, "github-actions")))
+                        .environment(new MapEnvironment(Map.of(TelemetryConfig.CI_ENV, "github-actions")))
                         .build())) {
             final LogRecord ciRecord = capture.await(record -> record.getLevel() == Level.INFO
                     && record.getMessage().contains("Telemetry is disabled via CI='github-actions'."), Duration.ofSeconds(1));
@@ -61,10 +62,10 @@ class StatusLoggingIT {
 
     @Test
     void logsSentMessageCount() throws Exception {
-        try (LogCapture capture = new LogCapture(LOGGER);
+        try (LogCapture capture = new LogCapture(CAPTURED_LOGGER);
                 RecordingHttpServer server = RecordingHttpServer.createSuccessServer()) {
             final TelemetryClient client = TelemetryClient.create(TelemetryConfig.builder("shop-ui").endpoint(server.endpoint())
-                    .environment(new MapTelemetryEnvironment(Map.of()))
+                    .environment(new MapEnvironment(Map.of()))
                     .build());
             try {
                 client.track("checkout-started");
@@ -81,13 +82,13 @@ class StatusLoggingIT {
 
     @Test
     void logsWhenTelemetrySendingFails() throws Exception {
-        try (LogCapture capture = new LogCapture(LOGGER);
+        try (LogCapture capture = new LogCapture(CAPTURED_LOGGER);
                 RecordingHttpServer server = RecordingHttpServer.createFlakyServer(1)) {
             final TelemetryClient client = TelemetryClient.create(TelemetryConfig.builder("shop-ui").endpoint(server.endpoint())
                     .retryTimeout(Duration.ofMillis(500))
                     .initialRetryDelay(Duration.ofMillis(25))
                     .maxRetryDelay(Duration.ofMillis(25))
-                    .environment(new MapTelemetryEnvironment(Map.of()))
+                    .environment(new MapEnvironment(Map.of()))
                     .build());
             try {
                 client.track("checkout-started");
@@ -107,10 +108,10 @@ class StatusLoggingIT {
 
     @Test
     void logsWhenTelemetryStops() throws Exception {
-        try (LogCapture capture = new LogCapture(LOGGER);
+        try (LogCapture capture = new LogCapture(CAPTURED_LOGGER);
                 RecordingHttpServer server = RecordingHttpServer.createSuccessServer()) {
             final TelemetryClient client = TelemetryClient.create(TelemetryConfig.builder("shop-ui").endpoint(server.endpoint())
-                    .environment(new MapTelemetryEnvironment(Map.of()))
+                    .environment(new MapEnvironment(Map.of()))
                     .build());
             try {
                 client.close();
@@ -142,12 +143,12 @@ class StatusLoggingIT {
 
         @Override
         public void publish(final LogRecord record) {
-            System.out.println(record.getMessage());
             records.add(record);
         }
 
         @Override
         public void flush() {
+            // Nothing to do
         }
 
         @Override

@@ -1,29 +1,26 @@
 package com.exasol.telemetry;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
-final class TelemetryMessage {
+final class Message {
     static final String VERSION = "0.1";
 
     private final Instant timestamp;
     private final Map<String, List<Instant>> features;
 
-    private TelemetryMessage(final Instant timestamp, final Map<String, List<Instant>> features) {
+    private Message(final Instant timestamp, final Map<String, List<Instant>> features) {
         this.timestamp = timestamp;
         this.features = features;
     }
 
-    static TelemetryMessage fromEvents(final List<TelemetryEvent> events) {
+    static Message fromEvents(final List<TelemetryEvent> events) {
         final Map<String, List<Instant>> features = new LinkedHashMap<>();
         for (final TelemetryEvent event : events) {
             features.computeIfAbsent(event.getFeature(), ignored -> new ArrayList<>()).add(event.getTimestamp());
         }
-        return new TelemetryMessage(Instant.now(), features);
+        // TODO: get clock or timestamp injected
+        return new Message(Instant.now(), features);
     }
 
     String toJson() {
@@ -91,7 +88,7 @@ final class TelemetryMessage {
         if (other == null || getClass() != other.getClass()) {
             return false;
         }
-        final TelemetryMessage that = (TelemetryMessage) other;
+        final Message that = (Message) other;
         return Objects.equals(timestamp, that.timestamp) && Objects.equals(features, that.features);
     }
 

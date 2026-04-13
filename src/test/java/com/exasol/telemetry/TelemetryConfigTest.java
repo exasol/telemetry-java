@@ -8,6 +8,8 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
+import com.exasol.telemetry.TelemetryConfig.Builder;
+
 class TelemetryConfigTest {
     @Test
     void usesDefaultsAndConfiguredValues() {
@@ -23,8 +25,8 @@ class TelemetryConfigTest {
 
     @Test
     void usesEndpointOverrideAndDisableEnvironmentValues() {
-        final TelemetryConfig config = TelemetryConfig.builder("project").endpoint(URI.create("https://example.com"))
-                .environment(new MapTelemetryEnvironment(Map.of(
+        final TelemetryConfig config = defaultBuilder()
+                .environment(new MapEnvironment(Map.of(
                         TelemetryConfig.ENDPOINT_ENV, "https://override.example.com",
                         TelemetryConfig.DISABLED_ENV, "disabled")))
                 .build();
@@ -35,8 +37,8 @@ class TelemetryConfigTest {
 
     @Test
     void disablesTrackingAutomaticallyInCi() {
-        final TelemetryConfig config = TelemetryConfig.builder("project").endpoint(URI.create("https://example.com"))
-                .environment(new MapTelemetryEnvironment(Map.of(TelemetryConfig.CI_ENV, "github-actions")))
+        final TelemetryConfig config = defaultBuilder()
+                .environment(new MapEnvironment(Map.of(TelemetryConfig.CI_ENV, "github-actions")))
                 .build();
 
         assertTrue(config.isTrackingDisabled());
@@ -69,23 +71,27 @@ class TelemetryConfigTest {
 
     @Test
     void rejectsNonPositiveNumbersAndDurations() {
-        assertThrows(IllegalArgumentException.class, () -> TelemetryConfig.builder("project").endpoint(URI.create("https://example.com"))
+        assertThrows(IllegalArgumentException.class, () -> defaultBuilder()
                 .queueCapacity(0)
                 .build());
-        assertThrows(IllegalArgumentException.class, () -> TelemetryConfig.builder("project").endpoint(URI.create("https://example.com"))
+        assertThrows(IllegalArgumentException.class, () -> defaultBuilder()
                 .retryTimeout(Duration.ZERO)
                 .build());
-        assertThrows(IllegalArgumentException.class, () -> TelemetryConfig.builder("project").endpoint(URI.create("https://example.com"))
+        assertThrows(IllegalArgumentException.class, () -> defaultBuilder()
                 .initialRetryDelay(Duration.ofMillis(-1))
                 .build());
-        assertThrows(IllegalArgumentException.class, () -> TelemetryConfig.builder("project").endpoint(URI.create("https://example.com"))
+        assertThrows(IllegalArgumentException.class, () -> defaultBuilder()
                 .maxRetryDelay(Duration.ZERO)
                 .build());
-        assertThrows(IllegalArgumentException.class, () -> TelemetryConfig.builder("project").endpoint(URI.create("https://example.com"))
+        assertThrows(IllegalArgumentException.class, () -> defaultBuilder()
                 .connectTimeout(Duration.ZERO)
                 .build());
-        assertThrows(IllegalArgumentException.class, () -> TelemetryConfig.builder("project").endpoint(URI.create("https://example.com"))
+        assertThrows(IllegalArgumentException.class, () -> defaultBuilder()
                 .requestTimeout(Duration.ZERO)
                 .build());
+    }
+
+    private Builder defaultBuilder() {
+        return TelemetryConfig.builder("project").endpoint(URI.create("https://example.com"));
     }
 }

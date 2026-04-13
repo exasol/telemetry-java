@@ -12,7 +12,7 @@ class TelemetryClientTest {
     @Test
     void doesNotRunSenderWhenTrackingIsDisabled() throws Exception {
         final TelemetryConfig config = TelemetryConfig.builder("project").endpoint(URI.create("https://example.com"))
-                .environment(new MapTelemetryEnvironment(Map.of(TelemetryConfig.DISABLED_ENV, "true")))
+                .environment(new MapEnvironment(Map.of(TelemetryConfig.DISABLED_ENV, "true")))
                 .build();
 
         final TelemetryClient client = TelemetryClient.create(config);
@@ -39,7 +39,7 @@ class TelemetryClientTest {
     @Test
     void ignoresTrackingAfterCloseAndCloseIsIdempotent() {
         final TelemetryConfig config = TelemetryConfig.builder("project").endpoint(URI.create("https://example.com"))
-                .environment(new MapTelemetryEnvironment(Map.of(TelemetryConfig.DISABLED_ENV, "true")))
+                .environment(new MapEnvironment(Map.of(TelemetryConfig.DISABLED_ENV, "true")))
                 .build();
         final TelemetryClient client = TelemetryClient.create(config);
 

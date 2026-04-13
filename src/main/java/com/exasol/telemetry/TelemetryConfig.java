@@ -21,7 +21,7 @@ public final class TelemetryConfig {
     private final Duration connectTimeout;
     private final Duration requestTimeout;
     private final boolean trackingDisabled;
-    private final TelemetryEnvironment environment;
+    private final Environment environment;
 
     private TelemetryConfig(final Builder builder) {
         this.projectTag = requireText(builder.projectTag, "projectTag");
@@ -110,7 +110,7 @@ public final class TelemetryConfig {
         return value != null && !value.trim().isEmpty();
     }
 
-    private static URI resolveEndpoint(final URI configuredEndpoint, final TelemetryEnvironment environment) {
+    private static URI resolveEndpoint(final URI configuredEndpoint, final Environment environment) {
         final String override = environment.getenv(ENDPOINT_ENV);
         if (override != null && !override.trim().isEmpty()) {
             return URI.create(override.trim());
@@ -149,7 +149,7 @@ public final class TelemetryConfig {
         private Duration maxRetryDelay = Duration.ofSeconds(1);
         private Duration connectTimeout = Duration.ofSeconds(2);
         private Duration requestTimeout = Duration.ofSeconds(2);
-        private TelemetryEnvironment environment = TelemetryEnvironment.SystemEnvironment.INSTANCE;
+        private Environment environment = Environment.SystemEnvironment.INSTANCE;
 
         private Builder(final String projectTag, final URI endpoint) {
             this.projectTag = projectTag;
@@ -191,7 +191,7 @@ public final class TelemetryConfig {
             return this;
         }
 
-        Builder environment(final TelemetryEnvironment environment) {
+        Builder environment(final Environment environment) {
             this.environment = environment;
             return this;
         }

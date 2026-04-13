@@ -7,7 +7,8 @@
 Example integration:
 
 ```java
-TelemetryConfig config = TelemetryConfig.builder("shop-ui").build();
+String projectShortTag = "MyApp";
+TelemetryConfig config = TelemetryConfig.builder(projectShortTag).build();
 
 try (TelemetryClient client = TelemetryClient.create(config)) {
     client.track("checkout-started");
@@ -34,7 +35,7 @@ try (TelemetryClient client = TelemetryClient.create(config)) {
 - Delivery happens on a background sender thread.
 - The JSON payload format matches the Python protocol shape: `version`, `timestamp`, and `features`.
 - Multiple queued events may be batched into a single payload, with timestamps grouped by fully qualified feature name.
-- The configured project short tag prefixes feature names in the payload, for example `shop-ui.checkout-started`.
+- The configured project short tag prefixes feature names in the payload, for example `MyApp.checkout-started`.
 - Failed delivery uses exponential backoff and stops when the configured retry timeout is reached.
 - Closing `TelemetryClient` flushes pending work before returning and stops background threads.
 - Calling `track(...)` after `TelemetryClient` is closed is a no-op.

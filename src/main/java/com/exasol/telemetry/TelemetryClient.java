@@ -11,18 +11,18 @@ public final class TelemetryClient implements AutoCloseable {
 
     private final TelemetryConfig config;
     private final BlockingQueue<TelemetryEvent> queue;
-    private final HttpTelemetryTransport transport;
+    private final HttpTransport transport;
     private final Thread senderThread;
     private final CountDownLatch terminated = new CountDownLatch(1);
     private volatile boolean closed;
 
     private TelemetryClient(final TelemetryConfig config) {
         this.config = config;
-        final boolean trackingEnabled = !config.isTrackingDisabled();
         this.queue = new ArrayBlockingQueue<>(config.getQueueCapacity());
-        this.transport = new HttpTelemetryTransport(config);
+        this.transport = new HttpTransport(config);
         this.senderThread = new Thread(this::runSender, "telemetry-java-sender");
         this.senderThread.setDaemon(true);
+        final boolean trackingEnabled = !config.isTrackingDisabled();
         if (trackingEnabled) {
             this.senderThread.start();
             logEnabled();
@@ -49,7 +49,13 @@ public final class TelemetryClient implements AutoCloseable {
             return;
         }
 
+        // TODO: get clock injected
         final TelemetryEvent event = new TelemetryEvent(namespacedFeature(sanitizedFeature), Instant.now());
+        enqueue(event);
+    }
+
+    @SuppressWarnings("java:S899") // Return value of offer ignored, this is fire-and-forget
+    private void enqueue(final TelemetryEvent event) {
         queue.offer(event);
     }
 
@@ -87,7 +93,8 @@ public final class TelemetryClient implements AutoCloseable {
     }
 
     private void sendWithRetry(final List<TelemetryEvent> events) {
-        final TelemetryMessage message = TelemetryMessage.fromEvents(events);
+        final Message message = Message.fromEvents(events);
+        // Todo: get clock injected
         final Instant deadline = Instant.now().plus(config.getRetryTimeout());
         Duration delay = config.getInitialRetryDelay();
 
@@ -166,7 +173,7 @@ public final class TelemetryClient implements AutoCloseable {
     }
 
     private void logEnabled() {
-        LOGGER.info("Telemetry is enabled. Set EXASOL_TELEMETRY_DISABLE to any non-empty value to disable telemetry. "
+        LOGGER.info("Telemetry is enabled. Set " + TelemetryConfig.DISABLED_ENV + " to any non-empty value to disable telemetry. "
                 + TelemetryConfig.DISABLED_ENV + "=" + formatEnvValue(config.getDisabledEnvValue()) + ", "
                 + TelemetryConfig.CI_ENV + "=" + formatEnvValue(config.getCiEnvValue()) + ".");
     }

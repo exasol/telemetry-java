@@ -14,15 +14,15 @@ import java.util.concurrent.Flow;
 
 import org.junit.jupiter.api.Test;
 
-class HttpTelemetryTransportTest {
+class HttpTransportTest {
     @Test
     void sendsJsonPayloadToConfiguredClient() throws Exception {
         final CapturingRequestSender requestSender = new CapturingRequestSender(202);
-        final HttpTelemetryTransport transport = new HttpTelemetryTransport(
+        final HttpTransport transport = new HttpTransport(
                 TelemetryConfig.builder("project").endpoint(URI.create("https://example.com")).build(),
                 requestSender);
 
-        transport.send(TelemetryMessage.fromEvents(List.of(new TelemetryEvent("project.feature", Instant.ofEpochSecond(10)))));
+        transport.send(Message.fromEvents(List.of(new TelemetryEvent("project.feature", Instant.ofEpochSecond(10)))));
 
         final HttpRequest request = requestSender.request;
         assertEquals("POST", request.method());
@@ -33,12 +33,12 @@ class HttpTelemetryTransportTest {
 
     @Test
     void rejectsNonSuccessStatusCodes() throws Exception {
-        final HttpTelemetryTransport transport = new HttpTelemetryTransport(
+        final HttpTransport transport = new HttpTransport(
                 TelemetryConfig.builder("project").endpoint(URI.create("https://example.com")).build(),
-                request -> new HttpTelemetryTransport.Response(500, "server says no"));
+                request -> new HttpTransport.Response(500, "server says no"));
 
         final TelemetryHttpException exception = assertThrows(TelemetryHttpException.class,
-                () -> transport.send(TelemetryMessage.fromEvents(List.of(new TelemetryEvent("project.feature", Instant.ofEpochSecond(10))))));
+                () -> transport.send(Message.fromEvents(List.of(new TelemetryEvent("project.feature", Instant.ofEpochSecond(10))))));
         assertEquals(500, exception.getStatusCode());
         assertEquals("server says no", exception.getServerStatus());
         assertEquals("server says no", exception.getMessage());
@@ -46,27 +46,27 @@ class HttpTelemetryTransportTest {
 
     @Test
     void convertsInterruptedExceptionToIoException() throws Exception {
-        final HttpTelemetryTransport transport = new HttpTelemetryTransport(
+        final HttpTransport transport = new HttpTransport(
                 TelemetryConfig.builder("project").endpoint(URI.create("https://example.com")).build(),
                 request -> {
                     throw new InterruptedException("interrupted");
                 });
 
         final IOException exception = assertThrows(IOException.class,
-                () -> transport.send(TelemetryMessage.fromEvents(List.of(new TelemetryEvent("project.feature", Instant.ofEpochSecond(10))))));
+                () -> transport.send(Message.fromEvents(List.of(new TelemetryEvent("project.feature", Instant.ofEpochSecond(10))))));
         assertTrue(exception.getMessage().contains("Interrupted while sending telemetry"));
         assertTrue(Thread.currentThread().isInterrupted());
         Thread.interrupted();
     }
 
-    private static String bodyToString(final HttpRequest request) throws Exception {
+    private static String bodyToString(final HttpRequest request) {
         final HttpRequest.BodyPublisher publisher = request.bodyPublisher().orElseThrow();
         final CollectingSubscriber subscriber = new CollectingSubscriber();
         publisher.subscribe(subscriber);
         return subscriber.body();
     }
 
-    private static final class CapturingRequestSender implements HttpTelemetryTransport.RequestSender {
+    private static final class CapturingRequestSender implements HttpTransport.RequestSender {
         private final int statusCode;
         private HttpRequest request;
 
@@ -75,9 +75,9 @@ class HttpTelemetryTransportTest {
         }
 
         @Override
-        public HttpTelemetryTransport.Response send(final HttpRequest request) {
+        public HttpTransport.Response send(final HttpRequest request) {
             this.request = request;
-            return new HttpTelemetryTransport.Response(statusCode, "");
+            return new HttpTransport.Response(statusCode, "");
         }
     }
 
