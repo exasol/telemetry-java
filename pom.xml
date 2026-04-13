@@ -11,12 +11,11 @@
     <url>https://github.com/exasol/telemetry-java/</url>
     <properties>
         <java.version>11</java.version>
-        <junit.jupiter.version>5.13.4</junit.jupiter.version>
     </properties>
     <dependencies>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
+            <artifactId>junit-jupiter-api</artifactId>
             <!-- Version 6 requires Java 17 -->
             <version>5.13.4</version>
             <scope>test</scope>

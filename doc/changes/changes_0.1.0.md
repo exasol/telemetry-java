@@ -12,7 +12,7 @@ Initial release of the telemetry-java library.
 
 * Added `nl.jqno.equalsverifier:equalsverifier:3.19.4`
 * Added `org.hamcrest:hamcrest:3.0`
-* Added `org.junit.jupiter:junit-jupiter:5.13.4`
+* Added `org.junit.jupiter:junit-jupiter-api:5.13.4`
 
 ### Plugin Dependency Updates
 

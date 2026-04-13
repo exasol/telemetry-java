@@ -5,7 +5,7 @@
 
 | Dependency                                | License                          |
 | ----------------------------------------- | -------------------------------- |
-| [JUnit Jupiter (Aggregator)][0]           | [Eclipse Public License v2.0][1] |
+| [JUnit Jupiter API][0]                    | [Eclipse Public License v2.0][1] |
 | [Hamcrest][2]                             | [BSD-3-Clause][3]                |
 | [EqualsVerifier \| release normal jar][4] | [Apache License, Version 2.0][5] |
 
