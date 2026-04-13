@@ -6,6 +6,11 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.logging.Logger;
 
+/**
+ * Tracks feature usage events and delivers them asynchronously to the configured telemetry endpoint.
+ * Create a client by building a {@link TelemetryConfig} with {@link TelemetryConfig#builder(String)} and passing it
+ * to {@link #create(TelemetryConfig)}.
+ */
 public final class TelemetryClient implements AutoCloseable {
     private static final Logger LOGGER = Logger.getLogger(TelemetryClient.class.getName());
 
@@ -32,10 +37,21 @@ public final class TelemetryClient implements AutoCloseable {
         }
     }
 
+    /**
+     * Create a telemetry client for the provided configuration.
+     *
+     * @param config telemetry runtime configuration
+     * @return telemetry client
+     */
     public static TelemetryClient create(final TelemetryConfig config) {
         return new TelemetryClient(Objects.requireNonNull(config, "config"));
     }
 
+    /**
+     * Queue a feature usage event for asynchronous delivery.
+     *
+     * @param feature feature name without the project tag prefix
+     */
     public void track(final String feature) {
         if (closed) {
             return;
@@ -155,6 +171,9 @@ public final class TelemetryClient implements AutoCloseable {
         return senderThread.isAlive();
     }
 
+    /**
+     * Stop the sender thread and wait for any queued events to be flushed before returning.
+     */
     @Override
     public void close() {
         if (closed) {

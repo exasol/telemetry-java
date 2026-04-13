@@ -4,11 +4,26 @@ import java.net.URI;
 import java.time.Duration;
 import java.util.Objects;
 
+/**
+ * Stores the runtime settings that control telemetry delivery, retry behavior, and environment-based overrides.
+ */
 public final class TelemetryConfig {
-    public static final String CI_ENV = "CI";
-    public static final String DISABLED_ENV = "EXASOL_TELEMETRY_DISABLE";
-    public static final String ENDPOINT_ENV = "EXASOL_TELEMETRY_ENDPOINT";
-    public static final URI DEFAULT_ENDPOINT = URI.create("https://metrics.exasol.com");
+    /**
+     * Name of the environment variable used to detect CI environments and disable telemetry automatically.
+     */
+    static final String CI_ENV = "CI";
+    /**
+     * Name of the environment variable that disables telemetry when set to a non-empty value.
+     */
+    static final String DISABLED_ENV = "EXASOL_TELEMETRY_DISABLE";
+    /**
+     * Name of the environment variable that overrides the telemetry endpoint.
+     */
+    static final String ENDPOINT_ENV = "EXASOL_TELEMETRY_ENDPOINT";
+    /**
+     * Default endpoint that receives telemetry events when no override is configured.
+     */
+    static final URI DEFAULT_ENDPOINT = URI.create("https://metrics.exasol.com");
 
     private final String projectTag;
     private final URI endpoint;
@@ -38,43 +53,49 @@ public final class TelemetryConfig {
         this.trackingDisabled = isDisabled(disabledEnvValue) || isDisabled(ciEnvValue);
     }
 
+    /**
+     * Creates a builder for a telemetry configuration bound to the given project tag.
+     *
+     * @param projectTag project identifier used as the prefix for emitted feature names
+     * @return configuration builder
+     */
     public static Builder builder(final String projectTag) {
         return new Builder(projectTag, null);
     }
 
-    public String getProjectTag() {
+    String getProjectTag() {
         return projectTag;
     }
 
-    public URI getEndpoint() {
+    URI getEndpoint() {
         return endpoint;
     }
 
-    public int getQueueCapacity() {
+    int getQueueCapacity() {
         return queueCapacity;
     }
 
-    public Duration getRetryTimeout() {
+    Duration getRetryTimeout() {
         return retryTimeout;
     }
 
-    public Duration getInitialRetryDelay() {
+    Duration getInitialRetryDelay() {
         return initialRetryDelay;
     }
 
-    public Duration getMaxRetryDelay() {
+    Duration getMaxRetryDelay() {
         return maxRetryDelay;
     }
 
-    public Duration getConnectTimeout() {
+    Duration getConnectTimeout() {
         return connectTimeout;
     }
 
-    public Duration getRequestTimeout() {
+    Duration getRequestTimeout() {
         return requestTimeout;
     }
 
-    public boolean isTrackingDisabled() {
+    boolean isTrackingDisabled() {
         return trackingDisabled;
     }
 
@@ -140,6 +161,9 @@ public final class TelemetryConfig {
         return value;
     }
 
+    /**
+     * Builds validated {@link TelemetryConfig} instances with optional overrides for transport and retry settings.
+     */
     public static final class Builder {
         private final String projectTag;
         private URI endpoint;
@@ -156,7 +180,7 @@ public final class TelemetryConfig {
             this.endpoint = endpoint;
         }
 
-        public Builder endpoint(final URI endpoint) {
+        Builder endpoint(final URI endpoint) {
             this.endpoint = endpoint;
             return this;
         }
@@ -166,7 +190,7 @@ public final class TelemetryConfig {
             return this;
         }
 
-        public Builder retryTimeout(final Duration retryTimeout) {
+        Builder retryTimeout(final Duration retryTimeout) {
             this.retryTimeout = retryTimeout;
             return this;
         }
@@ -196,6 +220,11 @@ public final class TelemetryConfig {
             return this;
         }
 
+        /**
+         * Build a validated telemetry configuration instance.
+         *
+         * @return telemetry configuration
+         */
         public TelemetryConfig build() {
             return new TelemetryConfig(this);
         }
