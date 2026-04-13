@@ -18,11 +18,12 @@ public final class TelemetryClient implements AutoCloseable {
 
     private TelemetryClient(final TelemetryConfig config) {
         this.config = config;
+        final boolean trackingEnabled = !config.isTrackingDisabled();
         this.queue = new ArrayBlockingQueue<>(config.getQueueCapacity());
         this.transport = new HttpTelemetryTransport(config);
         this.senderThread = new Thread(this::runSender, "telemetry-java-sender");
         this.senderThread.setDaemon(true);
-        if (!config.isTrackingDisabled()) {
+        if (trackingEnabled) {
             this.senderThread.start();
             logEnabled();
         } else {
@@ -35,52 +36,21 @@ public final class TelemetryClient implements AutoCloseable {
         return new TelemetryClient(Objects.requireNonNull(config, "config"));
     }
 
-    public TrackingResult track(final String feature) {
-        return track(feature, Map.of());
-    }
-
-    public TrackingResult track(final String feature, final Map<String, ?> attributes) {
+    public void track(final String feature) {
         if (closed) {
-            return TrackingResult.CLOSED;
+            return;
         }
         if (config.isTrackingDisabled()) {
-            return TrackingResult.DISABLED;
+            return;
         }
 
         final String sanitizedFeature = sanitizeText(feature);
-        final Map<String, String> sanitizedAttributes = sanitizeAttributes(attributes);
-        if (sanitizedFeature == null || sanitizedAttributes == null || !sanitizedAttributes.isEmpty()) {
-            return TrackingResult.REJECTED;
+        if (sanitizedFeature == null) {
+            return;
         }
 
         final TelemetryEvent event = new TelemetryEvent(namespacedFeature(sanitizedFeature), Instant.now());
-        return queue.offer(event) ? TrackingResult.ACCEPTED : TrackingResult.REJECTED;
-    }
-
-    private Map<String, String> sanitizeAttributes(final Map<String, ?> attributes) {
-        if (attributes == null) {
-            return Map.of();
-        }
-
-        final Map<String, String> sanitized = new LinkedHashMap<>();
-        for (final Map.Entry<String, ?> entry : attributes.entrySet()) {
-            final String key = sanitizeText(entry.getKey());
-            if (key == null) {
-                return null;
-            }
-
-            final Object value = entry.getValue();
-            if (!(value instanceof String)) {
-                return null;
-            }
-
-            final String sanitizedValue = sanitizeText((String) value);
-            if (sanitizedValue == null) {
-                return null;
-            }
-            sanitized.put(key, sanitizedValue);
-        }
-        return sanitized;
+        queue.offer(event);
     }
 
     private String namespacedFeature(final String feature) {
@@ -184,7 +154,8 @@ public final class TelemetryClient implements AutoCloseable {
             return;
         }
         closed = true;
-        if (!config.isTrackingDisabled()) {
+        final boolean trackingEnabled = !config.isTrackingDisabled();
+        if (trackingEnabled) {
             try {
                 senderThread.join();
             } catch (final InterruptedException ignored) {

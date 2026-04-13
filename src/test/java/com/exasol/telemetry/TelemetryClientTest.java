@@ -10,14 +10,14 @@ import org.junit.jupiter.api.Test;
 
 class TelemetryClientTest {
     @Test
-    void returnsDisabledAndDoesNotRunSenderWhenTrackingIsDisabled() throws Exception {
+    void doesNotRunSenderWhenTrackingIsDisabled() throws Exception {
         final TelemetryConfig config = TelemetryConfig.builder("project").endpoint(URI.create("https://example.com"))
                 .environment(new MapTelemetryEnvironment(Map.of(TelemetryConfig.DISABLED_ENV, "true")))
                 .build();
 
         final TelemetryClient client = TelemetryClient.create(config);
         try {
-            assertEquals(TrackingResult.DISABLED, client.track("feature"));
+            client.track("feature");
             assertTrue(client.awaitStopped(Duration.ofMillis(10)));
             assertFalse(client.isRunning());
         } finally {
@@ -26,21 +26,18 @@ class TelemetryClientTest {
     }
 
     @Test
-    void returnsRejectedForBlankFeatureOrUnsupportedAttributes() {
+    void ignoresBlankFeatureName() {
         final TelemetryConfig config = TelemetryConfig.builder("project").endpoint(URI.create("https://example.com")).build();
         final TelemetryClient client = TelemetryClient.create(config);
         try {
-            assertEquals(TrackingResult.REJECTED, client.track(" "));
-            assertEquals(TrackingResult.REJECTED, client.track("feature", Map.of("screen", "main")));
-            assertEquals(TrackingResult.REJECTED, client.track("feature", Map.of("screen", 1)));
-            assertEquals(TrackingResult.REJECTED, client.track("feature", Map.of(" ", "value")));
+            assertDoesNotThrow(() -> client.track(" "));
         } finally {
             client.close();
         }
     }
 
     @Test
-    void returnsClosedAfterCloseAndCloseIsIdempotent() {
+    void ignoresTrackingAfterCloseAndCloseIsIdempotent() {
         final TelemetryConfig config = TelemetryConfig.builder("project").endpoint(URI.create("https://example.com"))
                 .environment(new MapTelemetryEnvironment(Map.of(TelemetryConfig.DISABLED_ENV, "true")))
                 .build();
@@ -49,6 +46,6 @@ class TelemetryClientTest {
         client.close();
         client.close();
 
-        assertEquals(TrackingResult.CLOSED, client.track("feature"));
+        assertDoesNotThrow(() -> client.track("feature"));
     }
 }

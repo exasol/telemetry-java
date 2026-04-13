@@ -18,11 +18,10 @@ class AsyncDeliveryIT {
                         .retryTimeout(Duration.ofMillis(500))
                         .build())) {
             final long start = System.nanoTime();
-            final TrackingResult result = client.track("checkout-started");
+            client.track("checkout-started");
             final long elapsedMillis = Duration.ofNanos(System.nanoTime() - start).toMillis();
 
             final List<RecordingHttpServer.RecordedRequest> requests = server.awaitRequests(1, Duration.ofSeconds(2));
-            assertEquals(TrackingResult.ACCEPTED, result);
             assertTrue(elapsedMillis < 150, "track should return before the delayed HTTP request completes");
             assertEquals(1, requests.size());
         }
@@ -36,10 +35,9 @@ class AsyncDeliveryIT {
                         .initialRetryDelay(Duration.ofMillis(50))
                         .maxRetryDelay(Duration.ofMillis(200))
                         .build())) {
-            final TrackingResult result = client.track("checkout-started");
+            client.track("checkout-started");
             final List<RecordingHttpServer.RecordedRequest> requests = server.awaitRequests(3, Duration.ofSeconds(3));
 
-            assertEquals(TrackingResult.ACCEPTED, result);
             assertEquals(3, requests.size());
             assertTrue(Duration.between(requests.get(0).receivedAt(), requests.get(1).receivedAt()).toMillis() >= 40);
             assertTrue(Duration.between(requests.get(1).receivedAt(), requests.get(2).receivedAt()).toMillis() >= 80);

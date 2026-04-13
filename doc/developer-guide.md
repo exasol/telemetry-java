@@ -37,7 +37,7 @@ try (TelemetryClient client = TelemetryClient.create(config)) {
 - The configured project short tag prefixes feature names in the payload, for example `shop-ui.checkout-started`.
 - Failed delivery uses exponential backoff and stops when the configured retry timeout is reached.
 - Closing `TelemetryClient` flushes pending work before returning and stops background threads.
-- Calling `track(...)` after `TelemetryClient` is closed returns `TrackingResult.CLOSED`.
+- Calling `track(...)` after `TelemetryClient` is closed is a no-op.
 - The client logs an `INFO` lifecycle message when telemetry is enabled or disabled, and debug-level lifecycle messages when telemetry sends data or stops.
 
 ## Build and Test

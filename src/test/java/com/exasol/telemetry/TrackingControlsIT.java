@@ -14,10 +14,9 @@ class TrackingControlsIT {
                 TelemetryClient client = TelemetryClient.create(TelemetryConfig.builder("shop-ui").endpoint(server.endpoint())
                         .environment(new MapTelemetryEnvironment(Map.of(TelemetryConfig.DISABLED_ENV, "disabled")))
                         .build())) {
-            final TrackingResult result = client.track("checkout-started");
+            client.track("checkout-started");
 
             Thread.sleep(150);
-            assertEquals(TrackingResult.DISABLED, result);
             assertEquals(0, server.awaitRequests(1, Duration.ofMillis(150)).size());
         }
     }
@@ -28,10 +27,9 @@ class TrackingControlsIT {
                 TelemetryClient client = TelemetryClient.create(TelemetryConfig.builder("shop-ui").endpoint(server.endpoint())
                         .environment(new MapTelemetryEnvironment(Map.of(TelemetryConfig.CI_ENV, "github-actions")))
                         .build())) {
-            final TrackingResult result = client.track("checkout-started");
+            client.track("checkout-started");
 
             Thread.sleep(150);
-            assertEquals(TrackingResult.DISABLED, result);
             assertEquals(0, server.awaitRequests(1, Duration.ofMillis(150)).size());
         }
     }
@@ -43,9 +41,8 @@ class TrackingControlsIT {
                 TelemetryClient client = TelemetryClient.create(TelemetryConfig.builder("shop-ui").endpoint(configuredServer.endpoint())
                         .environment(new MapTelemetryEnvironment(Map.of(TelemetryConfig.ENDPOINT_ENV, overrideServer.endpoint().toString())))
                         .build())) {
-            final TrackingResult result = client.track("checkout-started");
+            client.track("checkout-started");
 
-            assertEquals(TrackingResult.ACCEPTED, result);
             assertEquals(1, overrideServer.awaitRequests(1, Duration.ofSeconds(2)).size());
             assertEquals(0, configuredServer.awaitRequests(1, Duration.ofMillis(150)).size());
         }

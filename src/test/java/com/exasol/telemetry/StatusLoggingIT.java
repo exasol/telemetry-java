@@ -39,11 +39,10 @@ class StatusLoggingIT {
                 TelemetryClient client = TelemetryClient.create(TelemetryConfig.builder("shop-ui").endpoint(server.endpoint())
                         .environment(new MapTelemetryEnvironment(Map.of(TelemetryConfig.DISABLED_ENV, "disabled")))
                         .build())) {
-            final TrackingResult result = client.track("checkout-started");
+            client.track("checkout-started");
             final LogRecord envRecord = capture.await(record -> record.getLevel() == Level.INFO
                     && record.getMessage().contains("Telemetry is disabled via EXASOL_TELEMETRY_DISABLE='disabled'."), Duration.ofSeconds(1));
 
-            assertEquals(TrackingResult.DISABLED, result);
             assertTrue(envRecord.getMessage().contains("EXASOL_TELEMETRY_DISABLE='disabled'"));
         }
 
@@ -55,7 +54,7 @@ class StatusLoggingIT {
             final LogRecord ciRecord = capture.await(record -> record.getLevel() == Level.INFO
                     && record.getMessage().contains("Telemetry is disabled via CI='github-actions'."), Duration.ofSeconds(1));
 
-            assertEquals(TrackingResult.DISABLED, client.track("checkout-started"));
+            client.track("checkout-started");
             assertTrue(ciRecord.getMessage().contains("CI='github-actions'"));
         }
     }
@@ -68,7 +67,7 @@ class StatusLoggingIT {
                     .environment(new MapTelemetryEnvironment(Map.of()))
                     .build());
             try {
-                assertEquals(TrackingResult.ACCEPTED, client.track("checkout-started"));
+                client.track("checkout-started");
                 client.close();
 
                 final LogRecord record = capture.await(logRecord -> logRecord.getLevel() == Level.FINE
@@ -91,7 +90,7 @@ class StatusLoggingIT {
                     .environment(new MapTelemetryEnvironment(Map.of()))
                     .build());
             try {
-                assertEquals(TrackingResult.ACCEPTED, client.track("checkout-started"));
+                client.track("checkout-started");
                 client.close();
 
                 final LogRecord record = capture.await(logRecord -> logRecord.getLevel() == Level.FINE
