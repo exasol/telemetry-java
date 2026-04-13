@@ -6,6 +6,10 @@ Code name: Initial Release
 
 Initial release of the telemetry-java library.
 
+## Features
+
+* #2: Create initial version
+
 ## Dependency Updates
 
 ### Test Dependency Updates
