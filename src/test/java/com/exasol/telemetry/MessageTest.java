@@ -1,6 +1,7 @@
 package com.exasol.telemetry;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 
 import java.time.Instant;
 import java.util.List;
@@ -24,9 +25,9 @@ class MessageTest {
 
         final String json = message.toJson();
 
-        assertTrue(json.contains("\"version\":\"0.1\""));
-        assertTrue(json.contains("\"timestamp\":"));
-        assertTrue(json.contains("\"features\":{\"project.a\":[10,20],\"project.b\":[30]}"));
+        assertThat(json, containsString("\"version\":\"0.1\""));
+        assertThat(json, containsString("\"timestamp\":"));
+        assertThat(json, containsString("\"features\":{\"project.a\":[10,20],\"project.b\":[30]}"));
     }
 
     @Test
@@ -36,13 +37,13 @@ class MessageTest {
 
         final String json = message.toJson();
 
-        assertTrue(json.contains("proj.\\\"x\\\"\\n\\t\\\\"));
+        assertThat(json, containsString("proj.\\\"x\\\"\\n\\t\\\\"));
     }
 
     @Test
     void serializesEmptyFeatureCollection() {
         final Message message = Message.fromEvents(Instant.ofEpochSecond(30), List.of());
 
-        assertTrue(message.toJson().contains("\"features\":{}"));
+        assertThat(message.toJson(), containsString("\"features\":{}"));
     }
 }

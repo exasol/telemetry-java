@@ -1,6 +1,8 @@
 package com.exasol.telemetry;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.net.URI;
 import java.time.Duration;
@@ -17,11 +19,11 @@ class TelemetryConfigTest {
                 .environment(MapEnvironment.empty())
                 .build();
 
-        assertEquals("project", config.getProjectTag());
-        assertEquals(TelemetryConfig.DEFAULT_ENDPOINT, config.getEndpoint());
-        assertEquals(256, config.getQueueCapacity());
-        assertEquals(Duration.ofSeconds(5), config.getRetryTimeout());
-        assertFalse(config.isTrackingDisabled());
+        assertThat(config.getProjectTag(), is("project"));
+        assertThat(config.getEndpoint(), is(TelemetryConfig.DEFAULT_ENDPOINT));
+        assertThat(config.getQueueCapacity(), is(256));
+        assertThat(config.getRetryTimeout(), is(Duration.ofSeconds(5)));
+        assertThat(config.isTrackingDisabled(), is(false));
     }
 
     @Test
@@ -29,10 +31,10 @@ class TelemetryConfigTest {
         final TelemetryConfig config = TelemetryConfig.builder("project")
                 .build();
 
-        assertEquals("project", config.getProjectTag());
-        assertEquals(TelemetryConfig.DEFAULT_ENDPOINT, config.getEndpoint());
-        assertEquals(256, config.getQueueCapacity());
-        assertEquals(Duration.ofSeconds(5), config.getRetryTimeout());
+        assertThat(config.getProjectTag(), is("project"));
+        assertThat(config.getEndpoint(), is(TelemetryConfig.DEFAULT_ENDPOINT));
+        assertThat(config.getQueueCapacity(), is(256));
+        assertThat(config.getRetryTimeout(), is(Duration.ofSeconds(5)));
         // Can't verify isTrackingDisabled() because in CI the CI env variable is set
     }
 
@@ -44,8 +46,8 @@ class TelemetryConfigTest {
                         TelemetryConfig.DISABLED_ENV, "disabled")))
                 .build();
 
-        assertEquals(URI.create("https://override.example.com"), config.getEndpoint());
-        assertTrue(config.isTrackingDisabled());
+        assertThat(config.getEndpoint(), is(URI.create("https://override.example.com")));
+        assertThat(config.isTrackingDisabled(), is(true));
     }
 
     @Test
@@ -54,32 +56,32 @@ class TelemetryConfigTest {
                 .environment(new MapEnvironment(Map.of(TelemetryConfig.CI_ENV, "github-actions")))
                 .build();
 
-        assertTrue(config.isTrackingDisabled());
+        assertThat(config.isTrackingDisabled(), is(true));
     }
 
     @Test
     void treatsAnyNonEmptyEnvironmentValueAsDisabled() {
-        assertFalse(TelemetryConfig.isDisabled(null));
-        assertFalse(TelemetryConfig.isDisabled("   "));
-        assertTrue(TelemetryConfig.isDisabled("false"));
-        assertTrue(TelemetryConfig.isDisabled("true"));
-        assertTrue(TelemetryConfig.isDisabled("1"));
-        assertTrue(TelemetryConfig.isDisabled("on"));
-        assertTrue(TelemetryConfig.isDisabled("github-actions"));
+        assertThat(TelemetryConfig.isDisabled(null), is(false));
+        assertThat(TelemetryConfig.isDisabled("   "), is(false));
+        assertThat(TelemetryConfig.isDisabled("false"), is(true));
+        assertThat(TelemetryConfig.isDisabled("true"), is(true));
+        assertThat(TelemetryConfig.isDisabled("1"), is(true));
+        assertThat(TelemetryConfig.isDisabled("on"), is(true));
+        assertThat(TelemetryConfig.isDisabled("github-actions"), is(true));
     }
 
     @Test
     void rejectsBlankProjectTag() {
         final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                 () -> TelemetryConfig.builder("  ").build());
-        assertTrue(exception.getMessage().contains("projectTag"));
+        assertThat(exception.getMessage(), containsString("projectTag"));
     }
 
     @Test
     void usesDefaultEndpointWhenNoEndpointIsConfigured() {
         final TelemetryConfig config = TelemetryConfig.builder("project").build();
 
-        assertEquals(TelemetryConfig.DEFAULT_ENDPOINT, config.getEndpoint());
+        assertThat(config.getEndpoint(), is(TelemetryConfig.DEFAULT_ENDPOINT));
     }
 
     @Test

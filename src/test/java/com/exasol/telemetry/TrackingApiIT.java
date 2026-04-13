@@ -1,6 +1,7 @@
 package com.exasol.telemetry;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 import java.time.Duration;
 import java.util.List;
@@ -17,11 +18,11 @@ class TrackingApiIT {
             client.track("checkout-started");
 
             final List<RecordingHttpServer.RecordedRequest> requests = server.awaitRequests(1, Duration.ofSeconds(2));
-            assertEquals(1, requests.size());
-            assertEquals("POST", requests.get(0).method());
-            assertTrue(requests.get(0).body().contains("\"version\":\"0.1\""));
-            assertTrue(requests.get(0).body().contains("\"timestamp\":"));
-            assertTrue(requests.get(0).body().contains("\"features\":{\"shop-ui.checkout-started\":["));
+            assertThat(requests, hasSize(1));
+            assertThat(requests.get(0).method(), is("POST"));
+            assertThat(requests.get(0).body(), containsString("\"version\":\"0.1\""));
+            assertThat(requests.get(0).body(), containsString("\"timestamp\":"));
+            assertThat(requests.get(0).body(), containsString("\"features\":{\"shop-ui.checkout-started\":["));
         }
     }
 
@@ -32,7 +33,7 @@ class TrackingApiIT {
             client.track(" ");
 
             Thread.sleep(150);
-            assertFalse(server.awaitRequests(1, Duration.ofMillis(150)).size() >= 1);
+            assertThat(server.awaitRequests(1, Duration.ofMillis(150)), empty());
         }
     }
 }

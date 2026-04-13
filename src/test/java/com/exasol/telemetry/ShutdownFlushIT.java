@@ -1,6 +1,7 @@
 package com.exasol.telemetry;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 import java.time.Duration;
 import java.util.List;
@@ -21,8 +22,8 @@ class ShutdownFlushIT {
             requests = server.awaitRequests(1, Duration.ofSeconds(1));
         }
 
-        assertEquals(1, requests.size());
-        assertTrue(requests.get(0).body().contains("\"features\":{\"shop-ui.checkout-started\":["));
+        assertThat(requests, hasSize(1));
+        assertThat(requests.get(0).body(), containsString("\"features\":{\"shop-ui.checkout-started\":["));
     }
 
     @Test
@@ -34,7 +35,7 @@ class ShutdownFlushIT {
             client.close();
         }
 
-        assertTrue(client.awaitStopped(Duration.ofSeconds(1)));
-        assertFalse(client.isRunning());
+        assertThat(client.awaitStopped(Duration.ofSeconds(1)), is(true));
+        assertThat(client.isRunning(), is(false));
     }
 }

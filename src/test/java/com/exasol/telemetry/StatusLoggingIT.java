@@ -1,7 +1,7 @@
 package com.exasol.telemetry;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -27,10 +27,10 @@ class StatusLoggingIT {
             final LogRecord enabledRecord = capture.await(logRecord -> logRecord.getLevel() == Level.INFO
                     && logRecord.getMessage().contains("Telemetry is enabled"), Duration.ofSeconds(1));
 
-            assertTrue(client.isRunning());
-            assertTrue(enabledRecord.getMessage().contains("Set EXASOL_TELEMETRY_DISABLE to any non-empty value to disable telemetry."));
-            assertTrue(enabledRecord.getMessage().contains("EXASOL_TELEMETRY_DISABLE=<unset>"));
-            assertTrue(enabledRecord.getMessage().contains("CI=<unset>"));
+            assertThat(client.isRunning(), is(true));
+            assertThat(enabledRecord.getMessage(), containsString("Set EXASOL_TELEMETRY_DISABLE to any non-empty value to disable telemetry."));
+            assertThat(enabledRecord.getMessage(), containsString("EXASOL_TELEMETRY_DISABLE=<unset>"));
+            assertThat(enabledRecord.getMessage(), containsString("CI=<unset>"));
         }
     }
 
@@ -45,7 +45,7 @@ class StatusLoggingIT {
             final LogRecord envRecord = capture.await(logRecord -> logRecord.getLevel() == Level.INFO
                     && logRecord.getMessage().contains("Telemetry is disabled via EXASOL_TELEMETRY_DISABLE='disabled'."), Duration.ofSeconds(1));
 
-            assertTrue(envRecord.getMessage().contains("EXASOL_TELEMETRY_DISABLE='disabled'"));
+            assertThat(envRecord.getMessage(), containsString("EXASOL_TELEMETRY_DISABLE='disabled'"));
         }
 
         try (LogCapture capture = new LogCapture(CAPTURED_LOGGER);
@@ -57,7 +57,7 @@ class StatusLoggingIT {
                     && logRecord.getMessage().contains("Telemetry is disabled via CI='github-actions'."), Duration.ofSeconds(1));
 
             client.track(FEATURE);
-            assertTrue(ciRecord.getMessage().contains("CI='github-actions'"));
+            assertThat(ciRecord.getMessage(), containsString("CI='github-actions'"));
         }
     }
 
@@ -73,7 +73,7 @@ class StatusLoggingIT {
 
                 final LogRecord logRecord = capture.await(r -> r.getLevel() == Level.FINE
                         && r.getMessage().contains("Telemetry sent to the server with 1 event(s)."), Duration.ofSeconds(2));
-                assertTrue(logRecord.getMessage().contains("1 event(s)"));
+                assertThat(logRecord.getMessage(), containsString("1 event(s)"));
             } finally {
                 client.close();
             }
@@ -96,9 +96,8 @@ class StatusLoggingIT {
                 final LogRecord logRecord = capture.await(r -> r.getLevel() == Level.FINE
                         && r.getMessage().contains("Telemetry sending failed"),
                         Duration.ofSeconds(2));
-                assertEquals(
-                        "Telemetry sending failed for 1 event(s): server status 500 (telemetry rejected by test server)",
-                        logRecord.getMessage());
+                assertThat(logRecord.getMessage(),
+                        is("Telemetry sending failed for 1 event(s): server status 500 (telemetry rejected by test server)"));
             } finally {
                 client.close();
             }
@@ -114,7 +113,7 @@ class StatusLoggingIT {
                 client.close();
                 final LogRecord logRecord = capture.await(r -> r.getLevel() == Level.FINE
                         && r.getMessage().contains("Telemetry is stopped."), Duration.ofSeconds(1));
-                assertEquals("Telemetry is stopped.", logRecord.getMessage());
+                assertThat(logRecord.getMessage(), is("Telemetry is stopped."));
             } finally {
                 client.close();
             }

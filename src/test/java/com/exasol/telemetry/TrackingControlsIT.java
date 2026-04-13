@@ -1,6 +1,7 @@
 package com.exasol.telemetry;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 import java.time.Duration;
 import java.util.Map;
@@ -20,7 +21,7 @@ class TrackingControlsIT {
             client.track(FEATURE);
 
             Thread.sleep(150);
-            assertEquals(0, server.awaitRequests(1, Duration.ofMillis(150)).size());
+            assertThat(server.awaitRequests(1, Duration.ofMillis(150)), empty());
         }
     }
 
@@ -33,7 +34,7 @@ class TrackingControlsIT {
             client.track(FEATURE);
 
             Thread.sleep(150);
-            assertEquals(0, server.awaitRequests(1, Duration.ofMillis(150)).size());
+            assertThat(server.awaitRequests(1, Duration.ofMillis(150)), empty());
         }
     }
 
@@ -46,8 +47,8 @@ class TrackingControlsIT {
                         .build())) {
             client.track(FEATURE);
 
-            assertEquals(1, overrideServer.awaitRequests(1, Duration.ofSeconds(2)).size());
-            assertEquals(0, configuredServer.awaitRequests(1, Duration.ofMillis(150)).size());
+            assertThat(overrideServer.awaitRequests(1, Duration.ofSeconds(2)), hasSize(1));
+            assertThat(configuredServer.awaitRequests(1, Duration.ofMillis(150)), empty());
         }
     }
 }

@@ -1,6 +1,7 @@
 package com.exasol.telemetry;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 import java.time.Instant;
 
@@ -19,7 +20,7 @@ class TelemetryEventTest {
         final Instant timestamp = Instant.ofEpochSecond(42);
         final TelemetryEvent event = new TelemetryEvent("project.feature", timestamp);
 
-        assertEquals("project.feature", event.getFeature());
-        assertEquals(timestamp, event.getTimestamp());
+        assertThat(event.getFeature(), is("project.feature"));
+        assertThat(event.getTimestamp(), is(timestamp));
     }
 }

@@ -1,6 +1,7 @@
 package com.exasol.telemetry;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 import java.net.URI;
 import java.time.Duration;
@@ -18,8 +19,8 @@ class TelemetryClientTest {
         final TelemetryClient client = TelemetryClient.create(config);
         try {
             client.track("feature");
-            assertTrue(client.awaitStopped(Duration.ofMillis(10)));
-            assertFalse(client.isRunning());
+            assertThat(client.awaitStopped(Duration.ofMillis(10)), is(true));
+            assertThat(client.isRunning(), is(false));
         } finally {
             client.close();
         }
@@ -30,7 +31,7 @@ class TelemetryClientTest {
         final TelemetryConfig config = TelemetryConfig.builder("project").endpoint(URI.create("https://example.com")).build();
         final TelemetryClient client = TelemetryClient.create(config);
         try {
-            assertDoesNotThrow(() -> client.track(" "));
+            client.track(" ");
         } finally {
             client.close();
         }
@@ -46,6 +47,6 @@ class TelemetryClientTest {
         client.close();
         client.close();
 
-        assertDoesNotThrow(() -> client.track("feature"));
+        client.track("feature");
     }
 }

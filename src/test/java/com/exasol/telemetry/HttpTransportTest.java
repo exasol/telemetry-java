@@ -1,6 +1,8 @@
 package com.exasol.telemetry;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.IOException;
 import java.net.URI;
@@ -29,10 +31,10 @@ class HttpTransportTest {
         transport.send(Message.fromEvents(Instant.ofEpochMilli(30), List.of(new TelemetryEvent(FEATURE, Instant.ofEpochSecond(10)))));
 
         final HttpRequest request = requestSender.request;
-        assertEquals("POST", request.method());
-        assertEquals(URI.create(DUMMY_ENDPOINT), request.uri());
-        assertEquals("application/json", request.headers().firstValue("Content-Type").orElseThrow());
-        assertTrue(bodyToString(request).contains("\"features\":{\"projectTag.feature\":[10]}"));
+        assertThat(request.method(), is("POST"));
+        assertThat(request.uri(), is(URI.create(DUMMY_ENDPOINT)));
+        assertThat(request.headers().firstValue("Content-Type").orElseThrow(), is("application/json"));
+        assertThat(bodyToString(request), containsString("\"features\":{\"projectTag.feature\":[10]}"));
     }
 
     @Test
@@ -43,9 +45,9 @@ class HttpTransportTest {
 
         final HttpException exception = assertThrows(HttpException.class,
                 () -> transport.send(Message.fromEvents(Instant.ofEpochSecond(30), List.of(new TelemetryEvent(FEATURE, Instant.ofEpochSecond(10))))));
-        assertEquals(500, exception.getStatusCode());
-        assertEquals("server says no", exception.getServerStatus());
-        assertEquals("server says no", exception.getMessage());
+        assertThat(exception.getStatusCode(), is(500));
+        assertThat(exception.getServerStatus(), is("server says no"));
+        assertThat(exception.getMessage(), is("server says no"));
     }
 
     @Test
@@ -58,8 +60,8 @@ class HttpTransportTest {
 
         final IOException exception = assertThrows(IOException.class,
                 () -> transport.send(Message.fromEvents(Instant.ofEpochSecond(30), List.of(new TelemetryEvent(FEATURE, Instant.ofEpochSecond(10))))));
-        assertTrue(exception.getMessage().contains("Interrupted while sending telemetry"));
-        assertTrue(Thread.currentThread().isInterrupted());
+        assertThat(exception.getMessage(), containsString("Interrupted while sending telemetry"));
+        assertThat(Thread.currentThread().isInterrupted(), is(true));
         Thread.interrupted();
     }
 
