@@ -123,10 +123,10 @@ public final class TelemetryClient implements AutoCloseable {
         while (true) {
             try {
                 transport.send(message);
-                LOGGER.fine("Telemetry sent to the server with " + events.size() + " event(s).");
+                LOGGER.fine(() -> "Telemetry sent to the server with " + events.size() + " event(s).");
                 return;
             } catch (final Exception exception) {
-                LOGGER.fine("Telemetry sending failed for " + events.size() + " event(s): "
+                LOGGER.fine(() -> "Telemetry sending failed for " + events.size() + " event(s): "
                         + rootCauseMessage(exception));
                 final Instant now = clock.instant();
                 if (!now.isBefore(deadline)) {
@@ -198,13 +198,13 @@ public final class TelemetryClient implements AutoCloseable {
     }
 
     private void logEnabled() {
-        LOGGER.info("Telemetry is enabled. Set " + TelemetryConfig.DISABLED_ENV + " to any non-empty value to disable telemetry. "
+        LOGGER.info(() -> "Telemetry is enabled. Set " + TelemetryConfig.DISABLED_ENV + " to any non-empty value to disable telemetry. "
                 + TelemetryConfig.DISABLED_ENV + "=" + formatEnvValue(config.getDisabledEnvValue()) + ", "
                 + TelemetryConfig.CI_ENV + "=" + formatEnvValue(config.getCiEnvValue()) + ".");
     }
 
     private void logDisabled() {
-        LOGGER.info("Telemetry is disabled via " + config.getDisableMechanism() + "="
+        LOGGER.info(() -> "Telemetry is disabled via " + config.getDisableMechanism() + "="
                 + formatEnvValue(config.getDisableMechanismValue()) + ".");
     }
 
