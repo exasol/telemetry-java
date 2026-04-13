@@ -5,15 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Predicate;
-import java.util.logging.Handler;
-import java.util.logging.Level;
-import java.util.logging.LogRecord;
-import java.util.logging.Logger;
+import java.util.logging.*;
 
 import org.junit.jupiter.api.Test;
 
@@ -86,6 +81,32 @@ class StatusLoggingIT {
     }
 
     @Test
+    void logsWhenTelemetrySendingFails() throws Exception {
+        try (LogCapture capture = new LogCapture(LOGGER);
+                RecordingHttpServer server = RecordingHttpServer.createFlakyServer(1)) {
+            final TelemetryClient client = TelemetryClient.create(TelemetryConfig.builder("shop-ui").endpoint(server.endpoint())
+                    .retryTimeout(Duration.ofMillis(500))
+                    .initialRetryDelay(Duration.ofMillis(25))
+                    .maxRetryDelay(Duration.ofMillis(25))
+                    .environment(new MapTelemetryEnvironment(Map.of()))
+                    .build());
+            try {
+                assertEquals(TrackingResult.ACCEPTED, client.track("checkout-started"));
+                client.close();
+
+                final LogRecord record = capture.await(logRecord -> logRecord.getLevel() == Level.FINE
+                        && logRecord.getMessage().contains("Telemetry sending failed"),
+                        Duration.ofSeconds(2));
+                assertEquals(
+                        "Telemetry sending failed for 1 event(s): server status 500 (telemetry rejected by test server)",
+                        record.getMessage());
+            } finally {
+                client.close();
+            }
+        }
+    }
+
+    @Test
     void logsWhenTelemetryStops() throws Exception {
         try (LogCapture capture = new LogCapture(LOGGER);
                 RecordingHttpServer server = RecordingHttpServer.createSuccessServer()) {
@@ -122,6 +143,7 @@ class StatusLoggingIT {
 
         @Override
         public void publish(final LogRecord record) {
+            System.out.println(record.getMessage());
             records.add(record);
         }
 

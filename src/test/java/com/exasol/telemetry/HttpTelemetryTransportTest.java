@@ -35,11 +35,13 @@ class HttpTelemetryTransportTest {
     void rejectsNonSuccessStatusCodes() throws Exception {
         final HttpTelemetryTransport transport = new HttpTelemetryTransport(
                 TelemetryConfig.builder("project").endpoint(URI.create("https://example.com")).build(),
-                request -> 500);
+                request -> new HttpTelemetryTransport.Response(500, "server says no"));
 
-        final IOException exception = assertThrows(IOException.class,
+        final TelemetryHttpException exception = assertThrows(TelemetryHttpException.class,
                 () -> transport.send(TelemetryMessage.fromEvents(List.of(new TelemetryEvent("project.feature", Instant.ofEpochSecond(10))))));
-        assertTrue(exception.getMessage().contains("Unexpected response status"));
+        assertEquals(500, exception.getStatusCode());
+        assertEquals("server says no", exception.getServerStatus());
+        assertEquals("server says no", exception.getMessage());
     }
 
     @Test
@@ -73,9 +75,9 @@ class HttpTelemetryTransportTest {
         }
 
         @Override
-        public int send(final HttpRequest request) {
+        public HttpTelemetryTransport.Response send(final HttpRequest request) {
             this.request = request;
-            return statusCode;
+            return new HttpTelemetryTransport.Response(statusCode, "");
         }
     }
 

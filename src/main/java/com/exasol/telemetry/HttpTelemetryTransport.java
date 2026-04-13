@@ -5,8 +5,26 @@ import java.net.http.*;
 import java.nio.charset.StandardCharsets;
 
 final class HttpTelemetryTransport {
+    static final class Response {
+        private final int statusCode;
+        private final String body;
+
+        Response(final int statusCode, final String body) {
+            this.statusCode = statusCode;
+            this.body = body;
+        }
+
+        int getStatusCode() {
+            return statusCode;
+        }
+
+        String getBody() {
+            return body;
+        }
+    }
+
     interface RequestSender {
-        int send(HttpRequest request)
+        Response send(HttpRequest request)
                 throws IOException, InterruptedException;
     }
 
@@ -26,7 +44,10 @@ final class HttpTelemetryTransport {
         final HttpClient client = HttpClient.newBuilder()
                 .connectTimeout(config.getConnectTimeout())
                 .build();
-        return request -> client.send(request, HttpResponse.BodyHandlers.discarding()).statusCode();
+        return request -> {
+            final HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+            return new Response(response.statusCode(), response.body());
+        };
     }
 
     void send(final TelemetryMessage message)
@@ -37,16 +58,19 @@ final class HttpTelemetryTransport {
                 .POST(HttpRequest.BodyPublishers.ofString(message.toJson(), StandardCharsets.UTF_8))
                 .build();
 
-        final int statusCode;
+        final Response response;
         try {
-            statusCode = requestSender.send(request);
+            response = requestSender.send(request);
         } catch (final InterruptedException exception) {
             Thread.currentThread().interrupt();
             throw new IOException("Interrupted while sending telemetry", exception);
         }
 
+        final int statusCode = response.getStatusCode();
         if (statusCode < 200 || statusCode >= 300) {
-            throw new IOException("Unexpected response status: " + statusCode);
+            final String serverResponse = response.getBody();
+            throw new TelemetryHttpException(statusCode,
+                    (serverResponse == null || serverResponse.isBlank()) ? "Unexpected response status: " + statusCode : serverResponse);
         }
     }
 }

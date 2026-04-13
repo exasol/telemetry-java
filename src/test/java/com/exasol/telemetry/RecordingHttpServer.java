@@ -75,7 +75,11 @@ final class RecordingHttpServer implements AutoCloseable {
         }
 
         final int status = requests.size() <= failuresBeforeSuccess ? 500 : 202;
-        exchange.sendResponseHeaders(status, -1);
+        final byte[] responseBody = status >= 400 ? "telemetry rejected by test server".getBytes(StandardCharsets.UTF_8) : new byte[0];
+        exchange.sendResponseHeaders(status, responseBody.length);
+        try (OutputStream response = exchange.getResponseBody()) {
+            response.write(responseBody);
+        }
         exchange.close();
     }
 

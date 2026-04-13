@@ -4,7 +4,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public final class TelemetryClient implements AutoCloseable {
@@ -127,7 +126,9 @@ public final class TelemetryClient implements AutoCloseable {
                 transport.send(message);
                 LOGGER.fine("Telemetry sent to the server with " + events.size() + " event(s).");
                 return;
-            } catch (final Exception ignored) {
+            } catch (final Exception exception) {
+                LOGGER.fine("Telemetry sending failed for " + events.size() + " event(s): "
+                        + rootCauseMessage(exception));
                 final Instant now = Instant.now();
                 if (!now.isBefore(deadline)) {
                     return;
@@ -141,6 +142,24 @@ public final class TelemetryClient implements AutoCloseable {
 
     private static Duration min(final Duration left, final Duration right) {
         return left.compareTo(right) <= 0 ? left : right;
+    }
+
+    private static String rootCauseMessage(final Throwable throwable) {
+        Throwable cause = throwable;
+        while (cause != null) {
+            if (cause instanceof TelemetryHttpException) {
+                final TelemetryHttpException httpException = (TelemetryHttpException) cause;
+                return "server status " + httpException.getStatusCode() + " (" + httpException.getServerStatus() + ")";
+            }
+            if (cause.getCause() == null) {
+                final String message = cause.getMessage();
+                if (message == null || message.isBlank()) {
+                    return cause.getClass().getSimpleName();
+                }
+            }
+            cause = cause.getCause();
+        }
+        return "";
     }
 
     private void sleep(final Duration duration) {
