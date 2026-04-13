@@ -18,6 +18,13 @@ try (TelemetryClient client = TelemetryClient.create(config)) {
 - A project short tag at startup. The library adds it to every accepted telemetry event.
 - An optional HTTP endpoint for JSON `POST` delivery. If omitted, the default endpoint is `https://metrics.exasol.com`.
 
+## Required Documentation
+
+Applications integrating `telemetry-java` need to link to the [App User Guide](app-user-guide.md) in both:
+
+- their changelog entry for introducing telemetry
+- their end-user documentation
+
 ## Environment Variables
 
 - `EXASOL_TELEMETRY_DISABLE`

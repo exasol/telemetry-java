@@ -61,7 +61,7 @@ The default endpoint is `https://metrics.exasol.com`.
 
 * [Developer Guide](doc/developer-guide.md)
 * [Integration Guide](doc/integration-guide.md)
-* [Library Maintenance Guide](doc/library-maintenance-guide.md)
+* [Library Maintenance Guide](doc/developer-guide.md)
 * [App User Guide](doc/app-user-guide.md)
 * [Mission](specs/mission.md)
 * [Dependencies](dependencies.md)
