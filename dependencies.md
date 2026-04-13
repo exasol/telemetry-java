@@ -38,7 +38,8 @@
 | [error-code-crawler-maven-plugin][33]                   | [MIT License][34]                           |
 | [Git Commit Id Maven Plugin][35]                        | [GNU Lesser General Public License 3.0][36] |
 | [Project Keeper Maven plugin][37]                       | [The MIT License][38]                       |
-| [Apache Maven JAR Plugin][39]                           | [Apache-2.0][5]                             |
+| [OpenFastTrace Maven Plugin][39]                        | [GNU General Public License v3.0][40]       |
+| [Apache Maven JAR Plugin][41]                           | [Apache-2.0][5]                             |
 
 [0]: https://junit.org/
 [1]: https://www.eclipse.org/legal/epl-v20.html
@@ -79,4 +80,6 @@
 [36]: http://www.gnu.org/licenses/lgpl-3.0.txt
 [37]: https://github.com/exasol/project-keeper/
 [38]: https://github.com/exasol/project-keeper/blob/main/LICENSE
-[39]: https://maven.apache.org/plugins/maven-jar-plugin/
+[39]: https://github.com/itsallcode/openfasttrace-maven-plugin
+[40]: https://www.gnu.org/licenses/gpl-3.0.html
+[41]: https://maven.apache.org/plugins/maven-jar-plugin/

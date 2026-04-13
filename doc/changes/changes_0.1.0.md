@@ -38,6 +38,7 @@ Initial release of the telemetry-java library.
 * Added `org.basepom.maven:duplicate-finder-maven-plugin:2.0.1`
 * Added `org.codehaus.mojo:flatten-maven-plugin:1.7.3`
 * Added `org.codehaus.mojo:versions-maven-plugin:2.21.0`
+* Added `org.itsallcode:openfasttrace-maven-plugin:2.3.0`
 * Added `org.jacoco:jacoco-maven-plugin:0.8.14`
 * Added `org.sonarsource.scanner.maven:sonar-maven-plugin:5.5.0.6356`
 * Added `org.sonatype.central:central-publishing-maven-plugin:0.10.0`
