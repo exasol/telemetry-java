@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.exasol</groupId>
+    <artifactId>telemetry-java</artifactId>
+    <version>0.1.0</version>
+    <name>telemetry-java</name>
+    <description>Minimal, zero-dependency telemetry library for Java applications.</description>
+    <url>https://github.com/exasol/telemetry-java/</url>
+    <properties>
+        <java.version>11</java.version>
+        <junit.jupiter.version>5.13.4</junit.jupiter.version>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <!-- Version 6 requires Java 17 -->
+            <version>5.13.4</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>nl.jqno.equalsverifier</groupId>
+            <artifactId>equalsverifier</artifactId>
+            <!-- Version 4 requires Java 17 -->
+            <version>3.19.4</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.exasol</groupId>
+                <artifactId>project-keeper-maven-plugin</artifactId>
+                <version>5.4.6</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+    <parent>
+        <artifactId>telemetry-java-generated-parent</artifactId>
+        <groupId>com.exasol</groupId>
+        <version>0.1.0</version>
+        <relativePath>pk_generated_parent.pom</relativePath>
+    </parent>
+</project>
