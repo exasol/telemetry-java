@@ -25,6 +25,24 @@ Applications integrating `telemetry-java` need to link to the [App User Guide](a
 - their changelog entry for introducing telemetry
 - their end-user documentation
 
+Example changelog entry:
+
+```markdown
+## Added
+
+- Added anonymous feature-usage telemetry via `telemetry-java`. See the [documentation](app-user-guide.md) for details on collected data and opt-out behavior.
+```
+
+Example end-user documentation entry:
+
+```markdown
+## Telemetry
+
+This application uses `telemetry-java` to send anonymous feature-usage events.
+
+For details on what is collected and how to disable telemetry, see the [documentation](app-user-guide.md).
+```
+
 ## Environment Variables
 
 - `EXASOL_TELEMETRY_DISABLE`
@@ -33,6 +51,10 @@ Applications integrating `telemetry-java` need to link to the [App User Guide](a
   Overrides the endpoint configured in code.
 - `CI`
   Disables telemetry automatically when set to any non-empty value.
+
+### UDF Integration Tests
+
+For Exasol UDF integration tests, disable telemetry explicitly so test executions never emit usage data. In UDF script definitions, set `%env EXASOL_TELEMETRY_DISABLE=1;`.
 
 ## Runtime Behavior
 
