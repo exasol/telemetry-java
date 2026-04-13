@@ -15,30 +15,34 @@ import java.util.concurrent.Flow;
 import org.junit.jupiter.api.Test;
 
 class HttpTransportTest {
+    private static final String DUMMY_ENDPOINT = "https://example.com";
+    private static final String PROJECT_TAG = "projectTag";
+    private static final String FEATURE = "projectTag.feature";
+
     @Test
     void sendsJsonPayloadToConfiguredClient() throws Exception {
         final CapturingRequestSender requestSender = new CapturingRequestSender(202);
         final HttpTransport transport = new HttpTransport(
-                TelemetryConfig.builder("project").endpoint(URI.create("https://example.com")).build(),
+                TelemetryConfig.builder(PROJECT_TAG).endpoint(URI.create(DUMMY_ENDPOINT)).build(),
                 requestSender);
 
-        transport.send(Message.fromEvents(Instant.ofEpochMilli(30), List.of(new TelemetryEvent("project.feature", Instant.ofEpochSecond(10)))));
+        transport.send(Message.fromEvents(Instant.ofEpochMilli(30), List.of(new TelemetryEvent(FEATURE, Instant.ofEpochSecond(10)))));
 
         final HttpRequest request = requestSender.request;
         assertEquals("POST", request.method());
-        assertEquals(URI.create("https://example.com"), request.uri());
+        assertEquals(URI.create(DUMMY_ENDPOINT), request.uri());
         assertEquals("application/json", request.headers().firstValue("Content-Type").orElseThrow());
-        assertTrue(bodyToString(request).contains("\"features\":{\"project.feature\":[10]}"));
+        assertTrue(bodyToString(request).contains("\"features\":{\"projectTag.feature\":[10]}"));
     }
 
     @Test
     void rejectsNonSuccessStatusCodes() throws Exception {
         final HttpTransport transport = new HttpTransport(
-                TelemetryConfig.builder("project").endpoint(URI.create("https://example.com")).build(),
+                TelemetryConfig.builder(PROJECT_TAG).endpoint(URI.create(DUMMY_ENDPOINT)).build(),
                 request -> new HttpTransport.Response(500, "server says no"));
 
         final HttpException exception = assertThrows(HttpException.class,
-                () -> transport.send(Message.fromEvents(Instant.ofEpochSecond(30), List.of(new TelemetryEvent("project.feature", Instant.ofEpochSecond(10))))));
+                () -> transport.send(Message.fromEvents(Instant.ofEpochSecond(30), List.of(new TelemetryEvent(FEATURE, Instant.ofEpochSecond(10))))));
         assertEquals(500, exception.getStatusCode());
         assertEquals("server says no", exception.getServerStatus());
         assertEquals("server says no", exception.getMessage());
@@ -47,13 +51,13 @@ class HttpTransportTest {
     @Test
     void convertsInterruptedExceptionToIoException() throws Exception {
         final HttpTransport transport = new HttpTransport(
-                TelemetryConfig.builder("project").endpoint(URI.create("https://example.com")).build(),
+                TelemetryConfig.builder(PROJECT_TAG).endpoint(URI.create(DUMMY_ENDPOINT)).build(),
                 request -> {
                     throw new InterruptedException("interrupted");
                 });
 
         final IOException exception = assertThrows(IOException.class,
-                () -> transport.send(Message.fromEvents(Instant.ofEpochSecond(30), List.of(new TelemetryEvent("project.feature", Instant.ofEpochSecond(10))))));
+                () -> transport.send(Message.fromEvents(Instant.ofEpochSecond(30), List.of(new TelemetryEvent(FEATURE, Instant.ofEpochSecond(10))))));
         assertTrue(exception.getMessage().contains("Interrupted while sending telemetry"));
         assertTrue(Thread.currentThread().isInterrupted());
         Thread.interrupted();

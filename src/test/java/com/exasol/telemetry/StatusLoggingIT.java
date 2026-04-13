@@ -13,6 +13,9 @@ import java.util.logging.*;
 import org.junit.jupiter.api.Test;
 
 class StatusLoggingIT {
+    private static final String PROJECT_TAG = "projectTag";
+    private static final String FEATURE = "myFeature";
+
     @SuppressWarnings("java:S3416") // Using captured logger name by intention
     private static final Logger CAPTURED_LOGGER = Logger.getLogger(TelemetryClient.class.getName());
 
@@ -20,7 +23,7 @@ class StatusLoggingIT {
     void logsWhenTelemetryIsEnabled() throws Exception {
         try (LogCapture capture = new LogCapture(CAPTURED_LOGGER);
                 RecordingHttpServer server = RecordingHttpServer.createSuccessServer();
-                TelemetryClient client = TelemetryClient.create(server.configBuilder("shop-ui").build())) {
+                TelemetryClient client = TelemetryClient.create(server.configBuilder(PROJECT_TAG).build())) {
             final LogRecord enabledRecord = capture.await(logRecord -> logRecord.getLevel() == Level.INFO
                     && logRecord.getMessage().contains("Telemetry is enabled"), Duration.ofSeconds(1));
 
@@ -35,25 +38,25 @@ class StatusLoggingIT {
     void logsWhenTelemetryIsDisabledWithMechanism() throws Exception {
         try (LogCapture capture = new LogCapture(CAPTURED_LOGGER);
                 RecordingHttpServer server = RecordingHttpServer.createSuccessServer();
-                TelemetryClient client = TelemetryClient.create(server.configBuilder("shop-ui")
+                TelemetryClient client = TelemetryClient.create(server.configBuilder(PROJECT_TAG)
                         .environment(new MapEnvironment(Map.of(TelemetryConfig.DISABLED_ENV, "disabled")))
                         .build())) {
-            client.track("checkout-started");
-            final LogRecord envRecord = capture.await(record -> record.getLevel() == Level.INFO
-                    && record.getMessage().contains("Telemetry is disabled via EXASOL_TELEMETRY_DISABLE='disabled'."), Duration.ofSeconds(1));
+            client.track(FEATURE);
+            final LogRecord envRecord = capture.await(logRecord -> logRecord.getLevel() == Level.INFO
+                    && logRecord.getMessage().contains("Telemetry is disabled via EXASOL_TELEMETRY_DISABLE='disabled'."), Duration.ofSeconds(1));
 
             assertTrue(envRecord.getMessage().contains("EXASOL_TELEMETRY_DISABLE='disabled'"));
         }
 
         try (LogCapture capture = new LogCapture(CAPTURED_LOGGER);
                 RecordingHttpServer server = RecordingHttpServer.createSuccessServer();
-                TelemetryClient client = TelemetryClient.create(server.configBuilder("shop-ui")
+                TelemetryClient client = TelemetryClient.create(server.configBuilder(PROJECT_TAG)
                         .environment(new MapEnvironment(Map.of(TelemetryConfig.CI_ENV, "github-actions")))
                         .build())) {
-            final LogRecord ciRecord = capture.await(record -> record.getLevel() == Level.INFO
-                    && record.getMessage().contains("Telemetry is disabled via CI='github-actions'."), Duration.ofSeconds(1));
+            final LogRecord ciRecord = capture.await(logRecord -> logRecord.getLevel() == Level.INFO
+                    && logRecord.getMessage().contains("Telemetry is disabled via CI='github-actions'."), Duration.ofSeconds(1));
 
-            client.track("checkout-started");
+            client.track(FEATURE);
             assertTrue(ciRecord.getMessage().contains("CI='github-actions'"));
         }
     }
@@ -62,15 +65,15 @@ class StatusLoggingIT {
     void logsSentMessageCount() throws Exception {
         try (LogCapture capture = new LogCapture(CAPTURED_LOGGER);
                 RecordingHttpServer server = RecordingHttpServer.createSuccessServer()) {
-            final TelemetryClient client = TelemetryClient.create(server.configBuilder("shop-ui")
+            final TelemetryClient client = TelemetryClient.create(server.configBuilder(PROJECT_TAG)
                     .build());
             try {
-                client.track("checkout-started");
+                client.track(FEATURE);
                 client.close();
 
-                final LogRecord record = capture.await(logRecord -> logRecord.getLevel() == Level.FINE
-                        && logRecord.getMessage().contains("Telemetry sent to the server with 1 event(s)."), Duration.ofSeconds(2));
-                assertTrue(record.getMessage().contains("1 event(s)"));
+                final LogRecord logRecord = capture.await(r -> r.getLevel() == Level.FINE
+                        && r.getMessage().contains("Telemetry sent to the server with 1 event(s)."), Duration.ofSeconds(2));
+                assertTrue(logRecord.getMessage().contains("1 event(s)"));
             } finally {
                 client.close();
             }
@@ -81,21 +84,21 @@ class StatusLoggingIT {
     void logsWhenTelemetrySendingFails() throws Exception {
         try (LogCapture capture = new LogCapture(CAPTURED_LOGGER);
                 RecordingHttpServer server = RecordingHttpServer.createFlakyServer(1)) {
-            final TelemetryClient client = TelemetryClient.create(server.configBuilder("shop-ui")
+            final TelemetryClient client = TelemetryClient.create(server.configBuilder(PROJECT_TAG)
                     .retryTimeout(Duration.ofMillis(500))
                     .initialRetryDelay(Duration.ofMillis(25))
                     .maxRetryDelay(Duration.ofMillis(25))
                     .build());
             try {
-                client.track("checkout-started");
+                client.track(FEATURE);
                 client.close();
 
-                final LogRecord record = capture.await(logRecord -> logRecord.getLevel() == Level.FINE
-                        && logRecord.getMessage().contains("Telemetry sending failed"),
+                final LogRecord logRecord = capture.await(r -> r.getLevel() == Level.FINE
+                        && r.getMessage().contains("Telemetry sending failed"),
                         Duration.ofSeconds(2));
                 assertEquals(
                         "Telemetry sending failed for 1 event(s): server status 500 (telemetry rejected by test server)",
-                        record.getMessage());
+                        logRecord.getMessage());
             } finally {
                 client.close();
             }
@@ -106,13 +109,12 @@ class StatusLoggingIT {
     void logsWhenTelemetryStops() throws Exception {
         try (LogCapture capture = new LogCapture(CAPTURED_LOGGER);
                 RecordingHttpServer server = RecordingHttpServer.createSuccessServer()) {
-            final TelemetryClient client = TelemetryClient.create(server.configBuilder("shop-ui").build());
+            final TelemetryClient client = TelemetryClient.create(server.configBuilder(PROJECT_TAG).build());
             try {
                 client.close();
-
-                final LogRecord record = capture.await(logRecord -> logRecord.getLevel() == Level.FINE
-                        && logRecord.getMessage().contains("Telemetry is stopped."), Duration.ofSeconds(1));
-                assertEquals("Telemetry is stopped.", record.getMessage());
+                final LogRecord logRecord = capture.await(r -> r.getLevel() == Level.FINE
+                        && r.getMessage().contains("Telemetry is stopped."), Duration.ofSeconds(1));
+                assertEquals("Telemetry is stopped.", logRecord.getMessage());
             } finally {
                 client.close();
             }
@@ -136,8 +138,8 @@ class StatusLoggingIT {
         }
 
         @Override
-        public void publish(final LogRecord record) {
-            records.add(record);
+        public void publish(final LogRecord logRecord) {
+            records.add(logRecord);
         }
 
         @Override
@@ -156,9 +158,9 @@ class StatusLoggingIT {
             final Instant deadline = Instant.now().plus(timeout);
             while (Instant.now().isBefore(deadline)) {
                 final List<LogRecord> snapshot = new ArrayList<>(records);
-                for (final LogRecord record : snapshot) {
-                    if (predicate.test(record)) {
-                        return record;
+                for (final LogRecord logRecord : snapshot) {
+                    if (predicate.test(logRecord)) {
+                        return logRecord;
                     }
                 }
                 Thread.sleep(10);

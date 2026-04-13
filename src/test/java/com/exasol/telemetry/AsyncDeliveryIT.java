@@ -11,14 +11,17 @@ import org.junit.jupiter.api.Test;
 
 class AsyncDeliveryIT {
 
+    private static final String PROJECT_TAG = "projectTag";
+    private static final String FEATURE = "myFeature";
+
     @Test
     void sendsQueuedEventsAsynchronouslyOverHttp() throws Exception {
         try (RecordingHttpServer server = RecordingHttpServer.createDelayedSuccessServer(300);
-                TelemetryClient client = TelemetryClient.create(server.configBuilder("shop-ui")
+                TelemetryClient client = TelemetryClient.create(server.configBuilder(PROJECT_TAG)
                         .retryTimeout(Duration.ofMillis(500))
                         .build())) {
             final long start = System.nanoTime();
-            client.track("checkout-started");
+            client.track(FEATURE);
             final long elapsedMillis = Duration.ofNanos(System.nanoTime() - start).toMillis();
 
             final List<RecordingHttpServer.RecordedRequest> requests = server.awaitRequests(1, Duration.ofSeconds(2));
@@ -30,12 +33,12 @@ class AsyncDeliveryIT {
     @Test
     void retriesFailedDeliveryWithExponentialBackoffUntilTimeout() throws Exception {
         try (RecordingHttpServer server = RecordingHttpServer.createFlakyServer(2);
-                TelemetryClient client = TelemetryClient.create(server.configBuilder("shop-ui")
+                TelemetryClient client = TelemetryClient.create(server.configBuilder(PROJECT_TAG)
                         .retryTimeout(Duration.ofSeconds(1))
                         .initialRetryDelay(Duration.ofMillis(50))
                         .maxRetryDelay(Duration.ofMillis(200))
                         .build())) {
-            client.track("checkout-started");
+            client.track(FEATURE);
             final List<RecordingHttpServer.RecordedRequest> requests = server.awaitRequests(3, Duration.ofSeconds(3));
 
             assertEquals(3, requests.size());
@@ -44,12 +47,12 @@ class AsyncDeliveryIT {
         }
 
         try (RecordingHttpServer server = RecordingHttpServer.createFlakyServer(Integer.MAX_VALUE)) {
-            final TelemetryClient client = TelemetryClient.create(server.configBuilder("shop-ui")
+            final TelemetryClient client = TelemetryClient.create(server.configBuilder(PROJECT_TAG)
                     .retryTimeout(Duration.ofMillis(220))
                     .initialRetryDelay(Duration.ofMillis(20))
                     .maxRetryDelay(Duration.ofMillis(80))
                     .build());
-            client.track("checkout-started");
+            client.track(FEATURE);
 
             final Instant start = Instant.now();
             client.close();
