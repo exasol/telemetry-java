@@ -14,6 +14,7 @@ class TelemetryConfigTest {
     @Test
     void usesDefaultsAndConfiguredValues() {
         final TelemetryConfig config = TelemetryConfig.builder("project")
+                .environment(new MapEnvironment(Map.of()))
                 .build();
 
         assertEquals("project", config.getProjectTag());
@@ -21,6 +22,18 @@ class TelemetryConfigTest {
         assertEquals(256, config.getQueueCapacity());
         assertEquals(Duration.ofSeconds(5), config.getRetryTimeout());
         assertFalse(config.isTrackingDisabled());
+    }
+
+    @Test
+    void usesDefaultsAndConfiguredValuesWithRealEnvironment() {
+        final TelemetryConfig config = TelemetryConfig.builder("project")
+                .build();
+
+        assertEquals("project", config.getProjectTag());
+        assertEquals(TelemetryConfig.DEFAULT_ENDPOINT, config.getEndpoint());
+        assertEquals(256, config.getQueueCapacity());
+        assertEquals(Duration.ofSeconds(5), config.getRetryTimeout());
+        // Can't verify isTrackingDisabled() because in CI the CI env variable is set
     }
 
     @Test
