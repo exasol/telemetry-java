@@ -42,8 +42,7 @@ final class HttpTransport {
         final int statusCode = response.getStatusCode();
         if (statusCode < 200 || statusCode >= 300) {
             final String serverResponse = response.getBody();
-            throw new HttpException(statusCode,
-                    (serverResponse == null || serverResponse.isBlank()) ? "Unexpected response status: " + statusCode : serverResponse);
+            throw new HttpException(statusCode, serverResponse);
         }
     }
 
