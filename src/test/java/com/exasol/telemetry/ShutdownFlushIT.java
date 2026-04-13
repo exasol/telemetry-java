@@ -23,7 +23,7 @@ class ShutdownFlushIT {
         }
 
         assertThat(requests, hasSize(1));
-        assertThat(requests.get(0).body(), containsString("\"features\":{\"shop-ui.checkout-started\":["));
+        assertThat(requests.get(0).body(), containsString("\"features\":{\"shop-ui~checkout-started\":["));
     }
 
     @Test

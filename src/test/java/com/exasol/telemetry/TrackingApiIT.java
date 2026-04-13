@@ -22,7 +22,7 @@ class TrackingApiIT {
             assertThat(requests.get(0).method(), is("POST"));
             assertThat(requests.get(0).body(), containsString("\"version\":\"0.1\""));
             assertThat(requests.get(0).body(), containsString("\"timestamp\":"));
-            assertThat(requests.get(0).body(), containsString("\"features\":{\"shop-ui.checkout-started\":["));
+            assertThat(requests.get(0).body(), containsString("\"features\":{\"shop-ui~checkout-started\":["));
         }
     }
 

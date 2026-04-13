@@ -3,7 +3,8 @@ package com.exasol.telemetry;
 import static java.util.Objects.requireNonNull;
 
 import java.time.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.*;
 import java.util.logging.Logger;
 
@@ -51,7 +52,7 @@ public final class TelemetryClient implements AutoCloseable {
      * @return telemetry client
      */
     public static TelemetryClient create(final TelemetryConfig config) {
-        return new TelemetryClient(Objects.requireNonNull(config, "config"));
+        return new TelemetryClient(config);
     }
 
     /**
@@ -82,7 +83,7 @@ public final class TelemetryClient implements AutoCloseable {
     }
 
     private String namespacedFeature(final String feature) {
-        return config.getProjectTag() + "." + feature;
+        return config.getProjectTag() + "~" + feature;
     }
 
     private String sanitizeText(final String value) {
