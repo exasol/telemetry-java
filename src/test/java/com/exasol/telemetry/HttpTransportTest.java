@@ -37,7 +37,7 @@ class HttpTransportTest {
                 TelemetryConfig.builder("project").endpoint(URI.create("https://example.com")).build(),
                 request -> new HttpTransport.Response(500, "server says no"));
 
-        final TelemetryHttpException exception = assertThrows(TelemetryHttpException.class,
+        final HttpException exception = assertThrows(HttpException.class,
                 () -> transport.send(Message.fromEvents(List.of(new TelemetryEvent("project.feature", Instant.ofEpochSecond(10))))));
         assertEquals(500, exception.getStatusCode());
         assertEquals("server says no", exception.getServerStatus());

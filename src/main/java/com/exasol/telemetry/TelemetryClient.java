@@ -124,8 +124,8 @@ public final class TelemetryClient implements AutoCloseable {
     private static String rootCauseMessage(final Throwable throwable) {
         Throwable cause = throwable;
         while (cause != null) {
-            if (cause instanceof TelemetryHttpException) {
-                final TelemetryHttpException httpException = (TelemetryHttpException) cause;
+            if (cause instanceof HttpException) {
+                final HttpException httpException = (HttpException) cause;
                 return "server status " + httpException.getStatusCode() + " (" + httpException.getServerStatus() + ")";
             }
             if (cause.getCause() == null) {
