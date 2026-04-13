@@ -27,7 +27,7 @@ Initial release of the telemetry-java library.
 * Added `org.apache.maven.plugins:maven-failsafe-plugin:3.5.4`
 * Added `org.apache.maven.plugins:maven-gpg-plugin:3.2.8`
 * Added `org.apache.maven.plugins:maven-install-plugin:3.1.4`
-* Added `org.apache.maven.plugins:maven-jar-plugin:3.4.1`
+* Added `org.apache.maven.plugins:maven-jar-plugin:3.5.0`
 * Added `org.apache.maven.plugins:maven-javadoc-plugin:3.12.0`
 * Added `org.apache.maven.plugins:maven-resources-plugin:3.4.0`
 * Added `org.apache.maven.plugins:maven-site-plugin:3.21.0`
