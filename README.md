@@ -29,7 +29,7 @@ The project uses `speq` skills and recorded specs to drive planning, implementat
 
 - Non-blocking telemetry recording through an in-memory queue and background sender
 - JSON-over-HTTP `POST` delivery
-- Protocol-compatible message format with `version`, `timestamp`, and `features`
+- Protocol-compatible message format with `category`, protocol `version`, `productVersion`, `timestamp`, and `features`
 - Exponential backoff with retry timeout
 - Clean shutdown via `AutoCloseable`
 - Environment-variable control for disabling telemetry and overriding the endpoint
@@ -41,7 +41,7 @@ The project uses `speq` skills and recorded specs to drive planning, implementat
 ```java
 import com.exasol.telemetry.TelemetryClient;
 import com.exasol.telemetry.TelemetryConfig;
-TelemetryConfig config = TelemetryConfig.builder("my-app").build();
+TelemetryConfig config = TelemetryConfig.builder("my-app", "1.2.3").build();
 
 try (TelemetryClient client = TelemetryClient.create(config)) {
     client.track("startup");

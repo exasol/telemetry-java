@@ -15,11 +15,12 @@ import com.exasol.telemetry.TelemetryConfig.Builder;
 class TelemetryConfigTest {
     @Test
     void usesDefaultsAndConfiguredValues() {
-        final TelemetryConfig config = TelemetryConfig.builder("project")
+        final TelemetryConfig config = TelemetryConfig.builder("project", "1.2.3")
                 .environment(MapEnvironment.empty())
                 .build();
 
         assertThat(config.getProjectTag(), is("project"));
+        assertThat(config.getProductVersion(), is("1.2.3"));
         assertThat(config.getEndpoint(), is(TelemetryConfig.DEFAULT_ENDPOINT));
         assertThat(config.getQueueCapacity(), is(256));
         assertThat(config.getRetryTimeout(), is(Duration.ofSeconds(5)));
@@ -28,10 +29,11 @@ class TelemetryConfigTest {
 
     @Test
     void usesDefaultsAndConfiguredValuesWithRealEnvironment() {
-        final TelemetryConfig config = TelemetryConfig.builder("project")
+        final TelemetryConfig config = TelemetryConfig.builder("project", "1.2.3")
                 .build();
 
         assertThat(config.getProjectTag(), is("project"));
+        assertThat(config.getProductVersion(), is("1.2.3"));
         assertThat(config.getEndpoint(), is(TelemetryConfig.DEFAULT_ENDPOINT));
         assertThat(config.getQueueCapacity(), is(256));
         assertThat(config.getRetryTimeout(), is(Duration.ofSeconds(5)));
@@ -73,13 +75,20 @@ class TelemetryConfigTest {
     @Test
     void rejectsBlankProjectTag() {
         final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> TelemetryConfig.builder("  ").build());
+                () -> TelemetryConfig.builder("  ", "1.2.3").build());
         assertThat(exception.getMessage(), containsString("projectTag"));
     }
 
     @Test
+    void rejectsBlankProductVersion() {
+        final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> TelemetryConfig.builder("project", " ").build());
+        assertThat(exception.getMessage(), containsString("productVersion"));
+    }
+
+    @Test
     void usesDefaultEndpointWhenNoEndpointIsConfigured() {
-        final TelemetryConfig config = TelemetryConfig.builder("project").build();
+        final TelemetryConfig config = TelemetryConfig.builder("project", "1.2.3").build();
 
         assertThat(config.getEndpoint(), is(TelemetryConfig.DEFAULT_ENDPOINT));
     }
@@ -107,6 +116,6 @@ class TelemetryConfigTest {
     }
 
     private Builder defaultBuilder() {
-        return TelemetryConfig.builder("project").endpoint(URI.create("https://example.com"));
+        return TelemetryConfig.builder("project", "1.2.3").endpoint(URI.create("https://example.com"));
     }
 }

@@ -12,12 +12,13 @@ import org.junit.jupiter.api.Test;
 class AsyncDeliveryIT {
 
     private static final String PROJECT_TAG = "projectTag";
+    private static final String VERSION = "1.2.3";
     private static final String FEATURE = "myFeature";
 
     @Test
     void sendsQueuedEventsAsynchronouslyOverHttp() throws Exception {
         try (RecordingHttpServer server = RecordingHttpServer.createDelayedSuccessServer(300);
-                TelemetryClient client = TelemetryClient.create(server.configBuilder(PROJECT_TAG)
+                TelemetryClient client = TelemetryClient.create(server.configBuilder(PROJECT_TAG, VERSION)
                         .retryTimeout(Duration.ofMillis(500))
                         .build())) {
             final long start = System.nanoTime();
@@ -33,7 +34,7 @@ class AsyncDeliveryIT {
     @Test
     void retriesFailedDeliveryWithExponentialBackoffUntilTimeout() throws Exception {
         try (RecordingHttpServer server = RecordingHttpServer.createFlakyServer(2);
-                TelemetryClient client = TelemetryClient.create(server.configBuilder(PROJECT_TAG)
+                TelemetryClient client = TelemetryClient.create(server.configBuilder(PROJECT_TAG, VERSION)
                         .retryTimeout(Duration.ofSeconds(1))
                         .initialRetryDelay(Duration.ofMillis(50))
                         .maxRetryDelay(Duration.ofMillis(200))
@@ -47,7 +48,7 @@ class AsyncDeliveryIT {
         }
 
         try (RecordingHttpServer server = RecordingHttpServer.createFlakyServer(Integer.MAX_VALUE)) {
-            final TelemetryClient client = TelemetryClient.create(server.configBuilder(PROJECT_TAG)
+            final TelemetryClient client = TelemetryClient.create(server.configBuilder(PROJECT_TAG, VERSION)
                     .retryTimeout(Duration.ofMillis(220))
                     .initialRetryDelay(Duration.ofMillis(20))
                     .maxRetryDelay(Duration.ofMillis(80))

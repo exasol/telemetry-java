@@ -28,6 +28,7 @@ public final class TelemetryConfig {
     static final URI DEFAULT_ENDPOINT = URI.create("https://metrics.exasol.com");
 
     private final String projectTag;
+    private final String productVersion;
     private final URI endpoint;
     private final String disabledEnvValue;
     private final String ciEnvValue;
@@ -42,6 +43,7 @@ public final class TelemetryConfig {
 
     private TelemetryConfig(final Builder builder) {
         this.projectTag = requireText(builder.projectTag, "projectTag");
+        this.productVersion = requireText(builder.productVersion, "productVersion");
         this.environment = requireNonNull(builder.environment, "environment");
         this.disabledEnvValue = environment.getenv(DISABLED_ENV);
         this.ciEnvValue = environment.getenv(CI_ENV);
@@ -56,17 +58,22 @@ public final class TelemetryConfig {
     }
 
     /**
-     * Creates a builder for a telemetry configuration bound to the given project tag.
+     * Creates a builder for a telemetry configuration bound to the given project tag and product version.
      *
-     * @param projectTag project identifier used as the prefix for emitted feature names
+     * @param projectTag project identifier attached to emitted telemetry messages as {@code category}
+     * @param productVersion host product or library version attached to emitted telemetry messages as {@code productVersion}
      * @return configuration builder
      */
-    public static Builder builder(final String projectTag) {
-        return new Builder(projectTag, null);
+    public static Builder builder(final String projectTag, final String productVersion) {
+        return new Builder(projectTag, productVersion, null);
     }
 
     String getProjectTag() {
         return projectTag;
+    }
+
+    String getProductVersion() {
+        return productVersion;
     }
 
     URI getEndpoint() {
@@ -168,6 +175,7 @@ public final class TelemetryConfig {
      */
     public static final class Builder {
         private final String projectTag;
+        private final String productVersion;
         private URI endpoint;
         private int queueCapacity = 256;
         private Duration retryTimeout = Duration.ofSeconds(5);
@@ -177,8 +185,9 @@ public final class TelemetryConfig {
         private Duration requestTimeout = Duration.ofSeconds(2);
         private Environment environment = Environment.SystemEnvironment.INSTANCE;
 
-        private Builder(final String projectTag, final URI endpoint) {
+        private Builder(final String projectTag, final String productVersion, final URI endpoint) {
             this.projectTag = projectTag;
+            this.productVersion = productVersion;
             this.endpoint = endpoint;
         }
 
