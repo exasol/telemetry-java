@@ -10,13 +10,16 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 class TrackingApiIT {
+    private static final String PROJECT_TAG = "shop-ui";
+    private static final String FEATURE = "checkout-started";
+
     @Test
     void recordsTaggedFeatureUsageEvent() throws Exception {
         try (RecordingHttpServer server = RecordingHttpServer.createSuccessServer();
-                TelemetryClient client = TelemetryClient.create(server.configBuilder("shop-ui")
+                TelemetryClient client = TelemetryClient.create(server.configBuilder(PROJECT_TAG)
                         .retryTimeout(Duration.ofMillis(500))
                         .build())) {
-            client.track("checkout-started");
+            client.track(FEATURE);
 
             final List<RecordingHttpServer.RecordedRequest> requests = server.awaitRequests(1, Duration.ofSeconds(2));
             assertThat(requests, hasSize(1));
@@ -30,10 +33,10 @@ class TrackingApiIT {
     @Test
     void emitsPayloadAsValidJson() throws Exception {
         try (RecordingHttpServer server = RecordingHttpServer.createSuccessServer();
-                TelemetryClient client = TelemetryClient.create(server.configBuilder("shop-ui")
+                TelemetryClient client = TelemetryClient.create(server.configBuilder(PROJECT_TAG)
                         .retryTimeout(Duration.ofMillis(500))
                         .build())) {
-            client.track("checkout-started");
+            client.track(FEATURE);
 
             final List<RecordingHttpServer.RecordedRequest> requests = server.awaitRequests(1, Duration.ofSeconds(2));
             assertThat(requests, hasSize(1));
@@ -44,11 +47,11 @@ class TrackingApiIT {
     @Test
     void keepsCallerThreadOverheadLowForAcceptedTracking() throws Exception {
         try (RecordingHttpServer server = RecordingHttpServer.createDelayedSuccessServer(300);
-                TelemetryClient client = TelemetryClient.create(server.configBuilder("shop-ui")
+                TelemetryClient client = TelemetryClient.create(server.configBuilder(PROJECT_TAG)
                         .retryTimeout(Duration.ofMillis(500))
                         .build())) {
             final long start = System.nanoTime();
-            client.track("checkout-started");
+            client.track(FEATURE);
             final long elapsedMillis = Duration.ofNanos(System.nanoTime() - start).toMillis();
 
             assertThat("track should return before the delayed HTTP request completes", elapsedMillis, lessThan(150L));
@@ -59,18 +62,16 @@ class TrackingApiIT {
     @Test
     void makesDisabledTrackingNoOpWithoutTelemetryOverhead() throws Exception {
         try (RecordingHttpServer server = RecordingHttpServer.createSuccessServer()) {
-            final TelemetryConfig config = server.configBuilder("shop-ui")
+            final TelemetryConfig config = server.configBuilder(PROJECT_TAG)
                     .environment(new MapEnvironment(Map.of(TelemetryConfig.DISABLED_ENV, "disabled")))
                     .build();
-            final TelemetryClient client = new TelemetryClient(config, new FailingClock());
-            try {
-                client.track("checkout-started");
+
+            try (TelemetryClient client = new TelemetryClient(config, new FailingClock())) {
+                client.track(FEATURE);
 
                 assertThat(client.awaitStopped(Duration.ofMillis(10)), is(true));
                 assertThat(client.isRunning(), is(false));
                 assertThat(server.awaitRequests(1, Duration.ofMillis(150)), empty());
-            } finally {
-                client.close();
             }
         }
     }
@@ -78,7 +79,7 @@ class TrackingApiIT {
     @Test
     void ignoresInvalidFeatureNames() throws Exception {
         try (RecordingHttpServer server = RecordingHttpServer.createSuccessServer();
-                TelemetryClient client = TelemetryClient.create(server.configBuilder("shop-ui").build())) {
+                TelemetryClient client = TelemetryClient.create(server.configBuilder(PROJECT_TAG).build())) {
             client.track(" ");
 
             Thread.sleep(150);

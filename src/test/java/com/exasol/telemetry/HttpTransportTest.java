@@ -1,7 +1,8 @@
 package com.exasol.telemetry;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.IOException;
@@ -22,7 +23,7 @@ class HttpTransportTest {
     private static final String FEATURE = "projectTag.feature";
 
     @Test
-    void sendsJsonPayloadToConfiguredClient() throws Exception {
+    void sendsJsonPayloadToConfiguredClient() throws IOException {
         final CapturingRequestSender requestSender = new CapturingRequestSender(202);
         final HttpTransport transport = new HttpTransport(
                 TelemetryConfig.builder(PROJECT_TAG).endpoint(URI.create(DUMMY_ENDPOINT)).build(),
@@ -38,7 +39,7 @@ class HttpTransportTest {
     }
 
     @Test
-    void rejectsNonSuccessStatusCodes() throws Exception {
+    void rejectsNonSuccessStatusCodes() {
         final HttpTransport transport = new HttpTransport(
                 TelemetryConfig.builder(PROJECT_TAG).endpoint(URI.create(DUMMY_ENDPOINT)).build(),
                 request -> new HttpTransport.Response(500, "server says no"));
@@ -51,7 +52,7 @@ class HttpTransportTest {
     }
 
     @Test
-    void convertsInterruptedExceptionToIoException() throws Exception {
+    void convertsInterruptedExceptionToIoException() {
         final HttpTransport transport = new HttpTransport(
                 TelemetryConfig.builder(PROJECT_TAG).endpoint(URI.create(DUMMY_ENDPOINT)).build(),
                 request -> {

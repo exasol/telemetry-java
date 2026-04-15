@@ -2,6 +2,7 @@ package com.exasol.telemetry;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 import java.net.URI;
 import java.time.Duration;
@@ -38,15 +39,26 @@ class TelemetryClientTest {
     }
 
     @Test
-    void ignoresTrackingAfterCloseAndCloseIsIdempotent() {
+    void ignoresTrackingAfterClose() {
         final TelemetryConfig config = TelemetryConfig.builder("project").endpoint(URI.create("https://example.com"))
                 .environment(new MapEnvironment(Map.of(TelemetryConfig.DISABLED_ENV, "true")))
                 .build();
         final TelemetryClient client = TelemetryClient.create(config);
 
         client.close();
+
+        assertDoesNotThrow(() -> client.track("feature"));
+    }
+
+    @Test
+    void makesCloseIdempotent() {
+        final TelemetryConfig config = TelemetryConfig.builder("project").endpoint(URI.create("https://example.com"))
+                .environment(new MapEnvironment(Map.of(TelemetryConfig.DISABLED_ENV, "true")))
+                .build();
+        final TelemetryClient client = TelemetryClient.create(config);
+
         client.close();
 
-        client.track("feature");
+        assertDoesNotThrow(client::close);
     }
 }
