@@ -1,0 +1,69 @@
+# Integration Guide
+
+`telemetry-java` is a Java 11 library with zero runtime dependencies.
+
+## Example Integration
+
+```java
+String projectShortTag = "MyApp";
+TelemetryConfig config = TelemetryConfig.builder(projectShortTag).build();
+
+try (TelemetryClient client = TelemetryClient.create(config)) {
+    client.track("checkout-started");
+}
+```
+
+## Required Configuration
+
+- A project short tag at startup. The library adds it to every accepted telemetry event.
+- An optional HTTP endpoint for JSON `POST` delivery. If omitted, the default endpoint is `https://metrics.exasol.com`.
+
+## Required Documentation
+
+Applications integrating `telemetry-java` need to link to the [App User Guide](app-user-guide.md) in both:
+
+- their changelog entry for introducing telemetry
+- their end-user documentation
+
+Example changelog entry:
+
+```markdown
+## Added
+
+- Added anonymous feature-usage telemetry via `telemetry-java`. See the [documentation](app-user-guide.md) for details on collected data and opt-out behavior.
+```
+
+Example end-user documentation entry:
+
+```markdown
+## Telemetry
+
+This application uses `telemetry-java` to send anonymous feature-usage events.
+
+For details on what is collected and how to disable telemetry, see the [documentation](app-user-guide.md).
+```
+
+## Environment Variables
+
+- `EXASOL_TELEMETRY_DISABLE`
+  Disables collection and delivery when set to any non-empty value.
+- `EXASOL_TELEMETRY_ENDPOINT`
+  Overrides the endpoint configured in code.
+- `CI`
+  Disables telemetry automatically when set to any non-empty value.
+
+### UDF Integration Tests
+
+For Exasol UDF integration tests, disable telemetry explicitly so test executions never emit usage data. In UDF script definitions, set `%env EXASOL_TELEMETRY_DISABLE=1;`.
+
+## Runtime Behavior
+
+- Tracking calls are non-blocking and enqueue events into a bounded in-memory queue.
+- Delivery happens on a background sender thread.
+- The JSON payload format matches the Python protocol shape: `version`, `timestamp`, and `features`.
+- Multiple queued events may be batched into a single payload, with timestamps grouped by fully qualified feature name.
+- The configured project short tag prefixes feature names in the payload, for example `MyApp.checkout-started`.
+- Failed delivery uses exponential backoff and stops when the configured retry timeout is reached.
+- Closing `TelemetryClient` flushes pending work before returning and stops background threads.
+- Calling `track(...)` after `TelemetryClient` is closed is a no-op.
+- The client logs an `INFO` lifecycle message when telemetry is enabled or disabled, and debug-level lifecycle messages when telemetry sends data or stops.
