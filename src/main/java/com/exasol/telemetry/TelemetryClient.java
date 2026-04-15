@@ -64,7 +64,7 @@ public final class TelemetryClient implements AutoCloseable {
      * @param feature feature name without the project tag prefix
      */
     public void track(final String feature) {
-        if (closed || !trackingEnabled) {
+        if (!trackingEnabled || closed) {
             return;
         }
 
