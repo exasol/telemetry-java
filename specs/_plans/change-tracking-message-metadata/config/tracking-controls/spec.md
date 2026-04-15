@@ -11,10 +11,11 @@ Environment variables may disable telemetry or override the delivery endpoint, b
 <!-- DELTA:CHANGED -->
 ### Scenario: Overrides the configured endpoint via environment variable
 
-* *GIVEN* the host application configures an endpoint, project tag, and product/library version in code
+* *GIVEN* the host application configures an endpoint, project tag, and `productVersion` in code
 * *AND* the host environment defines an endpoint override
 * *WHEN* the library initializes
 * *THEN* the library SHALL use the environment-provided endpoint for delivery
 * *AND* the library SHALL continue to emit the configured project tag as the `category` field
-* *AND* the library SHALL continue to emit the configured product/library version as the `version` field
+* *AND* the library SHALL continue to emit the configured `productVersion` as the `productVersion` field
+* *AND* the library SHALL continue to emit protocol `version`=`0.2.0`
 <!-- /DELTA:CHANGED -->

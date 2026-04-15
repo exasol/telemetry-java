@@ -4,18 +4,19 @@ Delivers accepted usage events asynchronously while serializing explicit client 
 
 ## Background
 
-The telemetry protocol now carries project identity in top-level message fields instead of encoding it into feature names. Async delivery remains responsible for emitting valid JSON over HTTP without blocking the caller thread, including correct escaping of caller-provided feature names in JSON object keys.
+The telemetry protocol now carries project identity in top-level message fields instead of encoding it into feature names. The JSON `version` field remains the telemetry protocol version and is incremented to `0.2.0`, while `productVersion` carries the integrating product or library version. Async delivery remains responsible for emitting valid JSON over HTTP without blocking the caller thread, including correct escaping of caller-provided feature names in JSON object keys.
 
 ## Scenarios
 
 <!-- DELTA:CHANGED -->
 ### Scenario: Sends queued events asynchronously over HTTP
 
-* *GIVEN* the library is configured with an endpoint, project tag, and product/library version
+* *GIVEN* the library is configured with an endpoint, project tag, and `productVersion`
 * *AND* an accepted usage event is queued for delivery
 * *WHEN* the background sender processes the queue
 * *THEN* the library SHALL submit a protocol message as JSON using HTTP `POST`
-* *AND* the library SHALL include `category`, `version`, `timestamp`, and `features` fields in that JSON payload
+* *AND* the library SHALL include `category`, `version`, `productVersion`, `timestamp`, and `features` fields in that JSON payload
+* *AND* the library SHALL emit protocol `version`=`0.2.0`
 * *AND* the library SHALL perform network delivery without blocking the calling thread
 <!-- /DELTA:CHANGED -->
 

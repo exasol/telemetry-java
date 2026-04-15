@@ -4,13 +4,13 @@ Defines the required product identity values that the host application configure
 
 ## Background
 
-Telemetry messages carry two stable identity fields: `category`, which is the configured project tag, and `version`, which is the integrating product or library version. Feature names remain arbitrary caller-provided strings and MUST NOT duplicate project identity.
+Telemetry messages carry three stable identity fields: `category`, which is the configured project tag; `version`, which is the telemetry protocol version; and `productVersion`, which is the integrating product or library version. Feature names remain arbitrary caller-provided strings and MUST NOT duplicate project identity.
 
 ## Scenarios
 
-### Scenario: Requires project tag and version when creating telemetry configuration
+### Scenario: Requires project tag and productVersion when creating telemetry configuration
 
 * *GIVEN* the host application creates telemetry configuration
-* *WHEN* the host application provides a blank project tag or a blank product/library version
+* *WHEN* the host application provides a blank project tag or a blank `productVersion`
 * *THEN* the library SHALL reject configuration creation
 * *AND* the library MUST require both values before a telemetry client can be created

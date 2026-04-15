@@ -4,18 +4,20 @@ Enables host applications to record feature-usage events without coupling featur
 
 ## Background
 
-The host application still configures project identity once at startup, but accepted feature names are transmitted as caller-provided strings. Project tag and product version are emitted separately as message metadata, and the library does not validate which feature names applications choose apart from ignoring `null` values.
+The host application still configures project identity once at startup, but accepted feature names are transmitted as caller-provided strings. Project tag and `productVersion` are emitted separately as message metadata, while the JSON `version` field remains reserved for the telemetry protocol version. The library does not validate which feature names applications choose apart from ignoring `null` values.
 
 ## Scenarios
 
 <!-- DELTA:CHANGED -->
 ### Scenario: Records a tagged feature usage event
 
-* *GIVEN* the library is configured with a project short tag and product/library version
+* *GIVEN* the library is configured with a project short tag and `productVersion`
 * *AND* tracking is enabled
 * *WHEN* the host application records a feature-usage event
 * *THEN* the library SHALL accept the event for delivery
 * *AND* the library SHALL preserve the caller-provided feature name in the emitted protocol payload without adding the configured project short tag as a prefix
+* *AND* the library SHALL emit the configured `productVersion` as the `productVersion` field
+* *AND* the library SHALL keep `version` reserved for protocol version `0.2.0`
 * *AND* the library MUST NOT validate or reject the feature name based on application-defined naming choices
 <!-- /DELTA:CHANGED -->
 
