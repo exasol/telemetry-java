@@ -21,6 +21,8 @@ public final class TelemetryClient implements AutoCloseable {
     private final HttpTransport transport;
     private final Thread senderThread;
     private final Clock clock;
+    private final boolean trackingEnabled;
+    private final String featurePrefix;
     private final CountDownLatch terminated = new CountDownLatch(1);
     private volatile boolean closed;
 
@@ -33,9 +35,10 @@ public final class TelemetryClient implements AutoCloseable {
         this.clock = requireNonNull(clock, "clock");
         this.queue = new ArrayBlockingQueue<>(config.getQueueCapacity());
         this.transport = new HttpTransport(config);
+        this.trackingEnabled = !config.isTrackingDisabled();
+        this.featurePrefix = config.getProjectTag() + "~";
         this.senderThread = new Thread(this::runSender, "telemetry-java-sender");
         this.senderThread.setDaemon(true);
-        final boolean trackingEnabled = !config.isTrackingDisabled();
         if (trackingEnabled) {
             this.senderThread.start();
             logEnabled();
@@ -61,10 +64,7 @@ public final class TelemetryClient implements AutoCloseable {
      * @param feature feature name without the project tag prefix
      */
     public void track(final String feature) {
-        if (closed) {
-            return;
-        }
-        if (config.isTrackingDisabled()) {
+        if (closed || !trackingEnabled) {
             return;
         }
 
@@ -83,7 +83,7 @@ public final class TelemetryClient implements AutoCloseable {
     }
 
     private String namespacedFeature(final String feature) {
-        return config.getProjectTag() + "~" + feature;
+        return featurePrefix + feature;
     }
 
     private String sanitizeText(final String value) {
@@ -187,7 +187,6 @@ public final class TelemetryClient implements AutoCloseable {
             return;
         }
         closed = true;
-        final boolean trackingEnabled = !config.isTrackingDisabled();
         if (trackingEnabled) {
             try {
                 senderThread.join();
