@@ -28,6 +28,20 @@ class TrackingApiIT {
     }
 
     @Test
+    void emitsPayloadAsValidJson() throws Exception {
+        try (RecordingHttpServer server = RecordingHttpServer.createSuccessServer();
+                TelemetryClient client = TelemetryClient.create(server.configBuilder("shop-ui")
+                        .retryTimeout(Duration.ofMillis(500))
+                        .build())) {
+            client.track("checkout-started");
+
+            final List<RecordingHttpServer.RecordedRequest> requests = server.awaitRequests(1, Duration.ofSeconds(2));
+            assertThat(requests, hasSize(1));
+            assertThat(JsonTestHelper.parseJson(requests.get(0).body()).containsKey("features"), is(true));
+        }
+    }
+
+    @Test
     void keepsCallerThreadOverheadLowForAcceptedTracking() throws Exception {
         try (RecordingHttpServer server = RecordingHttpServer.createDelayedSuccessServer(300);
                 TelemetryClient client = TelemetryClient.create(server.configBuilder("shop-ui")

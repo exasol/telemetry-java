@@ -14,7 +14,9 @@ Initial release of the telemetry-java library.
 
 ### Test Dependency Updates
 
+* Added `jakarta.json:jakarta.json-api:2.1.3`
 * Added `nl.jqno.equalsverifier:equalsverifier:3.19.4`
+* Added `org.eclipse.parsson:parsson:1.1.7`
 * Added `org.hamcrest:hamcrest:3.0`
 * Added `org.junit.jupiter:junit-jupiter-api:5.13.4`
 

@@ -2,6 +2,7 @@ package com.exasol.telemetry;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
 
 import java.time.Instant;
 import java.util.List;
@@ -28,6 +29,18 @@ class MessageTest {
         assertThat(json, containsString("\"version\":\"0.1\""));
         assertThat(json, containsString("\"timestamp\":"));
         assertThat(json, containsString("\"features\":{\"project.a\":[10,20],\"project.b\":[30]}"));
+    }
+
+    @Test
+    void serializesValidJson() {
+        final Message message = Message.fromEvents(Instant.ofEpochSecond(30), List.of(
+                new TelemetryEvent("project.a", Instant.ofEpochSecond(10))));
+
+        final var payload = JsonTestHelper.parseJson(message.toJson());
+
+        assertThat(payload.containsKey("version"), is(true));
+        assertThat(payload.containsKey("timestamp"), is(true));
+        assertThat(payload.containsKey("features"), is(true));
     }
 
     @Test
