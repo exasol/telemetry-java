@@ -1,4 +1,4 @@
-# Telemetry Java 0.1.0, released 2026-??-??
+# Telemetry Java 0.1.0, released 2026-04-16
 
 Code name: Initial Release
 
@@ -9,6 +9,11 @@ Initial release of the telemetry-java library.
 ## Features
 
 * #2: Create initial version
+* #6: Add category (project tag) and product version to message
+
+## Documentation
+
+* #3: Add requirements tracing using OFT
 
 ## Dependency Updates
 
