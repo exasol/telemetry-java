@@ -40,8 +40,9 @@
 | [error-code-crawler-maven-plugin][37]                   | [MIT License][38]                           |
 | [Git Commit Id Maven Plugin][39]                        | [GNU Lesser General Public License 3.0][40] |
 | [Project Keeper Maven plugin][41]                       | [The MIT License][42]                       |
-| [OpenFastTrace Maven Plugin][43]                        | [GNU General Public License v3.0][44]       |
-| [Apache Maven JAR Plugin][45]                           | [Apache-2.0][9]                             |
+| [Build Helper Maven Plugin][43]                         | [The MIT License][44]                       |
+| [OpenFastTrace Maven Plugin][45]                        | [GNU General Public License v3.0][46]       |
+| [Apache Maven JAR Plugin][47]                           | [Apache-2.0][9]                             |
 
 [0]: https://github.com/eclipse-ee4j/jsonp
 [1]: https://projects.eclipse.org/license/epl-2.0
@@ -86,6 +87,8 @@
 [40]: http://www.gnu.org/licenses/lgpl-3.0.txt
 [41]: https://github.com/exasol/project-keeper/
 [42]: https://github.com/exasol/project-keeper/blob/main/LICENSE
-[43]: https://github.com/itsallcode/openfasttrace-maven-plugin
-[44]: https://www.gnu.org/licenses/gpl-3.0.html
-[45]: https://maven.apache.org/plugins/maven-jar-plugin/
+[43]: https://www.mojohaus.org/build-helper-maven-plugin/
+[44]: https://spdx.org/licenses/MIT.txt
+[45]: https://github.com/itsallcode/openfasttrace-maven-plugin
+[46]: https://www.gnu.org/licenses/gpl-3.0.html
+[47]: https://maven.apache.org/plugins/maven-jar-plugin/

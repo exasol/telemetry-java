@@ -42,6 +42,7 @@ Initial release of the telemetry-java library.
 * Added `org.apache.maven.plugins:maven-surefire-plugin:3.5.4`
 * Added `org.apache.maven.plugins:maven-toolchains-plugin:3.2.0`
 * Added `org.basepom.maven:duplicate-finder-maven-plugin:2.0.1`
+* Added `org.codehaus.mojo:build-helper-maven-plugin:3.6.1`
 * Added `org.codehaus.mojo:flatten-maven-plugin:1.7.3`
 * Added `org.codehaus.mojo:versions-maven-plugin:2.21.0`
 * Added `org.itsallcode:openfasttrace-maven-plugin:2.3.0`
