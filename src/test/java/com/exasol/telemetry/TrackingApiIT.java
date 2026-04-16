@@ -15,6 +15,7 @@ class TrackingApiIT {
     private static final String FEATURE = "checkout-started";
 
     // [itest~tracking-api-records-tagged-feature~1->req~tracking-api~1]
+    // [itest~tracking-api-emits-client-identity~1->req~client-identity~1]
     @Test
     void recordsFeatureUsageEventWithCategoryProtocolVersionAndProductVersion() throws Exception {
         try (RecordingHttpServer server = RecordingHttpServer.createSuccessServer();
@@ -97,6 +98,7 @@ class TrackingApiIT {
         }
     }
 
+    // [itest~tracking-api-ignores-null-feature-name~1->req~tracking-api~1]
     @Test
     void ignoresNullFeatureNames() throws Exception {
         try (RecordingHttpServer server = RecordingHttpServer.createSuccessServer();

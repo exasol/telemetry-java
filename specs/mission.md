@@ -43,6 +43,13 @@ Allows host applications and deployment environments to disable tracking or over
 
 Needs: req
 
+### Client Identity
+`feat~client-identity~1`
+
+Defines the required product identity values that the host application configures once and the library attaches to emitted telemetry messages.
+
+Needs: req
+
 ### Async Delivery
 `feat~async-delivery~1`
 

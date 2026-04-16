@@ -150,6 +150,7 @@ public final class TelemetryConfig {
         return configuredEndpoint != null ? configuredEndpoint : DEFAULT_ENDPOINT;
     }
 
+    // [impl~telemetry-config-require-client-identity~1->req~client-identity~1]
     private static String requireText(final String value, final String field) {
         if (value == null || value.trim().isEmpty()) {
             throw new IllegalArgumentException(field + " must not be blank");

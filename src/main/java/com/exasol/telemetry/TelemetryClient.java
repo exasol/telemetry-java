@@ -111,6 +111,9 @@ public final class TelemetryClient implements AutoCloseable {
         Duration delay = config.getInitialRetryDelay();
 
         while (true) {
+            if (Thread.currentThread().isInterrupted()) {
+                return;
+            }
             try {
                 transport.send(message);
                 LOGGER.fine(() -> "Telemetry sent to the server with " + events.size() + " event(s).");
@@ -118,6 +121,9 @@ public final class TelemetryClient implements AutoCloseable {
             } catch (final Exception exception) {
                 LOGGER.fine(() -> "Telemetry sending failed for " + events.size() + " event(s): "
                         + rootCauseMessage(exception));
+                if (Thread.currentThread().isInterrupted()) {
+                    return;
+                }
                 final Instant now = clock.instant();
                 if (!now.isBefore(deadline)) {
                     return;
@@ -178,13 +184,27 @@ public final class TelemetryClient implements AutoCloseable {
         }
         closed = true;
         if (trackingEnabled) {
-            try {
-                senderThread.join();
-            } catch (final InterruptedException ignored) {
-                Thread.currentThread().interrupt();
-            }
+            awaitSenderStop();
         }
         LOGGER.fine("Telemetry is stopped.");
+    }
+
+    private void awaitSenderStop() {
+        final long timeoutNanos = config.getRetryTimeout().toNanos();
+        final long deadlineNanos = System.nanoTime() + timeoutNanos;
+        try {
+            while (senderThread.isAlive()) {
+                final long remainingNanos = deadlineNanos - System.nanoTime();
+                if (remainingNanos <= 0) {
+                    senderThread.interrupt();
+                    senderThread.join();
+                    return;
+                }
+                TimeUnit.NANOSECONDS.timedJoin(senderThread, remainingNanos);
+            }
+        } catch (final InterruptedException ignored) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     private void logEnabled() {

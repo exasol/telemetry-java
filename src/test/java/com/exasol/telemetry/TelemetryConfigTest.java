@@ -29,6 +29,7 @@ class TelemetryConfigTest {
         assertThat(config.isTrackingDisabled(), is(false));
     }
 
+    // [utest~telemetry-config-client-identity-defaults~1->req~client-identity~1]
     @Test
     void usesDefaultsAndConfiguredValuesWithRealEnvironment() {
         final TelemetryConfig config = TelemetryConfig.builder("project", "1.2.3")
@@ -77,6 +78,7 @@ class TelemetryConfigTest {
         assertThat(TelemetryConfig.isDisabled("github-actions"), is(true));
     }
 
+    // [utest~telemetry-config-rejects-blank-project-tag~1->req~client-identity~1]
     @Test
     void rejectsBlankProjectTag() {
         final Builder builder = TelemetryConfig.builder("  ", "1.2.3");
@@ -84,7 +86,7 @@ class TelemetryConfigTest {
         assertThat(exception.getMessage(), containsString("projectTag"));
     }
 
-    // [utest~telemetry-config-default-endpoint~1->req~tracking-controls~1]
+    // [utest~telemetry-config-rejects-blank-product-version~1->req~client-identity~1]
     @Test
     void rejectsBlankProductVersion() {
         final Builder builder = TelemetryConfig.builder("project", " ");
@@ -92,6 +94,7 @@ class TelemetryConfigTest {
         assertThat(exception.getMessage(), containsString("productVersion"));
     }
 
+    // [utest~telemetry-config-default-endpoint~1->req~tracking-controls~1]
     @Test
     void usesDefaultEndpointWhenNoEndpointIsConfigured() {
         final TelemetryConfig config = TelemetryConfig.builder("project", "1.2.3").build();

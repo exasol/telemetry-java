@@ -21,6 +21,7 @@ final class Message {
     }
 
     // [impl~message-from-events~1->req~async-delivery~1]
+    // [impl~message-from-events-preserves-client-identity~1->req~client-identity~1]
     static Message fromEvents(final String category, final String productVersion, final Instant timestamp, final List<TelemetryEvent> events) {
         final Map<String, List<Instant>> features = new LinkedHashMap<>();
         for (final TelemetryEvent event : events) {
@@ -30,6 +31,7 @@ final class Message {
     }
 
     // [impl~message-to-json~1->req~async-delivery~1]
+    // [impl~message-to-json-client-identity-fields~1->req~client-identity~1]
     String toJson() {
         final StringBuilder builder = new StringBuilder();
         builder.append('{');
