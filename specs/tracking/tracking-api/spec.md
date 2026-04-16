@@ -2,7 +2,7 @@
 
 Enables host applications to record allowed feature-usage events with minimal integration effort.
 
-## Requirement
+## Requirement: Tracking API
 `req~tracking-api~1`
 
 The library shall provide a tracking API that accepts valid feature-usage events, qualifies emitted feature names with the configured project tag, rejects invalid tracking calls, and keeps accepted tracking work off the caller thread as described by the scenarios below.

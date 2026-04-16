@@ -2,7 +2,7 @@
 
 Ensures host applications can shut down cleanly while still giving queued telemetry an opportunity to be delivered.
 
-## Requirement
+## Requirement: Shutdown Flush
 `req~shutdown-flush~1`
 
 The library shall flush queued telemetry work during close and stop background delivery threads before shutdown completes as described by the scenarios below.

@@ -2,7 +2,7 @@
 
 Delivers accepted usage events to an HTTP endpoint without blocking the host application's main execution path.
 
-## Requirement
+## Requirement: Async Delivery
 `req~async-delivery~1`
 
 The library shall batch accepted telemetry events into protocol messages and deliver them asynchronously over HTTP with retry handling and bounded in-memory buffering as described by the scenarios below.

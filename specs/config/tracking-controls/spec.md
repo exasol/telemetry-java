@@ -2,7 +2,7 @@
 
 Allows host applications and deployment environments to disable tracking or redirect telemetry delivery without code changes.
 
-## Requirement
+## Requirement: Tracking Controls
 `req~tracking-controls~1`
 
 The library shall resolve tracking controls from configuration and environment variables so telemetry can be disabled automatically or redirected to an overridden endpoint as described by the scenarios below.
