@@ -6,7 +6,7 @@
 
 ```java
 String projectShortTag = "MyApp";
-TelemetryConfig config = TelemetryConfig.builder(projectShortTag).build();
+TelemetryConfig config = TelemetryConfig.builder(projectShortTag, "1.2.3").build();
 
 try (TelemetryClient client = TelemetryClient.create(config)) {
     client.track("checkout-started");
@@ -15,7 +15,7 @@ try (TelemetryClient client = TelemetryClient.create(config)) {
 
 ## Required Configuration
 
-- A project short tag at startup. The library adds it to every accepted telemetry event.
+- A project short tag and a product/library version at startup. The library adds the project tag as the telemetry category and includes the configured productVersion in every accepted telemetry event.
 - An optional HTTP endpoint for JSON `POST` delivery. If omitted, the default endpoint is `https://metrics.exasol.com`.
 
 ## Required Documentation
@@ -60,9 +60,9 @@ For Exasol UDF integration tests, disable telemetry explicitly so test execution
 
 - Tracking calls are non-blocking and enqueue events into a bounded in-memory queue.
 - Delivery happens on a background sender thread.
-- The JSON payload format matches the Python protocol shape: `version`, `timestamp`, and `features`.
-- Multiple queued events may be batched into a single payload, with timestamps grouped by fully qualified feature name.
-- The configured project short tag prefixes feature names in the payload, for example `MyApp.checkout-started`.
+- The JSON payload format includes `category`, protocol `version`, `productVersion`, `timestamp`, and `features`.
+- Multiple queued events may be batched into a single payload, with timestamps grouped by caller-provided feature name.
+- The configured project short tag is emitted as top-level `category`; feature names are preserved as provided, for example `checkout-started`.
 - Failed delivery uses exponential backoff and stops when the configured retry timeout is reached.
 - Closing `TelemetryClient` flushes pending work before returning and stops background threads.
 - Calling `track(...)` after `TelemetryClient` is closed is a no-op.

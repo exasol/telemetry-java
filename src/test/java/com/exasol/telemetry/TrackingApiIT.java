@@ -11,12 +11,13 @@ import org.junit.jupiter.api.Test;
 
 class TrackingApiIT {
     private static final String PROJECT_TAG = "shop-ui";
+    private static final String PRODUCT_VERSION = "1.2.3";
     private static final String FEATURE = "checkout-started";
 
     @Test
-    void recordsTaggedFeatureUsageEvent() throws Exception {
+    void recordsFeatureUsageEventWithCategoryProtocolVersionAndProductVersion() throws Exception {
         try (RecordingHttpServer server = RecordingHttpServer.createSuccessServer();
-                TelemetryClient client = TelemetryClient.create(server.configBuilder(PROJECT_TAG)
+                TelemetryClient client = TelemetryClient.create(server.configBuilder(PROJECT_TAG, PRODUCT_VERSION)
                         .retryTimeout(Duration.ofMillis(500))
                         .build())) {
             client.track(FEATURE);
@@ -24,16 +25,18 @@ class TrackingApiIT {
             final List<RecordingHttpServer.RecordedRequest> requests = server.awaitRequests(1, Duration.ofSeconds(2));
             assertThat(requests, hasSize(1));
             assertThat(requests.get(0).method(), is("POST"));
-            assertThat(requests.get(0).body(), containsString("\"version\":\"0.1\""));
+            assertThat(requests.get(0).body(), containsString("\"category\":\"shop-ui\""));
+            assertThat(requests.get(0).body(), containsString("\"version\":\"0.2.0\""));
+            assertThat(requests.get(0).body(), containsString("\"productVersion\":\"1.2.3\""));
             assertThat(requests.get(0).body(), containsString("\"timestamp\":"));
-            assertThat(requests.get(0).body(), containsString("\"features\":{\"shop-ui~checkout-started\":["));
+            assertThat(requests.get(0).body(), containsString("\"features\":{\"checkout-started\":["));
         }
     }
 
     @Test
     void emitsPayloadAsValidJson() throws Exception {
         try (RecordingHttpServer server = RecordingHttpServer.createSuccessServer();
-                TelemetryClient client = TelemetryClient.create(server.configBuilder(PROJECT_TAG)
+                TelemetryClient client = TelemetryClient.create(server.configBuilder(PROJECT_TAG, PRODUCT_VERSION)
                         .retryTimeout(Duration.ofMillis(500))
                         .build())) {
             client.track(FEATURE);
@@ -47,7 +50,7 @@ class TrackingApiIT {
     @Test
     void keepsCallerThreadOverheadLowForAcceptedTracking() throws Exception {
         try (RecordingHttpServer server = RecordingHttpServer.createDelayedSuccessServer(300);
-                TelemetryClient client = TelemetryClient.create(server.configBuilder(PROJECT_TAG)
+                TelemetryClient client = TelemetryClient.create(server.configBuilder(PROJECT_TAG, PRODUCT_VERSION)
                         .retryTimeout(Duration.ofMillis(500))
                         .build())) {
             final long start = System.nanoTime();
@@ -62,7 +65,7 @@ class TrackingApiIT {
     @Test
     void makesDisabledTrackingNoOpWithoutTelemetryOverhead() throws Exception {
         try (RecordingHttpServer server = RecordingHttpServer.createSuccessServer()) {
-            final TelemetryConfig config = server.configBuilder(PROJECT_TAG)
+            final TelemetryConfig config = server.configBuilder(PROJECT_TAG, PRODUCT_VERSION)
                     .environment(new MapEnvironment(Map.of(TelemetryConfig.DISABLED_ENV, "disabled")))
                     .build();
 
@@ -77,10 +80,24 @@ class TrackingApiIT {
     }
 
     @Test
-    void ignoresInvalidFeatureNames() throws Exception {
+    void recordsFeatureUsageEventWithoutPrefixingOrValidation() throws Exception {
         try (RecordingHttpServer server = RecordingHttpServer.createSuccessServer();
-                TelemetryClient client = TelemetryClient.create(server.configBuilder(PROJECT_TAG).build())) {
-            client.track(" ");
+                TelemetryClient client = TelemetryClient.create(server.configBuilder(PROJECT_TAG, PRODUCT_VERSION)
+                        .build())) {
+            client.track(" feature ");
+
+            final List<RecordingHttpServer.RecordedRequest> requests = server.awaitRequests(1, Duration.ofSeconds(2));
+            assertThat(requests, hasSize(1));
+            assertThat(requests.get(0).body(), containsString("\"features\":{\" feature \":"));
+        }
+    }
+
+    @Test
+    void ignoresNullFeatureNames() throws Exception {
+        try (RecordingHttpServer server = RecordingHttpServer.createSuccessServer();
+                TelemetryClient client = TelemetryClient.create(server.configBuilder(PROJECT_TAG, PRODUCT_VERSION)
+                        .build())) {
+            client.track(null);
 
             Thread.sleep(150);
             assertThat(server.awaitRequests(1, Duration.ofMillis(150)), empty());

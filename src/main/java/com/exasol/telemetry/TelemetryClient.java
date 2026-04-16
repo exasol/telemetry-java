@@ -10,7 +10,7 @@ import java.util.logging.Logger;
 
 /**
  * Tracks feature usage events and delivers them asynchronously to the configured telemetry endpoint.
- * Create a client by building a {@link TelemetryConfig} with {@link TelemetryConfig#builder(String)} and passing it
+ * Create a client by building a {@link TelemetryConfig} with {@link TelemetryConfig#builder(String, String)} and passing it
  * to {@link #create(TelemetryConfig)}.
  */
 public final class TelemetryClient implements AutoCloseable {
@@ -22,7 +22,6 @@ public final class TelemetryClient implements AutoCloseable {
     private final Thread senderThread;
     private final Clock clock;
     private final boolean trackingEnabled;
-    private final String featurePrefix;
     private final CountDownLatch terminated = new CountDownLatch(1);
     private volatile boolean closed;
 
@@ -36,7 +35,6 @@ public final class TelemetryClient implements AutoCloseable {
         this.queue = new ArrayBlockingQueue<>(config.getQueueCapacity());
         this.transport = new HttpTransport(config);
         this.trackingEnabled = !config.isTrackingDisabled();
-        this.featurePrefix = config.getProjectTag() + "~";
         this.senderThread = new Thread(this::runSender, "telemetry-java-sender");
         this.senderThread.setDaemon(true);
         if (trackingEnabled) {
@@ -61,36 +59,24 @@ public final class TelemetryClient implements AutoCloseable {
     /**
      * Queue a feature usage event for asynchronous delivery.
      *
-     * @param feature feature name without the project tag prefix
+     * @param feature feature name provided by the caller
      */
     public void track(final String feature) {
         if (!trackingEnabled || closed) {
             return;
         }
 
-        final String sanitizedFeature = sanitizeText(feature);
-        if (sanitizedFeature == null) {
+        if (feature == null) {
             return;
         }
 
-        final TelemetryEvent event = new TelemetryEvent(namespacedFeature(sanitizedFeature), clock.instant());
+        final TelemetryEvent event = new TelemetryEvent(feature, clock.instant());
         enqueue(event);
     }
 
     @SuppressWarnings("java:S899") // Return value of offer ignored, this is fire-and-forget
     private void enqueue(final TelemetryEvent event) {
         queue.offer(event);
-    }
-
-    private String namespacedFeature(final String feature) {
-        return featurePrefix + feature;
-    }
-
-    private String sanitizeText(final String value) {
-        if (value == null || value.trim().isEmpty()) {
-            return null;
-        }
-        return value.trim();
     }
 
     private void runSender() {
@@ -117,7 +103,7 @@ public final class TelemetryClient implements AutoCloseable {
 
     private void sendWithRetry(final List<TelemetryEvent> events) {
         final Instant start = clock.instant();
-        final Message message = Message.fromEvents(start, events);
+        final Message message = Message.fromEvents(config.getProjectTag(), config.getProductVersion(), start, events);
         final Instant deadline = start.plus(config.getRetryTimeout());
         Duration delay = config.getInitialRetryDelay();
 

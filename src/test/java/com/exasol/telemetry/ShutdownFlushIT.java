@@ -9,11 +9,13 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 class ShutdownFlushIT {
+    private static final String PRODUCT_VERSION = "1.2.3";
+
     @Test
     void flushesPendingEventsOnClose() throws Exception {
         final List<RecordingHttpServer.RecordedRequest> requests;
         try (RecordingHttpServer server = RecordingHttpServer.createDelayedSuccessServer(150)) {
-            final TelemetryClient client = TelemetryClient.create(server.configBuilder("shop-ui")
+            final TelemetryClient client = TelemetryClient.create(server.configBuilder("shop-ui", PRODUCT_VERSION)
                     .retryTimeout(Duration.ofSeconds(1))
                     .build());
             client.track("checkout-started");
@@ -23,14 +25,17 @@ class ShutdownFlushIT {
         }
 
         assertThat(requests, hasSize(1));
-        assertThat(requests.get(0).body(), containsString("\"features\":{\"shop-ui~checkout-started\":["));
+        assertThat(requests.get(0).body(), containsString("\"category\":\"shop-ui\""));
+        assertThat(requests.get(0).body(), containsString("\"version\":\"0.2.0\""));
+        assertThat(requests.get(0).body(), containsString("\"productVersion\":\"1.2.3\""));
+        assertThat(requests.get(0).body(), containsString("\"features\":{\"checkout-started\":["));
     }
 
     @Test
     void stopsBackgroundThreadsAfterClose() throws Exception {
         final TelemetryClient client;
         try (RecordingHttpServer server = RecordingHttpServer.createSuccessServer()) {
-            client = TelemetryClient.create(server.configBuilder("shop-ui").build());
+            client = TelemetryClient.create(server.configBuilder("shop-ui", PRODUCT_VERSION).build());
             client.track("checkout-started");
             client.close();
         }

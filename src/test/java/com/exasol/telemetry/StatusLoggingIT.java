@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 
 class StatusLoggingIT {
     private static final String PROJECT_TAG = "projectTag";
+    private static final String VERSION = "1.2.3";
     private static final String FEATURE = "myFeature";
 
     @SuppressWarnings("java:S3416") // Using captured logger name by intention
@@ -23,7 +24,7 @@ class StatusLoggingIT {
     void logsWhenTelemetryIsEnabled() throws Exception {
         try (LogCapture capture = new LogCapture(CAPTURED_LOGGER);
                 RecordingHttpServer server = RecordingHttpServer.createSuccessServer();
-                TelemetryClient client = TelemetryClient.create(server.configBuilder(PROJECT_TAG).build())) {
+                TelemetryClient client = TelemetryClient.create(server.configBuilder(PROJECT_TAG, VERSION).build())) {
             final LogRecord enabledRecord = capture.await(logRecord -> logRecord.getLevel() == Level.INFO
                     && logRecord.getMessage().contains("Telemetry is enabled"), Duration.ofSeconds(1));
 
@@ -38,7 +39,7 @@ class StatusLoggingIT {
     void logsWhenTelemetryIsDisabledWithMechanism() throws Exception {
         try (LogCapture capture = new LogCapture(CAPTURED_LOGGER);
                 RecordingHttpServer server = RecordingHttpServer.createSuccessServer();
-                TelemetryClient client = TelemetryClient.create(server.configBuilder(PROJECT_TAG)
+                TelemetryClient client = TelemetryClient.create(server.configBuilder(PROJECT_TAG, VERSION)
                         .environment(new MapEnvironment(Map.of(TelemetryConfig.DISABLED_ENV, "disabled")))
                         .build())) {
             client.track(FEATURE);
@@ -50,7 +51,7 @@ class StatusLoggingIT {
 
         try (LogCapture capture = new LogCapture(CAPTURED_LOGGER);
                 RecordingHttpServer server = RecordingHttpServer.createSuccessServer();
-                TelemetryClient client = TelemetryClient.create(server.configBuilder(PROJECT_TAG)
+                TelemetryClient client = TelemetryClient.create(server.configBuilder(PROJECT_TAG, VERSION)
                         .environment(new MapEnvironment(Map.of(TelemetryConfig.CI_ENV, "github-actions")))
                         .build())) {
             final LogRecord ciRecord = capture.await(logRecord -> logRecord.getLevel() == Level.INFO
@@ -65,7 +66,7 @@ class StatusLoggingIT {
     void logsSentMessageCount() throws Exception {
         try (LogCapture capture = new LogCapture(CAPTURED_LOGGER);
                 RecordingHttpServer server = RecordingHttpServer.createSuccessServer()) {
-            final TelemetryClient client = TelemetryClient.create(server.configBuilder(PROJECT_TAG)
+            final TelemetryClient client = TelemetryClient.create(server.configBuilder(PROJECT_TAG, VERSION)
                     .build());
             try {
                 client.track(FEATURE);
@@ -84,7 +85,7 @@ class StatusLoggingIT {
     void logsWhenTelemetrySendingFails() throws Exception {
         try (LogCapture capture = new LogCapture(CAPTURED_LOGGER);
                 RecordingHttpServer server = RecordingHttpServer.createFlakyServer(1)) {
-            final TelemetryClient client = TelemetryClient.create(server.configBuilder(PROJECT_TAG)
+            final TelemetryClient client = TelemetryClient.create(server.configBuilder(PROJECT_TAG, VERSION)
                     .retryTimeout(Duration.ofMillis(500))
                     .initialRetryDelay(Duration.ofMillis(25))
                     .maxRetryDelay(Duration.ofMillis(25))
@@ -108,7 +109,7 @@ class StatusLoggingIT {
     void logsWhenTelemetryStops() throws Exception {
         try (LogCapture capture = new LogCapture(CAPTURED_LOGGER);
                 RecordingHttpServer server = RecordingHttpServer.createSuccessServer()) {
-            final TelemetryClient client = TelemetryClient.create(server.configBuilder(PROJECT_TAG).build());
+            final TelemetryClient client = TelemetryClient.create(server.configBuilder(PROJECT_TAG, VERSION).build());
             try {
                 client.close();
                 final LogRecord logRecord = capture.await(r -> r.getLevel() == Level.FINE

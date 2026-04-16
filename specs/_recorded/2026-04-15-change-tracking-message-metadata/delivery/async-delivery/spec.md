@@ -1,13 +1,14 @@
 # Feature: async-delivery
 
-Delivers accepted usage events to an HTTP endpoint without blocking the host application's main execution path.
+Delivers accepted usage events asynchronously while serializing explicit client identity metadata in each payload.
 
 ## Background
 
-Accepted telemetry events are serialized to JSON and delivered via HTTP `POST` to a configured endpoint or the default endpoint `https://metrics.exasol.com`. The JSON payload contains `category`, protocol `version`, `productVersion`, `timestamp`, and `features` fields, and the library uses bounded in-memory buffering with no persistent local storage.
+The telemetry protocol now carries project identity in top-level message fields instead of encoding it into feature names. The JSON `version` field remains the telemetry protocol version and is incremented to `0.2.0`, while `productVersion` carries the integrating product or library version. Async delivery remains responsible for emitting valid JSON over HTTP without blocking the caller thread, including correct escaping of caller-provided feature names in JSON object keys.
 
 ## Scenarios
 
+<!-- DELTA:CHANGED -->
 ### Scenario: Sends queued events asynchronously over HTTP
 
 * *GIVEN* the library is configured with an endpoint, project tag, and `productVersion`
@@ -17,16 +18,9 @@ Accepted telemetry events are serialized to JSON and delivered via HTTP `POST` t
 * *AND* the library SHALL include `category`, `version`, `productVersion`, `timestamp`, and `features` fields in that JSON payload
 * *AND* the library SHALL emit protocol `version`=`0.2.0`
 * *AND* the library SHALL perform network delivery without blocking the calling thread
+<!-- /DELTA:CHANGED -->
 
-### Scenario: Retries failed delivery with exponential backoff until timeout
-
-* *GIVEN* the background sender attempts to deliver a queued event
-* *AND* the configured endpoint fails to accept the request
-* *WHEN* the delivery attempt fails before the retry timeout expires
-* *THEN* the library SHALL retry delivery using exponential backoff
-* *AND* the library SHALL stop retrying that event when the retry timeout is reached
-* *AND* the library MUST use bounded memory while retrying
-
+<!-- DELTA:CHANGED -->
 ### Scenario: Batches multiple drained events into a single protocol message
 
 * *GIVEN* multiple accepted telemetry events are present when the background sender drains the queue
@@ -34,3 +28,4 @@ Accepted telemetry events are serialized to JSON and delivered via HTTP `POST` t
 * *THEN* the library SHALL include the queued events in a single JSON payload
 * *AND* the library SHALL group timestamps by caller-provided feature name in the `features` map
 * *AND* the library SHALL correctly JSON-escape caller-provided feature names when serializing the `features` map
+<!-- /DELTA:CHANGED -->
