@@ -32,7 +32,7 @@ Application end users use the host application and, when they allow it, the appl
 ### Tracking API
 `feat~tracking-api~1`
 
-Provides the host-facing API for recording allowed feature-usage events with minimal integration effort.
+Provides the host-facing API for recording feature-usage events with minimal integration effort.
 
 Needs: req
 

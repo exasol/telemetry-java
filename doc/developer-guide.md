@@ -16,3 +16,13 @@ Standard Maven commands are used:
 ## Project Workflow
 
 This project uses `speq-skill` and recorded specs for mission definition, planning, implementation, verification, and recording into the permanent spec library. See [speq-skill documentation](https://github.com/marconae/speq-skill?tab=readme-ov-file) for details.
+
+## OpenFastTrace Requirement Tracing
+
+OpenFastTrace tags are included in the speq-skill spec to avoid duplication.
+
+Tracing runs in the Maven `verify` phase. You can specifically run tracing using this command:
+
+```sh
+mvn generate-sources org.itsallcode:openfasttrace-maven-plugin:trace
+```
