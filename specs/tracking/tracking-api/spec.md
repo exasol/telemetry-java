@@ -2,6 +2,16 @@
 
 Enables host applications to record allowed feature-usage events with minimal integration effort.
 
+## Requirement
+`req~tracking-api~1`
+
+The library shall provide a tracking API that accepts valid feature-usage events, qualifies emitted feature names with the configured project tag, rejects invalid tracking calls, and keeps accepted tracking work off the caller thread as described by the scenarios below.
+
+Covers:
+* `feat~tracking-api~1`
+
+Needs: impl, utest, itest
+
 ## Background
 
 The host application configures the library at startup with a project short tag. Every accepted usage event uses that project short tag to namespace the feature name in the telemetry protocol.

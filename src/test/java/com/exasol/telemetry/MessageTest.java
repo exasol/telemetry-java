@@ -17,6 +17,7 @@ class MessageTest {
         EqualsVerifier.forClass(Message.class).verify();
     }
 
+    // [utest~message-groups-events~1->req~async-delivery~1]
     @Test
     void groupsEventsByFeatureAndSerializesProtocolShape() {
         final Message message = Message.fromEvents(Instant.ofEpochSecond(30), List.of(
@@ -31,6 +32,7 @@ class MessageTest {
         assertThat(json, containsString("\"features\":{\"project.a\":[10,20],\"project.b\":[30]}"));
     }
 
+    // [utest~message-valid-json~1->req~async-delivery~1]
     @Test
     void serializesValidJson() {
         final Message message = Message.fromEvents(Instant.ofEpochSecond(30), List.of(

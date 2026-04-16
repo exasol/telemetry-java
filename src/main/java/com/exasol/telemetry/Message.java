@@ -16,6 +16,7 @@ final class Message {
         this.features = requireNonNull(features, "features");
     }
 
+    // [impl~message-from-events~1->req~async-delivery~1]
     static Message fromEvents(final Instant timestamp, final List<TelemetryEvent> events) {
         final Map<String, List<Instant>> features = new LinkedHashMap<>();
         for (final TelemetryEvent event : events) {
@@ -24,6 +25,7 @@ final class Message {
         return new Message(timestamp, features);
     }
 
+    // [impl~message-to-json~1->req~async-delivery~1]
     String toJson() {
         final StringBuilder builder = new StringBuilder();
         builder.append('{');

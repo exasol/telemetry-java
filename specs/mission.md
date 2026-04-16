@@ -25,6 +25,36 @@ Application end users use the host application and, when they allow it, the appl
 - Provide clean shutdown behavior and ensure queued usage data is sent during shutdown.
 - Allow tracking to be deactivated via environment variables.
 
+## Traceable Features
+
+### Tracking API
+`feat~tracking-api~1`
+
+Provides the host-facing API for recording allowed feature-usage events with minimal integration effort.
+
+Needs: req
+
+### Tracking Controls
+`feat~tracking-controls~1`
+
+Allows host applications and deployment environments to disable tracking or override telemetry delivery settings.
+
+Needs: req
+
+### Async Delivery
+`feat~async-delivery~1`
+
+Delivers accepted telemetry events over HTTP without blocking the host application's calling thread.
+
+Needs: req
+
+### Shutdown Flush
+`feat~shutdown-flush~1`
+
+Ensures queued telemetry is flushed during shutdown and background work stops when the client closes.
+
+Needs: req
+
 ## Out of Scope
 
 The library does not collect:

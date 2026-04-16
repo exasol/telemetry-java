@@ -2,6 +2,16 @@
 
 Delivers accepted usage events to an HTTP endpoint without blocking the host application's main execution path.
 
+## Requirement
+`req~async-delivery~1`
+
+The library shall batch accepted telemetry events into protocol messages and deliver them asynchronously over HTTP with retry handling and bounded in-memory buffering as described by the scenarios below.
+
+Covers:
+* `feat~async-delivery~1`
+
+Needs: impl, utest, itest
+
 ## Background
 
 Accepted telemetry events are serialized to JSON and delivered via HTTP `POST` to a configured endpoint or the default endpoint `https://metrics.exasol.com`. The JSON payload contains `version`, `timestamp`, and `features` fields, and the library uses bounded in-memory buffering with no persistent local storage.

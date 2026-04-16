@@ -2,6 +2,16 @@
 
 Allows host applications and deployment environments to disable tracking or redirect telemetry delivery without code changes.
 
+## Requirement
+`req~tracking-controls~1`
+
+The library shall resolve tracking controls from configuration and environment variables so telemetry can be disabled automatically or redirected to an overridden endpoint as described by the scenarios below.
+
+Covers:
+* `feat~tracking-controls~1`
+
+Needs: impl, utest, itest
+
 ## Background
 
 Tracking can be deactivated by `EXASOL_TELEMETRY_DISABLE` or automatically by `CI` when either environment variable is set to any non-empty value. If the host application does not configure an endpoint, the library uses `https://metrics.exasol.com`. The configured endpoint can be overridden by `EXASOL_TELEMETRY_ENDPOINT`.

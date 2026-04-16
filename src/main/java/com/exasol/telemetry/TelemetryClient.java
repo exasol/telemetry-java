@@ -54,6 +54,7 @@ public final class TelemetryClient implements AutoCloseable {
      * @param config telemetry runtime configuration
      * @return telemetry client
      */
+    // [impl~telemetry-client-create~1->req~tracking-api~1]
     public static TelemetryClient create(final TelemetryConfig config) {
         return new TelemetryClient(config);
     }
@@ -63,6 +64,7 @@ public final class TelemetryClient implements AutoCloseable {
      *
      * @param feature feature name without the project tag prefix
      */
+    // [impl~telemetry-client-track~1->req~tracking-api~1]
     public void track(final String feature) {
         if (!trackingEnabled || closed) {
             return;
@@ -115,6 +117,7 @@ public final class TelemetryClient implements AutoCloseable {
         return batch;
     }
 
+    // [impl~telemetry-client-send-with-retry~1->req~async-delivery~1]
     private void sendWithRetry(final List<TelemetryEvent> events) {
         final Instant start = clock.instant();
         final Message message = Message.fromEvents(start, events);
@@ -182,6 +185,7 @@ public final class TelemetryClient implements AutoCloseable {
      * Stop the sender thread and wait for any queued events to be flushed before returning.
      */
     @Override
+    // [impl~telemetry-client-close~1->req~shutdown-flush~1]
     public void close() {
         if (closed) {
             return;

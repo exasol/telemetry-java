@@ -2,6 +2,16 @@
 
 Ensures host applications can shut down cleanly while still giving queued telemetry an opportunity to be delivered.
 
+## Requirement
+`req~shutdown-flush~1`
+
+The library shall flush queued telemetry work during close and stop background delivery threads before shutdown completes as described by the scenarios below.
+
+Covers:
+* `feat~shutdown-flush~1`
+
+Needs: impl, utest, itest
+
 ## Background
 
 The telemetry client participates in application shutdown through `AutoCloseable`.

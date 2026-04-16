@@ -12,6 +12,7 @@ class TrackingControlsIT {
     private static final String PROJECT_TAG = "projectTag";
     private static final String FEATURE = "myFeature";
 
+    // [itest~tracking-controls-disable-env~1->req~tracking-controls~1]
     @Test
     void disablesTrackingViaEnvironmentVariables() throws Exception {
         try (RecordingHttpServer server = RecordingHttpServer.createSuccessServer();
@@ -25,6 +26,7 @@ class TrackingControlsIT {
         }
     }
 
+    // [itest~tracking-controls-disable-ci~1->req~tracking-controls~1]
     @Test
     void disablesTrackingAutomaticallyWhenCiIsNonEmpty() throws Exception {
         try (RecordingHttpServer server = RecordingHttpServer.createSuccessServer();
@@ -38,6 +40,7 @@ class TrackingControlsIT {
         }
     }
 
+    // [itest~tracking-controls-endpoint-override~1->req~tracking-controls~1]
     @Test
     void overridesConfiguredEndpointViaEnvironmentVariable() throws Exception {
         try (RecordingHttpServer configuredServer = RecordingHttpServer.createSuccessServer();

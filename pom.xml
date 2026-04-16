@@ -76,7 +76,7 @@
                 <version>3.6.1</version>
                 <executions>
                     <execution>
-                        <id>add-source</id>
+                        <id>add-spec-to-source</id>
                         <phase>generate-sources</phase>
                         <goals>
                             <goal>add-source</goal>
@@ -84,7 +84,7 @@
                         <configuration>
                             <sources>
                                 <!-- Add spec to OFT requirement tracing -->
-                                <source>spec/</source>
+                                <source>specs/</source>
                             </sources>
                         </configuration>
                     </execution>

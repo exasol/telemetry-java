@@ -129,10 +129,12 @@ public final class TelemetryConfig {
         return null;
     }
 
+    // [impl~telemetry-config-disable-detection~1->req~tracking-controls~1]
     static boolean isDisabled(final String value) {
         return value != null && !value.trim().isEmpty();
     }
 
+    // [impl~telemetry-config-resolve-endpoint~1->req~tracking-controls~1]
     private static URI resolveEndpoint(final URI configuredEndpoint, final Environment environment) {
         final String override = environment.getenv(ENDPOINT_ENV);
         if (override != null && !override.trim().isEmpty()) {
