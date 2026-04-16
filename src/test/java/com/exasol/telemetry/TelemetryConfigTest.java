@@ -1,7 +1,8 @@
 package com.exasol.telemetry;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.net.URI;
@@ -74,22 +75,21 @@ class TelemetryConfigTest {
 
     @Test
     void rejectsBlankProjectTag() {
-        final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> TelemetryConfig.builder("  ", "1.2.3").build());
+        final Builder builder = TelemetryConfig.builder("  ", "1.2.3");
+        final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, builder::build);
         assertThat(exception.getMessage(), containsString("projectTag"));
     }
 
     @Test
     void rejectsBlankProductVersion() {
-        final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> TelemetryConfig.builder("project", " ").build());
+        final Builder builder = TelemetryConfig.builder("project", " ");
+        final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, builder::build);
         assertThat(exception.getMessage(), containsString("productVersion"));
     }
 
     @Test
     void usesDefaultEndpointWhenNoEndpointIsConfigured() {
         final TelemetryConfig config = TelemetryConfig.builder("project", "1.2.3").build();
-
         assertThat(config.getEndpoint(), is(TelemetryConfig.DEFAULT_ENDPOINT));
     }
 
