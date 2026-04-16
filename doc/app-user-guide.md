@@ -10,7 +10,12 @@ It explains:
 
 ## What Is Collected?
 
-The library sends feature-usage telemetry only. This means it records which application features are used and when they are used.
+The library collects only the data needed for feature-usage telemetry:
+
+- product name, sent as the telemetry category
+- product version
+- which application features are used
+- when those features are used
 
 It does not collect:
 
