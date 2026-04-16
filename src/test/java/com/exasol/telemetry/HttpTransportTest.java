@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 class HttpTransportTest {
     private static final String DUMMY_ENDPOINT = "https://example.com";
     private static final String PROJECT_TAG = "projectTag";
+    private static final String VERSION = "1.2.3";
     private static final String FEATURE = "projectTag.feature";
 
     // [utest~http-transport-sends-json-payload~1->req~async-delivery~1]
@@ -27,27 +28,31 @@ class HttpTransportTest {
     void sendsJsonPayloadToConfiguredClient() throws IOException {
         final CapturingRequestSender requestSender = new CapturingRequestSender(202);
         final HttpTransport transport = new HttpTransport(
-                TelemetryConfig.builder(PROJECT_TAG).endpoint(URI.create(DUMMY_ENDPOINT)).build(),
+                TelemetryConfig.builder(PROJECT_TAG, VERSION).endpoint(URI.create(DUMMY_ENDPOINT)).build(),
                 requestSender);
 
-        transport.send(Message.fromEvents(Instant.ofEpochMilli(30), List.of(new TelemetryEvent(FEATURE, Instant.ofEpochSecond(10)))));
+        transport.send(Message.fromEvents(PROJECT_TAG, VERSION, Instant.ofEpochMilli(30), List.of(new TelemetryEvent(FEATURE, Instant.ofEpochSecond(10)))));
 
         final HttpRequest request = requestSender.request;
+        final String body = bodyToString(request);
         assertThat(request.method(), is("POST"));
         assertThat(request.uri(), is(URI.create(DUMMY_ENDPOINT)));
         assertThat(request.headers().firstValue("Content-Type").orElseThrow(), is("application/json"));
-        assertThat(bodyToString(request), containsString("\"features\":{\"projectTag.feature\":[10]}"));
+        assertThat(body, containsString("\"category\":\"projectTag\""));
+        assertThat(body, containsString("\"version\":\"0.2.0\""));
+        assertThat(body, containsString("\"productVersion\":\"1.2.3\""));
+        assertThat(body, containsString("\"features\":{\"projectTag.feature\":[10]}"));
     }
 
     // [utest~http-transport-rejects-non-success~1->req~async-delivery~1]
     @Test
     void rejectsNonSuccessStatusCodes() {
         final HttpTransport transport = new HttpTransport(
-                TelemetryConfig.builder(PROJECT_TAG).endpoint(URI.create(DUMMY_ENDPOINT)).build(),
+                TelemetryConfig.builder(PROJECT_TAG, VERSION).endpoint(URI.create(DUMMY_ENDPOINT)).build(),
                 request -> new HttpTransport.Response(500, "server says no"));
 
         final HttpException exception = assertThrows(HttpException.class,
-                () -> transport.send(Message.fromEvents(Instant.ofEpochSecond(30), List.of(new TelemetryEvent(FEATURE, Instant.ofEpochSecond(10))))));
+                () -> transport.send(Message.fromEvents(PROJECT_TAG, VERSION, Instant.ofEpochSecond(30), List.of(new TelemetryEvent(FEATURE, Instant.ofEpochSecond(10))))));
         assertThat(exception.getStatusCode(), is(500));
         assertThat(exception.getServerStatus(), is("server says no"));
         assertThat(exception.getMessage(), is("server says no"));
@@ -57,13 +62,13 @@ class HttpTransportTest {
     @Test
     void convertsInterruptedExceptionToIoException() {
         final HttpTransport transport = new HttpTransport(
-                TelemetryConfig.builder(PROJECT_TAG).endpoint(URI.create(DUMMY_ENDPOINT)).build(),
+                TelemetryConfig.builder(PROJECT_TAG, VERSION).endpoint(URI.create(DUMMY_ENDPOINT)).build(),
                 request -> {
                     throw new InterruptedException("interrupted");
                 });
 
         final IOException exception = assertThrows(IOException.class,
-                () -> transport.send(Message.fromEvents(Instant.ofEpochSecond(30), List.of(new TelemetryEvent(FEATURE, Instant.ofEpochSecond(10))))));
+                () -> transport.send(Message.fromEvents(PROJECT_TAG, VERSION, Instant.ofEpochSecond(30), List.of(new TelemetryEvent(FEATURE, Instant.ofEpochSecond(10))))));
         assertThat(exception.getMessage(), containsString("Interrupted while sending telemetry"));
         assertThat(Thread.currentThread().isInterrupted(), is(true));
         Thread.interrupted();

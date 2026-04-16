@@ -34,8 +34,10 @@ Tracking can be deactivated by `EXASOL_TELEMETRY_DISABLE` or automatically by `C
 
 ### Scenario: Overrides the configured endpoint via environment variable
 
-* *GIVEN* the host application configures an endpoint in code
+* *GIVEN* the host application configures an endpoint, project tag, and `productVersion` in code
 * *AND* the host environment defines an endpoint override
 * *WHEN* the library initializes
 * *THEN* the library SHALL use the environment-provided endpoint for delivery
-* *AND* the library SHALL continue to add the configured project short tag to all accepted events
+* *AND* the library SHALL continue to emit the configured project tag as the `category` field
+* *AND* the library SHALL continue to emit the configured `productVersion` as the `productVersion` field
+* *AND* the library SHALL continue to emit protocol `version`=`0.2.0`

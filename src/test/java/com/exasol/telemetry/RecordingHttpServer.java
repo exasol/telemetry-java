@@ -43,8 +43,8 @@ final class RecordingHttpServer implements AutoCloseable {
         return new RecordingHttpServer(failuresBeforeSuccess, 0);
     }
 
-    TelemetryConfig.Builder configBuilder(final String projectTag) {
-        return TelemetryConfig.builder(projectTag)
+    TelemetryConfig.Builder configBuilder(final String projectTag, final String version) {
+        return TelemetryConfig.builder(projectTag, version)
                 .endpoint(endpoint())
                 .environment(MapEnvironment.empty());
     }

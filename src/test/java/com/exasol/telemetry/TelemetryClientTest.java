@@ -14,7 +14,7 @@ class TelemetryClientTest {
     // [utest~telemetry-client-disabled-tracking~1->req~tracking-controls~1]
     @Test
     void doesNotRunSenderWhenTrackingIsDisabled() throws Exception {
-        final TelemetryConfig config = TelemetryConfig.builder("project").endpoint(URI.create("https://example.com"))
+        final TelemetryConfig config = TelemetryConfig.builder("project", "1.2.3").endpoint(URI.create("https://example.com"))
                 .environment(new MapEnvironment(Map.of(TelemetryConfig.DISABLED_ENV, "true")))
                 .build();
 
@@ -30,11 +30,11 @@ class TelemetryClientTest {
 
     // [utest~telemetry-client-invalid-feature~1->req~tracking-api~1]
     @Test
-    void ignoresBlankFeatureName() {
-        final TelemetryConfig config = TelemetryConfig.builder("project").endpoint(URI.create("https://example.com")).build();
+    void ignoresNullFeatureName() {
+        final TelemetryConfig config = TelemetryConfig.builder("project", "1.2.3").endpoint(URI.create("https://example.com")).build();
         final TelemetryClient client = TelemetryClient.create(config);
         try {
-            client.track(" ");
+            client.track(null);
         } finally {
             client.close();
         }
@@ -43,7 +43,7 @@ class TelemetryClientTest {
     // [utest~telemetry-client-after-close~1->req~tracking-api~1]
     @Test
     void ignoresTrackingAfterClose() {
-        final TelemetryConfig config = TelemetryConfig.builder("project").endpoint(URI.create("https://example.com"))
+        final TelemetryConfig config = TelemetryConfig.builder("project", "1.2.3").endpoint(URI.create("https://example.com"))
                 .environment(new MapEnvironment(Map.of(TelemetryConfig.DISABLED_ENV, "true")))
                 .build();
         final TelemetryClient client = TelemetryClient.create(config);
@@ -56,7 +56,7 @@ class TelemetryClientTest {
     // [utest~telemetry-client-close-idempotent~1->req~shutdown-flush~1]
     @Test
     void makesCloseIdempotent() {
-        final TelemetryConfig config = TelemetryConfig.builder("project").endpoint(URI.create("https://example.com"))
+        final TelemetryConfig config = TelemetryConfig.builder("project", "1.2.3").endpoint(URI.create("https://example.com"))
                 .environment(new MapEnvironment(Map.of(TelemetryConfig.DISABLED_ENV, "true")))
                 .build();
         final TelemetryClient client = TelemetryClient.create(config);

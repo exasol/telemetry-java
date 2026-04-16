@@ -12,6 +12,8 @@ Primary users are developers of other applications who integrate the library int
 
 Application end users are also part of the system context. They must be informed about usage tracking and be able to opt out.
 
+The app user guide is written for end users, not application developers. It should avoid technical implementation details and focus on what data is collected, how users can tell whether telemetry is enabled, and how they can disable it.
+
 ## Typical Workflow
 
 Developers integrate the library into their application with minimal effort.
@@ -80,7 +82,7 @@ The project uses standard Maven commands.
 
 The repository follows the default Maven project structure.
 
-It also includes a `docs/` directory containing:
+It also includes a `doc/` directory containing:
 
 - an app user guide
 - a developer guide
@@ -106,3 +108,5 @@ Intended data flow:
 - Only send strings and feature names
 - No PII
 - No background threads after close
+- Any change to collected telemetry data must be documented in the app user guide
+- The app user guide must stay end-user focused and avoid unnecessary technical details

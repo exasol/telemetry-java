@@ -6,30 +6,36 @@ import java.time.Instant;
 import java.util.*;
 
 final class Message {
-    static final String VERSION = "0.1";
+    static final String VERSION = "0.2.0";
 
+    private final String category;
+    private final String productVersion;
     private final Instant timestamp;
     private final Map<String, List<Instant>> features;
 
-    private Message(final Instant timestamp, final Map<String, List<Instant>> features) {
+    private Message(final String category, final String productVersion, final Instant timestamp, final Map<String, List<Instant>> features) {
+        this.category = requireNonNull(category, "category");
+        this.productVersion = requireNonNull(productVersion, "productVersion");
         this.timestamp = requireNonNull(timestamp, "timestamp");
         this.features = requireNonNull(features, "features");
     }
 
     // [impl~message-from-events~1->req~async-delivery~1]
-    static Message fromEvents(final Instant timestamp, final List<TelemetryEvent> events) {
+    static Message fromEvents(final String category, final String productVersion, final Instant timestamp, final List<TelemetryEvent> events) {
         final Map<String, List<Instant>> features = new LinkedHashMap<>();
         for (final TelemetryEvent event : events) {
             features.computeIfAbsent(event.getFeature(), ignored -> new ArrayList<>()).add(event.getTimestamp());
         }
-        return new Message(timestamp, features);
+        return new Message(category, productVersion, timestamp, features);
     }
 
     // [impl~message-to-json~1->req~async-delivery~1]
     String toJson() {
         final StringBuilder builder = new StringBuilder();
         builder.append('{');
+        builder.append("\"category\":\"").append(escape(category)).append("\",");
         builder.append("\"version\":\"").append(VERSION).append("\",");
+        builder.append("\"productVersion\":\"").append(escape(productVersion)).append("\",");
         builder.append("\"timestamp\":").append(timestamp.getEpochSecond()).append(',');
         builder.append("\"features\":{");
 
@@ -92,11 +98,12 @@ final class Message {
             return false;
         }
         final Message that = (Message) other;
-        return Objects.equals(timestamp, that.timestamp) && Objects.equals(features, that.features);
+        return Objects.equals(category, that.category) && Objects.equals(productVersion, that.productVersion)
+                && Objects.equals(timestamp, that.timestamp) && Objects.equals(features, that.features);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(timestamp, features);
+        return Objects.hash(category, productVersion, timestamp, features);
     }
 }

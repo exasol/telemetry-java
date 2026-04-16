@@ -1,16 +1,41 @@
 # App User Guide
 
-Applications using `telemetry-java` are expected to inform users when usage tracking is active.
+This guide is for end users of applications that use `telemetry-java`.
+
+It explains:
+
+- which data is collected
+- how to see whether telemetry is enabled
+- how to disable telemetry
 
 ## What Is Collected?
 
-The library is designed to send feature-usage events only. It does not collect logs, stack traces, high-frequency data, numeric data, or personally identifiable information.
+The library collects only the data needed for feature-usage telemetry:
 
-Messages sent to the server contain the protocol version, the message timestamp, and a `features` map from feature name to a list of usage timestamps.
+- product name, sent as the telemetry category
+- product version
+- which application features are used
+- when those features are used
+
+It does not collect:
+
+- personally identifiable information
+- general-purpose diagnostic logs
+- stack traces
+- high-frequency event streams
+- numeric measurements
 
 The library sends telemetry to `https://metrics.exasol.com`.
 
-## Opt-Out
+For Exasol's general privacy information, see the [Exasol Privacy Policy](https://www.exasol.com/privacy-policy/).
+
+## How To See Whether Telemetry Is Enabled
+
+Applications can use lifecycle log messages from the library to show whether telemetry is enabled or disabled.
+
+When telemetry is disabled, the library does not enqueue or send usage events.
+
+## How To Disable Telemetry
 
 Host applications can disable telemetry globally by setting environment variable `EXASOL_TELEMETRY_DISABLE` to any non-empty value.
 
@@ -25,7 +50,3 @@ CREATE OR REPLACE JAVA SCALAR SCRIPT MY_UDF(...) RETURNS VARCHAR(100) AS
 In Exasol UDF script options, each environment variable declaration must end with a semicolon and the value must not be quoted.
 
 Telemetry is also disabled automatically when environment variable `CI` is set to any non-empty value, so CI and test environments do not emit usage data by default.
-
-When telemetry is disabled, the library does not enqueue or send usage events.
-
-The library also emits lifecycle log messages so users can see whether telemetry is enabled or disabled, when data is sent, and when telemetry stops.
