@@ -30,7 +30,7 @@ Example changelog entry:
 ```markdown
 ## Added
 
-- Added anonymous feature-usage telemetry via `telemetry-java`. See the [documentation](app-user-guide.md) for details on collected data and opt-out behavior.
+- Added anonymous feature-usage telemetry via `telemetry-java`. See the [documentation](https://github.com/exasol/telemetry-java/blob/main/doc/app-user-guide.md) for details on collected data and opt-out behavior.
 ```
 
 Example end-user documentation entry:
@@ -40,7 +40,7 @@ Example end-user documentation entry:
 
 This application uses `telemetry-java` to send anonymous feature-usage events.
 
-For details on what is collected and how to disable telemetry, see the [documentation](app-user-guide.md).
+For details on what is collected and how to disable telemetry, see the [documentation](https://github.com/exasol/telemetry-java/blob/main/doc/app-user-guide.md).
 ```
 
 ## Environment Variables
