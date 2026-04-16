@@ -4,6 +4,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
@@ -13,6 +14,7 @@ class TrackingControlsIT {
     private static final String VERSION = "1.2.3";
     private static final String FEATURE = "myFeature";
 
+    // [itest~tracking-controls-disable-env~1->req~tracking-controls~1]
     @Test
     void disablesTrackingViaEnvironmentVariables() throws Exception {
         try (RecordingHttpServer server = RecordingHttpServer.createSuccessServer();
@@ -26,6 +28,7 @@ class TrackingControlsIT {
         }
     }
 
+    // [itest~tracking-controls-disable-ci~1->req~tracking-controls~1]
     @Test
     void disablesTrackingAutomaticallyWhenCiIsNonEmpty() throws Exception {
         try (RecordingHttpServer server = RecordingHttpServer.createSuccessServer();
@@ -39,8 +42,10 @@ class TrackingControlsIT {
         }
     }
 
+    // [itest~tracking-controls-endpoint-override~1->req~tracking-controls~1]
     @Test
     void overridesConfiguredEndpointViaEnvironmentVariable() throws Exception {
+        final List<RecordingHttpServer.RecordedRequest> requests;
         try (RecordingHttpServer configuredServer = RecordingHttpServer.createSuccessServer();
                 RecordingHttpServer overrideServer = RecordingHttpServer.createSuccessServer();
                 TelemetryClient client = TelemetryClient.create(configuredServer.configBuilder(PROJECT_TAG, VERSION)
@@ -48,8 +53,13 @@ class TrackingControlsIT {
                         .build())) {
             client.track(FEATURE);
 
-            assertThat(overrideServer.awaitRequests(1, Duration.ofSeconds(2)), hasSize(1));
+            requests = overrideServer.awaitRequests(1, Duration.ofSeconds(2));
+            assertThat(requests, hasSize(1));
             assertThat(configuredServer.awaitRequests(1, Duration.ofMillis(150)), empty());
         }
+
+        assertThat(requests.get(0).body(), containsString("\"category\":\"" + PROJECT_TAG + "\""));
+        assertThat(requests.get(0).body(), containsString("\"productVersion\":\"" + VERSION + "\""));
+        assertThat(requests.get(0).body(), containsString("\"version\":\"0.2.0\""));
     }
 }

@@ -32,6 +32,7 @@ final class HttpTransport {
         };
     }
 
+    // [impl~http-transport-send~1->req~async-delivery~1]
     void send(final Message message) throws IOException {
         final HttpRequest request = HttpRequest.newBuilder(config.getEndpoint())
                 .header("Content-Type", "application/json")

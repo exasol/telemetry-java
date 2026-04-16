@@ -15,6 +15,7 @@ class AsyncDeliveryIT {
     private static final String VERSION = "1.2.3";
     private static final String FEATURE = "myFeature";
 
+    // [itest~async-delivery-over-http~1->req~async-delivery~1]
     @Test
     void sendsQueuedEventsAsynchronouslyOverHttp() throws Exception {
         try (RecordingHttpServer server = RecordingHttpServer.createDelayedSuccessServer(300);
@@ -31,6 +32,7 @@ class AsyncDeliveryIT {
         }
     }
 
+    // [itest~async-delivery-retry-with-backoff~1->req~async-delivery~1]
     @Test
     void retriesFailedDeliveryWithExponentialBackoffUntilTimeout() throws Exception {
         try (RecordingHttpServer server = RecordingHttpServer.createFlakyServer(2);

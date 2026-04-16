@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import com.exasol.telemetry.TelemetryConfig.Builder;
 
 class TelemetryConfigTest {
+    // [utest~telemetry-config-defaults~1->req~tracking-controls~1]
     @Test
     void usesDefaultsAndConfiguredValues() {
         final TelemetryConfig config = TelemetryConfig.builder("project", "1.2.3")
@@ -28,6 +29,7 @@ class TelemetryConfigTest {
         assertThat(config.isTrackingDisabled(), is(false));
     }
 
+    // [utest~telemetry-config-client-identity-defaults~1->req~client-identity~1]
     @Test
     void usesDefaultsAndConfiguredValuesWithRealEnvironment() {
         final TelemetryConfig config = TelemetryConfig.builder("project", "1.2.3")
@@ -41,6 +43,7 @@ class TelemetryConfigTest {
         // Can't verify isTrackingDisabled() because in CI the CI env variable is set
     }
 
+    // [utest~telemetry-config-endpoint-override~1->req~tracking-controls~1]
     @Test
     void usesEndpointOverrideAndDisableEnvironmentValues() {
         final TelemetryConfig config = defaultBuilder()
@@ -53,6 +56,7 @@ class TelemetryConfigTest {
         assertThat(config.isTrackingDisabled(), is(true));
     }
 
+    // [utest~telemetry-config-disable-in-ci~1->req~tracking-controls~1]
     @Test
     void disablesTrackingAutomaticallyInCi() {
         final TelemetryConfig config = defaultBuilder()
@@ -62,6 +66,7 @@ class TelemetryConfigTest {
         assertThat(config.isTrackingDisabled(), is(true));
     }
 
+    // [utest~telemetry-config-disabled-value-detection~1->req~tracking-controls~1]
     @Test
     void treatsAnyNonEmptyEnvironmentValueAsDisabled() {
         assertThat(TelemetryConfig.isDisabled(null), is(false));
@@ -73,6 +78,7 @@ class TelemetryConfigTest {
         assertThat(TelemetryConfig.isDisabled("github-actions"), is(true));
     }
 
+    // [utest~telemetry-config-rejects-blank-project-tag~1->req~client-identity~1]
     @Test
     void rejectsBlankProjectTag() {
         final Builder builder = TelemetryConfig.builder("  ", "1.2.3");
@@ -80,6 +86,7 @@ class TelemetryConfigTest {
         assertThat(exception.getMessage(), containsString("projectTag"));
     }
 
+    // [utest~telemetry-config-rejects-blank-product-version~1->req~client-identity~1]
     @Test
     void rejectsBlankProductVersion() {
         final Builder builder = TelemetryConfig.builder("project", " ");
@@ -87,6 +94,7 @@ class TelemetryConfigTest {
         assertThat(exception.getMessage(), containsString("productVersion"));
     }
 
+    // [utest~telemetry-config-default-endpoint~1->req~tracking-controls~1]
     @Test
     void usesDefaultEndpointWhenNoEndpointIsConfigured() {
         final TelemetryConfig config = TelemetryConfig.builder("project", "1.2.3").build();

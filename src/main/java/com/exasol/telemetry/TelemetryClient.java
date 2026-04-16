@@ -52,6 +52,7 @@ public final class TelemetryClient implements AutoCloseable {
      * @param config telemetry runtime configuration
      * @return telemetry client
      */
+    // [impl~telemetry-client-create~1->req~tracking-api~1]
     public static TelemetryClient create(final TelemetryConfig config) {
         return new TelemetryClient(config);
     }
@@ -61,6 +62,7 @@ public final class TelemetryClient implements AutoCloseable {
      *
      * @param feature feature name provided by the caller
      */
+    // [impl~telemetry-client-track~1->req~tracking-api~1]
     public void track(final String feature) {
         if (!trackingEnabled || closed) {
             return;
@@ -101,6 +103,7 @@ public final class TelemetryClient implements AutoCloseable {
         return batch;
     }
 
+    // [impl~telemetry-client-send-with-retry~1->req~async-delivery~1]
     private void sendWithRetry(final List<TelemetryEvent> events) {
         final Instant start = clock.instant();
         final Message message = Message.fromEvents(config.getProjectTag(), config.getProductVersion(), start, events);
@@ -108,6 +111,9 @@ public final class TelemetryClient implements AutoCloseable {
         Duration delay = config.getInitialRetryDelay();
 
         while (true) {
+            if (Thread.currentThread().isInterrupted()) {
+                return;
+            }
             try {
                 transport.send(message);
                 LOGGER.fine(() -> "Telemetry sent to the server with " + events.size() + " event(s).");
@@ -115,6 +121,9 @@ public final class TelemetryClient implements AutoCloseable {
             } catch (final Exception exception) {
                 LOGGER.fine(() -> "Telemetry sending failed for " + events.size() + " event(s): "
                         + rootCauseMessage(exception));
+                if (Thread.currentThread().isInterrupted()) {
+                    return;
+                }
                 final Instant now = clock.instant();
                 if (!now.isBefore(deadline)) {
                     return;
@@ -168,19 +177,34 @@ public final class TelemetryClient implements AutoCloseable {
      * Stop the sender thread and wait for any queued events to be flushed before returning.
      */
     @Override
+    // [impl~telemetry-client-close~1->req~shutdown-flush~1]
     public void close() {
         if (closed) {
             return;
         }
         closed = true;
         if (trackingEnabled) {
-            try {
-                senderThread.join();
-            } catch (final InterruptedException ignored) {
-                Thread.currentThread().interrupt();
-            }
+            awaitSenderStop();
         }
         LOGGER.fine("Telemetry is stopped.");
+    }
+
+    private void awaitSenderStop() {
+        final long timeoutNanos = config.getRetryTimeout().toNanos();
+        final long deadlineNanos = System.nanoTime() + timeoutNanos;
+        try {
+            while (senderThread.isAlive()) {
+                final long remainingNanos = deadlineNanos - System.nanoTime();
+                if (remainingNanos <= 0) {
+                    senderThread.interrupt();
+                    senderThread.join();
+                    return;
+                }
+                TimeUnit.NANOSECONDS.timedJoin(senderThread, remainingNanos);
+            }
+        } catch (final InterruptedException ignored) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     private void logEnabled() {

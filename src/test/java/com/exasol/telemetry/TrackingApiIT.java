@@ -14,6 +14,8 @@ class TrackingApiIT {
     private static final String PRODUCT_VERSION = "1.2.3";
     private static final String FEATURE = "checkout-started";
 
+    // [itest~tracking-api-records-tagged-feature~1->req~tracking-api~1]
+    // [itest~tracking-api-emits-client-identity~1->req~client-identity~1]
     @Test
     void recordsFeatureUsageEventWithCategoryProtocolVersionAndProductVersion() throws Exception {
         try (RecordingHttpServer server = RecordingHttpServer.createSuccessServer();
@@ -33,6 +35,7 @@ class TrackingApiIT {
         }
     }
 
+    // [itest~tracking-api-valid-json-payload~1->req~tracking-api~1]
     @Test
     void emitsPayloadAsValidJson() throws Exception {
         try (RecordingHttpServer server = RecordingHttpServer.createSuccessServer();
@@ -47,6 +50,7 @@ class TrackingApiIT {
         }
     }
 
+    // [itest~tracking-api-low-caller-thread-overhead~1->req~tracking-api~1]
     @Test
     void keepsCallerThreadOverheadLowForAcceptedTracking() throws Exception {
         try (RecordingHttpServer server = RecordingHttpServer.createDelayedSuccessServer(300);
@@ -62,6 +66,7 @@ class TrackingApiIT {
         }
     }
 
+    // [itest~tracking-api-disabled-no-op~1->req~tracking-api~1]
     @Test
     void makesDisabledTrackingNoOpWithoutTelemetryOverhead() throws Exception {
         try (RecordingHttpServer server = RecordingHttpServer.createSuccessServer()) {
@@ -79,6 +84,7 @@ class TrackingApiIT {
         }
     }
 
+    // [itest~tracking-api-invalid-feature-name~1->req~tracking-api~1]
     @Test
     void recordsFeatureUsageEventWithoutPrefixingOrValidation() throws Exception {
         try (RecordingHttpServer server = RecordingHttpServer.createSuccessServer();
@@ -92,6 +98,7 @@ class TrackingApiIT {
         }
     }
 
+    // [itest~tracking-api-ignores-null-feature-name~1->req~tracking-api~1]
     @Test
     void ignoresNullFeatureNames() throws Exception {
         try (RecordingHttpServer server = RecordingHttpServer.createSuccessServer();

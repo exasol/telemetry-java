@@ -17,6 +17,8 @@ class MessageTest {
         EqualsVerifier.forClass(Message.class).verify();
     }
 
+    // [utest~message-groups-events~1->req~async-delivery~1]
+    // [utest~message-emits-client-identity~1->req~client-identity~1]
     @Test
     void groupsEventsByFeatureAndSerializesProtocolShape() {
         final Message message = Message.fromEvents("shop-ui", "1.2.3", Instant.ofEpochSecond(30), List.of(
@@ -33,6 +35,7 @@ class MessageTest {
         assertThat(json, containsString("\"features\":{\"project.a\":[10,20],\"project.b\":[30]}"));
     }
 
+    // [utest~message-valid-json~1->req~async-delivery~1]
     @Test
     void serializesValidJson() {
         final Message message = Message.fromEvents("shop-ui", "1.2.3", Instant.ofEpochSecond(30), List.of(
@@ -47,6 +50,7 @@ class MessageTest {
         assertThat(payload.containsKey("features"), is(true));
     }
 
+    // [utest~message-escapes-feature-names~1->req~async-delivery~1]
     @Test
     void escapesFeatureNamesInJson() {
         final Message message = Message.fromEvents("shop-ui", "1.2.3", Instant.ofEpochSecond(30), List.of(
@@ -57,6 +61,7 @@ class MessageTest {
         assertThat(json, containsString("proj.\\\"x\\\"\\n\\t\\\\"));
     }
 
+    // [utest~message-escapes-client-identity~1->req~client-identity~1]
     @Test
     void escapesCategoryAndProductVersionInJson() {
         final Message message = Message.fromEvents("shop-\"ui\"\n\t\\", "1.2.3-\"beta\"\n\t\\", Instant.ofEpochSecond(30), List.of(

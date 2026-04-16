@@ -23,6 +23,7 @@ class HttpTransportTest {
     private static final String VERSION = "1.2.3";
     private static final String FEATURE = "projectTag.feature";
 
+    // [utest~http-transport-sends-json-payload~1->req~async-delivery~1]
     @Test
     void sendsJsonPayloadToConfiguredClient() throws IOException {
         final CapturingRequestSender requestSender = new CapturingRequestSender(202);
@@ -43,6 +44,7 @@ class HttpTransportTest {
         assertThat(body, containsString("\"features\":{\"projectTag.feature\":[10]}"));
     }
 
+    // [utest~http-transport-rejects-non-success~1->req~async-delivery~1]
     @Test
     void rejectsNonSuccessStatusCodes() {
         final HttpTransport transport = new HttpTransport(
@@ -56,6 +58,7 @@ class HttpTransportTest {
         assertThat(exception.getMessage(), is("server says no"));
     }
 
+    // [utest~http-transport-handles-interruption~1->req~async-delivery~1]
     @Test
     void convertsInterruptedExceptionToIoException() {
         final HttpTransport transport = new HttpTransport(

@@ -43,6 +43,10 @@ final class RecordingHttpServer implements AutoCloseable {
         return new RecordingHttpServer(failuresBeforeSuccess, 0);
     }
 
+    static RecordingHttpServer createDelayedFlakyServer(final int failuresBeforeSuccess, final long responseDelayMillis) {
+        return new RecordingHttpServer(failuresBeforeSuccess, responseDelayMillis);
+    }
+
     TelemetryConfig.Builder configBuilder(final String projectTag, final String version) {
         return TelemetryConfig.builder(projectTag, version)
                 .endpoint(endpoint())

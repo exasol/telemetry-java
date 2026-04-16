@@ -4,17 +4,17 @@ This guide is for end users of applications that use `telemetry-java`.
 
 It explains:
 
-- which data is collected
-- how to see whether telemetry is enabled
+- what data is collected
+- how to tell whether telemetry is enabled
 - how to disable telemetry
 
 ## What Is Collected?
 
-The library collects only the data needed for feature-usage telemetry:
+The library collects only the data required for feature-usage telemetry:
 
-- product name, sent as the telemetry category
+- the product name, sent as the telemetry category
 - product version
-- which application features are used
+- which features are used
 - when those features are used
 
 It does not collect:
@@ -31,15 +31,29 @@ For Exasol's general privacy information, see the [Exasol Privacy Policy](https:
 
 ## How To See Whether Telemetry Is Enabled
 
-Applications can use lifecycle log messages from the library to show whether telemetry is enabled or disabled.
+Applications can use lifecycle log messages from the library to indicate whether telemetry is enabled or disabled.
 
-When telemetry is disabled, the library does not enqueue or send usage events.
+When telemetry is disabled, the library does not queue or send usage events.
 
 ## How To Disable Telemetry
 
-Host applications can disable telemetry globally by setting environment variable `EXASOL_TELEMETRY_DISABLE` to any non-empty value.
+### In Java-Based Virtual Schemas
 
-In Exasol UDFs, set the environment variable in the script definition with `%env`. Example:
+When you create or update a Java-based virtual schema, disable telemetry by setting the adapter property `TELEMETRY=false`. Example:
+
+```sql
+CREATE VIRTUAL SCHEMA hive USING adapter.jdbc_adapter
+WITH
+  CONNECTION_STRING = 'jdbc:hive2://localhost:10000/default'
+  // ...
+  TELEMETRY         = 'false';
+```
+
+See the [documentation](https://docs.exasol.com/db/latest/sql/create_schema.htm) for details.
+
+### In General Java-Based Exasol UDFs
+
+Set the environment variable `EXASOL_TELEMETRY_DISABLE` to any non-empty value in the script definition with `%env`. Example:
 
 ```sql
 CREATE OR REPLACE JAVA SCALAR SCRIPT MY_UDF(...) RETURNS VARCHAR(100) AS
@@ -47,6 +61,12 @@ CREATE OR REPLACE JAVA SCALAR SCRIPT MY_UDF(...) RETURNS VARCHAR(100) AS
 /
 ```
 
-In Exasol UDF script options, each environment variable declaration must end with a semicolon and the value must not be quoted.
+In Exasol UDF script options, each environment variable declaration must end with a semicolon, and the value must not be quoted. See the [UDF documentation](https://docs.exasol.com/db/latest/database_concepts/udf_scripts/udf_overview.htm#Environmentvariables) for details.
 
-Telemetry is also disabled automatically when environment variable `CI` is set to any non-empty value, so CI and test environments do not emit usage data by default.
+### In Other Applications
+
+Disable telemetry by setting the environment variable `EXASOL_TELEMETRY_DISABLE` to any non-empty value.
+
+### In Continuous Integration
+
+Telemetry is also disabled automatically when the environment variable `CI` is set to any non-empty value. This ensures that CI and test environments do not emit usage data by default.
