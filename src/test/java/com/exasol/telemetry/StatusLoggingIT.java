@@ -18,6 +18,7 @@ class StatusLoggingIT {
     private static final String FEATURE = "myFeature";
 
     @Test
+    // [itest~status-logging-enabled~1->req~status-logging~1]
     void logsWhenTelemetryIsEnabled() throws Exception {
         try (LogCapture capture = new LogCapture();
                 RecordingHttpServer server = RecordingHttpServer.createSuccessServer();
@@ -49,6 +50,7 @@ class StatusLoggingIT {
     }
 
     @Test
+    // [itest~status-logging-disabled~1->req~status-logging~1]
     void logsWhenTelemetryIsDisabledViaEnvironmentVariable() throws Exception {
         try (LogCapture capture = new LogCapture();
                 RecordingHttpServer server = RecordingHttpServer.createSuccessServer();
@@ -79,6 +81,7 @@ class StatusLoggingIT {
     }
 
     @Test
+    // [itest~status-logging-send-count~1->req~status-logging~1]
     void logsSentMessageCount() throws Exception {
         try (LogCapture capture = new LogCapture();
                 RecordingHttpServer server = RecordingHttpServer.createSuccessServer()) {
@@ -98,6 +101,7 @@ class StatusLoggingIT {
     }
 
     @Test
+    // [itest~status-logging-send-failure~1->req~status-logging~1]
     void logsWhenTelemetrySendingFails() throws Exception {
         try (LogCapture capture = new LogCapture();
                 RecordingHttpServer server = RecordingHttpServer.createFlakyServer(1)) {
@@ -122,6 +126,7 @@ class StatusLoggingIT {
     }
 
     @Test
+    // [itest~status-logging-stopped~1->req~status-logging~1]
     void logsWhenTelemetryStops() throws Exception {
         try (LogCapture capture = new LogCapture();
                 RecordingHttpServer server = RecordingHttpServer.createSuccessServer()) {

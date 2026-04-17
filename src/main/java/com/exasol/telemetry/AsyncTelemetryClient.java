@@ -82,9 +82,11 @@ final class AsyncTelemetryClient implements TelemetryClient {
             }
             try {
                 transport.send(message);
+                // [impl~telemetry-client-log-send-count~1->req~status-logging~1]
                 LOGGER.fine(() -> "Telemetry sent to the server with " + events.size() + " event(s).");
                 return;
             } catch (final Exception exception) {
+                // [impl~telemetry-client-log-send-failure~1->req~status-logging~1]
                 LOGGER.fine(() -> "Telemetry sending failed for " + events.size() + " event(s): "
                         + rootCauseMessage(exception));
                 if (Thread.currentThread().isInterrupted()) {
@@ -148,6 +150,7 @@ final class AsyncTelemetryClient implements TelemetryClient {
         }
         closed = true;
         awaitSenderStop();
+        // [impl~telemetry-client-log-stopped~1->req~status-logging~1]
         LOGGER.fine("Telemetry is stopped.");
     }
 
