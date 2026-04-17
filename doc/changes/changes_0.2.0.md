@@ -1,4 +1,4 @@
-# Telemetry Java 0.2.0, released 2026-04-17
+# Telemetry Java 0.2.0, released 2026-04-20
 
 Code name: Explicitly Disable Tracking
 
