@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import com.exasol.telemetry.TelemetryConfig.Builder;
 
 class ClientIdentityIT {
-    // [itest~client-identity-requires-project-tag-and-product-version~1->scn~client-identity-requires-project-tag-and-product-version-when-creating-telemetry-configuration~1]
+    // [itest~client-identity-requires-project-tag~1->scn~client-identity-requires-project-tag-and-product-version-when-creating-telemetry-configuration~1]
     @Test
     void requiresProjectTagWhenCreatingTelemetryConfiguration() {
         final Builder builder = TelemetryConfig.builder(" ", "1.2.3");
@@ -18,7 +18,7 @@ class ClientIdentityIT {
         assertThat(blankProjectTag.getMessage(), containsString("projectTag"));
     }
 
-    // [itest~client-identity-requires-project-tag-and-product-version~1->scn~client-identity-requires-project-tag-and-product-version-when-creating-telemetry-configuration~1]
+    // [itest~client-identity-requires-product-version~1->scn~client-identity-requires-project-tag-and-product-version-when-creating-telemetry-configuration~1]
     @Test
     void requiresProductVersionWhenCreatingTelemetryConfiguration() {
         final Builder builder = TelemetryConfig.builder("project", " ");
