@@ -18,7 +18,7 @@ class StatusLoggingIT {
     private static final String FEATURE = "myFeature";
 
     @Test
-    // [itest~status-logging-enabled~1->req~status-logging~1]
+    // [itest~status-logging-enabled~1->scn~status-logging-logs-when-telemetry-is-enabled~1]
     void logsWhenTelemetryIsEnabled() throws Exception {
         try (LogCapture capture = new LogCapture();
                 RecordingHttpServer server = RecordingHttpServer.createSuccessServer();
@@ -50,7 +50,7 @@ class StatusLoggingIT {
     }
 
     @Test
-    // [itest~status-logging-disabled~1->req~status-logging~1]
+    // [itest~status-logging-disabled~1->scn~status-logging-logs-when-telemetry-is-disabled~1]
     void logsWhenTelemetryIsDisabledViaEnvironmentVariable() throws Exception {
         try (LogCapture capture = new LogCapture();
                 RecordingHttpServer server = RecordingHttpServer.createSuccessServer();
@@ -81,7 +81,7 @@ class StatusLoggingIT {
     }
 
     @Test
-    // [itest~status-logging-send-count~1->req~status-logging~1]
+    // [itest~status-logging-send-count~1->scn~status-logging-logs-message-counts-when-telemetry-is-sent~1]
     void logsSentMessageCount() throws Exception {
         try (LogCapture capture = new LogCapture();
                 RecordingHttpServer server = RecordingHttpServer.createSuccessServer()) {
@@ -101,7 +101,7 @@ class StatusLoggingIT {
     }
 
     @Test
-    // [itest~status-logging-send-failure~1->req~status-logging~1]
+    // [itest~status-logging-send-failure~1->scn~status-logging-logs-when-telemetry-sending-fails~1]
     void logsWhenTelemetrySendingFails() throws Exception {
         try (LogCapture capture = new LogCapture();
                 RecordingHttpServer server = RecordingHttpServer.createFlakyServer(1)) {
@@ -126,7 +126,7 @@ class StatusLoggingIT {
     }
 
     @Test
-    // [itest~status-logging-stopped~1->req~status-logging~1]
+    // [itest~status-logging-stopped~1->scn~status-logging-logs-when-telemetry-is-stopped~1]
     void logsWhenTelemetryStops() throws Exception {
         try (LogCapture capture = new LogCapture();
                 RecordingHttpServer server = RecordingHttpServer.createSuccessServer()) {
