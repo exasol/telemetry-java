@@ -4,11 +4,9 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 import java.time.Duration;
-import java.time.Instant;
 import java.util.*;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.function.Predicate;
-import java.util.logging.*;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
 
 import org.junit.jupiter.api.Test;
 
@@ -142,51 +140,4 @@ class StatusLoggingIT {
         }
     }
 
-    private static final class LogCapture extends Handler implements AutoCloseable {
-        private final Logger logger;
-        private final CopyOnWriteArrayList<LogRecord> records = new CopyOnWriteArrayList<>();
-        private final Level originalLevel;
-        private final boolean originalUseParentHandlers;
-
-        private LogCapture() {
-            this.logger = Logger.getLogger("com.exasol.telemetry");
-            this.originalLevel = logger.getLevel();
-            this.originalUseParentHandlers = logger.getUseParentHandlers();
-            logger.setLevel(Level.ALL);
-            logger.setUseParentHandlers(false);
-            setLevel(Level.ALL);
-            logger.addHandler(this);
-        }
-
-        @Override
-        public void publish(final LogRecord logRecord) {
-            records.add(logRecord);
-        }
-
-        @Override
-        public void flush() {
-            // Nothing to do
-        }
-
-        @Override
-        public void close() {
-            logger.removeHandler(this);
-            logger.setLevel(originalLevel);
-            logger.setUseParentHandlers(originalUseParentHandlers);
-        }
-
-        private LogRecord await(final Predicate<LogRecord> predicate, final Duration timeout) throws InterruptedException {
-            final Instant deadline = Instant.now().plus(timeout);
-            while (Instant.now().isBefore(deadline)) {
-                final List<LogRecord> snapshot = new ArrayList<>(records);
-                for (final LogRecord logRecord : snapshot) {
-                    if (predicate.test(logRecord)) {
-                        return logRecord;
-                    }
-                }
-                Thread.sleep(10);
-            }
-            throw new AssertionError("Expected log record not found. Captured: " + records);
-        }
-    }
 }

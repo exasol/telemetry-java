@@ -6,13 +6,9 @@ import static org.hamcrest.Matchers.instanceOf;
 
 import java.net.URI;
 import java.time.Duration;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.function.Predicate;
-import java.util.logging.*;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
 
 import org.junit.jupiter.api.Test;
 
@@ -25,8 +21,8 @@ class TelemetryClientLoggingTest {
                         .endpoint(URI.create("https://example.com"))
                         .environment(MapEnvironment.empty())
                         .build())) {
-            final LogRecord logRecord = capture.await(record -> record.getLevel() == Level.INFO
-                    && record.getMessage().contains("Telemetry is enabled"), Duration.ofSeconds(1));
+            final LogRecord logRecord = capture.await(r -> r.getLevel() == Level.INFO
+                    && r.getMessage().contains("Telemetry is enabled"), Duration.ofSeconds(1));
 
             assertThat(client, instanceOf(AsyncTelemetryClient.class));
             assertThat(logRecord.getMessage(), containsString("EXASOL_TELEMETRY_DISABLE=<unset>"));
@@ -42,59 +38,11 @@ class TelemetryClientLoggingTest {
                         .endpoint(URI.create("https://example.com"))
                         .environment(new MapEnvironment(Map.of(TelemetryConfig.DISABLED_ENV, "disabled")))
                         .build())) {
-            final LogRecord logRecord = capture.await(record -> record.getLevel() == Level.INFO
-                    && record.getMessage().contains("Telemetry is disabled"), Duration.ofSeconds(1));
+            final LogRecord logRecord = capture.await(r -> r.getLevel() == Level.INFO
+                    && r.getMessage().contains("Telemetry is disabled"), Duration.ofSeconds(1));
 
             assertThat(client, instanceOf(NoOpTelemetryClient.class));
             assertThat(logRecord.getMessage(), containsString("EXASOL_TELEMETRY_DISABLE='disabled'"));
-        }
-    }
-
-    private static final class LogCapture extends Handler implements AutoCloseable {
-        private final Logger logger;
-        private final CopyOnWriteArrayList<LogRecord> records = new CopyOnWriteArrayList<>();
-        private final Level originalLevel;
-        private final boolean originalUseParentHandlers;
-
-        private LogCapture() {
-            this.logger = Logger.getLogger("com.exasol.telemetry");
-            this.originalLevel = logger.getLevel();
-            this.originalUseParentHandlers = logger.getUseParentHandlers();
-            logger.setLevel(Level.ALL);
-            logger.setUseParentHandlers(false);
-            setLevel(Level.ALL);
-            logger.addHandler(this);
-        }
-
-        @Override
-        public void publish(final LogRecord logRecord) {
-            records.add(logRecord);
-        }
-
-        @Override
-        public void flush() {
-            // Nothing to do
-        }
-
-        @Override
-        public void close() {
-            logger.removeHandler(this);
-            logger.setLevel(originalLevel);
-            logger.setUseParentHandlers(originalUseParentHandlers);
-        }
-
-        private LogRecord await(final Predicate<LogRecord> predicate, final Duration timeout) throws InterruptedException {
-            final Instant deadline = Instant.now().plus(timeout);
-            while (Instant.now().isBefore(deadline)) {
-                final List<LogRecord> snapshot = new ArrayList<>(records);
-                for (final LogRecord logRecord : snapshot) {
-                    if (predicate.test(logRecord)) {
-                        return logRecord;
-                    }
-                }
-                Thread.sleep(10);
-            }
-            throw new AssertionError("Expected log record not found. Captured: " + records);
         }
     }
 }

@@ -13,8 +13,8 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Flow;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Predicate;
-import java.util.logging.*;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
 
 import org.junit.jupiter.api.Test;
 
@@ -109,8 +109,8 @@ class AsyncTelemetryClientTest {
                 client.track("feature");
                 client.close();
 
-                final LogRecord logRecord = capture.await(record -> record.getLevel() == Level.FINE
-                        && record.getMessage().contains("Telemetry sent to the server with 1 event(s)."), Duration.ofSeconds(1));
+                final LogRecord logRecord = capture.await(r -> r.getLevel() == Level.FINE
+                        && r.getMessage().contains("Telemetry sent to the server with 1 event(s)."), Duration.ofSeconds(1));
                 assertThat(logRecord.getMessage(), containsString("1 event(s)"));
             } finally {
                 client.close();
@@ -152,8 +152,8 @@ class AsyncTelemetryClientTest {
             try {
                 client.close();
 
-                final LogRecord logRecord = capture.await(record -> record.getLevel() == Level.FINE
-                        && record.getMessage().contains("Telemetry is stopped."), Duration.ofSeconds(1));
+                final LogRecord logRecord = capture.await(r -> r.getLevel() == Level.FINE
+                        && r.getMessage().contains("Telemetry is stopped."), Duration.ofSeconds(1));
                 assertThat(logRecord.getMessage(), is("Telemetry is stopped."));
             } finally {
                 client.close();
@@ -202,54 +202,6 @@ class AsyncTelemetryClientTest {
 
         private String body(final int index) {
             return requestBodies.get(index);
-        }
-    }
-
-    private static final class LogCapture extends Handler implements AutoCloseable {
-        private final Logger logger;
-        private final CopyOnWriteArrayList<LogRecord> records = new CopyOnWriteArrayList<>();
-        private final Level originalLevel;
-        private final boolean originalUseParentHandlers;
-
-        private LogCapture() {
-            this.logger = Logger.getLogger("com.exasol.telemetry");
-            this.originalLevel = logger.getLevel();
-            this.originalUseParentHandlers = logger.getUseParentHandlers();
-            logger.setLevel(Level.ALL);
-            logger.setUseParentHandlers(false);
-            setLevel(Level.ALL);
-            logger.addHandler(this);
-        }
-
-        @Override
-        public void publish(final LogRecord logRecord) {
-            records.add(logRecord);
-        }
-
-        @Override
-        public void flush() {
-            // Nothing to do
-        }
-
-        @Override
-        public void close() {
-            logger.removeHandler(this);
-            logger.setLevel(originalLevel);
-            logger.setUseParentHandlers(originalUseParentHandlers);
-        }
-
-        private LogRecord await(final Predicate<LogRecord> predicate, final Duration timeout) throws InterruptedException {
-            final Instant deadline = Instant.now().plus(timeout);
-            while (Instant.now().isBefore(deadline)) {
-                final List<LogRecord> snapshot = new ArrayList<>(records);
-                for (final LogRecord logRecord : snapshot) {
-                    if (predicate.test(logRecord)) {
-                        return logRecord;
-                    }
-                }
-                Thread.sleep(10);
-            }
-            throw new AssertionError("Expected log record not found. Captured: " + records);
         }
     }
 
