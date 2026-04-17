@@ -2,7 +2,6 @@ package com.exasol.telemetry;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 import java.net.URI;
@@ -13,7 +12,7 @@ import org.junit.jupiter.api.Test;
 class TelemetryClientTest {
     // [utest~telemetry-client-disabled-tracking~1->req~tracking-controls~1]
     @Test
-    void doesNotRunSenderWhenTrackingIsDisabled() throws Exception {
+    void doesNotRunSenderWhenTrackingIsDisabled() {
         final TelemetryConfig config = TelemetryConfig.builder("project", "1.2.3").endpoint(URI.create("https://example.com"))
                 .environment(new MapEnvironment(Map.of(TelemetryConfig.DISABLED_ENV, "true")))
                 .build();
