@@ -34,6 +34,7 @@ For Exasol's general privacy information, see the [Exasol Privacy Policy](https:
 Applications can use lifecycle log messages from the library to indicate whether telemetry is enabled or disabled.
 
 When telemetry is disabled, the library does not queue or send usage events.
+Applications may disable telemetry through their own configuration and report that state in logs as `Telemetry is disabled via host configuration.`.
 
 ## How To Disable Telemetry
 
