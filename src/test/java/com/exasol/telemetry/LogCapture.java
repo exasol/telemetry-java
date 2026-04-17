@@ -6,10 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Predicate;
-import java.util.logging.Handler;
-import java.util.logging.Level;
-import java.util.logging.LogRecord;
-import java.util.logging.Logger;
+import java.util.logging.*;
 
 final class LogCapture extends Handler implements AutoCloseable {
     private final Logger logger;
@@ -44,6 +41,7 @@ final class LogCapture extends Handler implements AutoCloseable {
         logger.setUseParentHandlers(originalUseParentHandlers);
     }
 
+    @SuppressWarnings("java:S2925") // Intentionally uses Thread.sleep() for waiting for log records to be captured
     LogRecord await(final Predicate<LogRecord> predicate, final Duration timeout) throws InterruptedException {
         final Instant deadline = Instant.now().plus(timeout);
         while (Instant.now().isBefore(deadline)) {

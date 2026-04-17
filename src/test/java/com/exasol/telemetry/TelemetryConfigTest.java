@@ -13,14 +13,17 @@ import org.junit.jupiter.api.Test;
 import com.exasol.telemetry.TelemetryConfig.Builder;
 
 class TelemetryConfigTest {
+    private static final String PROJECT_SHORT_TAG = "project";
+    private static final String VERSION = "1.2.3";
+
     @Test
     void usesDefaultsAndConfiguredValues() {
-        final TelemetryConfig config = TelemetryConfig.builder("project", "1.2.3")
+        final TelemetryConfig config = TelemetryConfig.builder(PROJECT_SHORT_TAG, VERSION)
                 .environment(MapEnvironment.empty())
                 .build();
 
-        assertThat(config.getProjectTag(), is("project"));
-        assertThat(config.getProductVersion(), is("1.2.3"));
+        assertThat(config.getProjectTag(), is(PROJECT_SHORT_TAG));
+        assertThat(config.getProductVersion(), is(VERSION));
         assertThat(config.getEndpoint(), is(TelemetryConfig.DEFAULT_ENDPOINT));
         assertThat(config.getQueueCapacity(), is(256));
         assertThat(config.getRetryTimeout(), is(Duration.ofSeconds(5)));
@@ -29,11 +32,11 @@ class TelemetryConfigTest {
 
     @Test
     void usesDefaultsAndConfiguredValuesWithRealEnvironment() {
-        final TelemetryConfig config = TelemetryConfig.builder("project", "1.2.3")
+        final TelemetryConfig config = TelemetryConfig.builder(PROJECT_SHORT_TAG, VERSION)
                 .build();
 
-        assertThat(config.getProjectTag(), is("project"));
-        assertThat(config.getProductVersion(), is("1.2.3"));
+        assertThat(config.getProjectTag(), is(PROJECT_SHORT_TAG));
+        assertThat(config.getProductVersion(), is(VERSION));
         assertThat(config.getEndpoint(), is(TelemetryConfig.DEFAULT_ENDPOINT));
         assertThat(config.getQueueCapacity(), is(256));
         assertThat(config.getRetryTimeout(), is(Duration.ofSeconds(5)));
@@ -103,7 +106,7 @@ class TelemetryConfigTest {
     // [utest~telemetry-config-rejects-blank-project-tag~1->scn~client-identity-requires-project-tag-and-product-version-when-creating-telemetry-configuration~1]
     @Test
     void rejectsBlankProjectTag() {
-        final Builder builder = TelemetryConfig.builder("  ", "1.2.3");
+        final Builder builder = TelemetryConfig.builder("  ", VERSION);
         final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, builder::build);
         assertThat(exception.getMessage(), containsString("projectTag"));
     }
@@ -111,14 +114,14 @@ class TelemetryConfigTest {
     // [utest~telemetry-config-rejects-blank-product-version~1->scn~client-identity-requires-project-tag-and-product-version-when-creating-telemetry-configuration~1]
     @Test
     void rejectsBlankProductVersion() {
-        final Builder builder = TelemetryConfig.builder("project", " ");
+        final Builder builder = TelemetryConfig.builder(PROJECT_SHORT_TAG, " ");
         final IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, builder::build);
         assertThat(exception.getMessage(), containsString("productVersion"));
     }
 
     @Test
     void usesDefaultEndpointWhenNoEndpointIsConfigured() {
-        final TelemetryConfig config = TelemetryConfig.builder("project", "1.2.3").build();
+        final TelemetryConfig config = TelemetryConfig.builder(PROJECT_SHORT_TAG, VERSION).build();
         assertThat(config.getEndpoint(), is(TelemetryConfig.DEFAULT_ENDPOINT));
     }
 
@@ -145,6 +148,6 @@ class TelemetryConfigTest {
     }
 
     private Builder defaultBuilder() {
-        return TelemetryConfig.builder("project", "1.2.3").endpoint(URI.create("https://example.com"));
+        return TelemetryConfig.builder(PROJECT_SHORT_TAG, VERSION).endpoint(URI.create("https://example.com"));
     }
 }

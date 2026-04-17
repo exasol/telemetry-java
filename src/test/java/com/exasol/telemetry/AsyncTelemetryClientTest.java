@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Test;
 class AsyncTelemetryClientTest {
     private static final String PROJECT_TAG = "projectTag";
     private static final String VERSION = "1.2.3";
+    private static final String FEATURE = "feature";
     private static final URI ENDPOINT = URI.create("https://example.com");
 
     // [utest~async-telemetry-client-keeps-caller-thread-overhead-low~1->scn~tracking-api-keeps-caller-thread-overhead-low-for-accepted-tracking~1]
@@ -28,20 +29,18 @@ class AsyncTelemetryClientTest {
     void keepsCallerThreadOverheadLowForAcceptedTracking() {
         final TelemetryConfig config = configBuilder().build();
         final RecordingRequestSender requestSender = new RecordingRequestSender(List.of(202), 300L, "");
-        final AsyncTelemetryClient client = new AsyncTelemetryClient(config, Clock.systemUTC(), new HttpTransport(config, requestSender));
-        try {
+        try (AsyncTelemetryClient client = new AsyncTelemetryClient(config, Clock.systemUTC(), new HttpTransport(config, requestSender))) {
             final long start = System.nanoTime();
-            client.track("feature");
+            client.track(FEATURE);
             final long elapsedMillis = Duration.ofNanos(System.nanoTime() - start).toMillis();
 
             assertThat(elapsedMillis, lessThan(150L));
-        } finally {
-            client.close();
         }
     }
 
     // [utest~async-telemetry-client-retries-failed-delivery-with-exponential-backoff~1->scn~async-delivery-retries-failed-delivery-with-exponential-backoff-until-timeout~1]
     @Test
+    @SuppressWarnings("java:S2093") // Not using try-with-resources to be able to test close() in the middle of the test
     void retriesFailedDeliveryWithExponentialBackoffUntilSuccess() {
         final TelemetryConfig config = configBuilder()
                 .retryTimeout(Duration.ofMillis(500))
@@ -51,7 +50,7 @@ class AsyncTelemetryClientTest {
         final RecordingRequestSender requestSender = new RecordingRequestSender(List.of(500, 500, 202), 0L, "server says no");
         final AsyncTelemetryClient client = new AsyncTelemetryClient(config, Clock.systemUTC(), new HttpTransport(config, requestSender));
         try {
-            client.track("feature");
+            client.track(FEATURE);
             client.close();
 
             assertThat(requestSender.attempts(), is(3));
@@ -64,12 +63,13 @@ class AsyncTelemetryClientTest {
 
     // [utest~async-telemetry-client-flushes-pending-events-on-close~1->scn~shutdown-flush-flushes-pending-events-on-close~1]
     @Test
+    @SuppressWarnings("java:S2093") // Not using try-with-resources to be able to test close() in the middle of the test
     void flushesPendingEventsOnClose() {
         final TelemetryConfig config = configBuilder().retryTimeout(Duration.ofMillis(300)).build();
         final RecordingRequestSender requestSender = new RecordingRequestSender(List.of(202), 75L, "");
         final AsyncTelemetryClient client = new AsyncTelemetryClient(config, Clock.systemUTC(), new HttpTransport(config, requestSender));
         try {
-            client.track("feature");
+            client.track(FEATURE);
 
             client.close();
 
@@ -82,12 +82,13 @@ class AsyncTelemetryClientTest {
 
     // [utest~async-telemetry-client-stops-background-threads-after-close~1->scn~shutdown-flush-stops-background-threads-after-close~1]
     @Test
+    @SuppressWarnings("java:S2093") // Not using try-with-resources to be able to test close() in the middle of the test
     void stopsBackgroundThreadsAfterClose() throws Exception {
         final TelemetryConfig config = configBuilder().build();
         final RecordingRequestSender requestSender = new RecordingRequestSender(List.of(202), 0L, "");
         final AsyncTelemetryClient client = new AsyncTelemetryClient(config, Clock.systemUTC(), new HttpTransport(config, requestSender));
         try {
-            client.track("feature");
+            client.track(FEATURE);
 
             client.close();
 
@@ -100,13 +101,14 @@ class AsyncTelemetryClientTest {
 
     // [utest~async-telemetry-client-logs-send-count~1->scn~status-logging-logs-message-counts-when-telemetry-is-sent~1]
     @Test
+    @SuppressWarnings("java:S2093") // Not using try-with-resources to be able to test close() in the middle of the test
     void logsMessageCountsWhenTelemetryIsSent() throws Exception {
         final TelemetryConfig config = configBuilder().build();
         final RecordingRequestSender requestSender = new RecordingRequestSender(List.of(202), 0L, "");
         try (LogCapture capture = new LogCapture()) {
             final AsyncTelemetryClient client = new AsyncTelemetryClient(config, Clock.systemUTC(), new HttpTransport(config, requestSender));
             try {
-                client.track("feature");
+                client.track(FEATURE);
                 client.close();
 
                 final LogRecord logRecord = capture.await(r -> r.getLevel() == Level.FINE
@@ -120,6 +122,7 @@ class AsyncTelemetryClientTest {
 
     // [utest~async-telemetry-client-logs-send-failure~1->scn~status-logging-logs-when-telemetry-sending-fails~1]
     @Test
+    @SuppressWarnings("java:S2093") // Not using try-with-resources to be able to test close() in the middle of the test
     void logsWhenTelemetrySendingFails() throws Exception {
         final TelemetryConfig config = configBuilder()
                 .retryTimeout(Duration.ofMillis(50))
@@ -130,7 +133,7 @@ class AsyncTelemetryClientTest {
         try (LogCapture capture = new LogCapture()) {
             final AsyncTelemetryClient client = new AsyncTelemetryClient(config, Clock.systemUTC(), new HttpTransport(config, requestSender));
             try {
-                client.track("feature");
+                client.track(FEATURE);
                 client.close();
 
                 final LogRecord logRecord = capture.await(r -> r.getLevel() == Level.FINE
@@ -144,6 +147,7 @@ class AsyncTelemetryClientTest {
 
     // [utest~async-telemetry-client-logs-stopped~1->scn~status-logging-logs-when-telemetry-is-stopped~1]
     @Test
+    @SuppressWarnings("java:S2093") // Not using try-with-resources to be able to test close() in the middle of the test
     void logsWhenTelemetryIsStopped() throws Exception {
         final TelemetryConfig config = configBuilder().build();
         final RecordingRequestSender requestSender = new RecordingRequestSender(List.of(202), 0L, "");
@@ -203,13 +207,13 @@ class AsyncTelemetryClientTest {
         private String body(final int index) {
             return requestBodies.get(index);
         }
-    }
 
-    private static String bodyToString(final HttpRequest request) {
-        final HttpRequest.BodyPublisher publisher = request.bodyPublisher().orElseThrow();
-        final CollectingSubscriber subscriber = new CollectingSubscriber();
-        publisher.subscribe(subscriber);
-        return subscriber.body();
+        private static String bodyToString(final HttpRequest request) {
+            final HttpRequest.BodyPublisher publisher = request.bodyPublisher().orElseThrow();
+            final CollectingSubscriber subscriber = new CollectingSubscriber();
+            publisher.subscribe(subscriber);
+            return subscriber.body();
+        }
     }
 
     private static final class CollectingSubscriber implements Flow.Subscriber<ByteBuffer> {
