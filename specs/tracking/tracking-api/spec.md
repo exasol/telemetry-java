@@ -21,11 +21,6 @@ The host application still configures project identity once at startup, but acce
 ### Scenario: Records a feature usage event
 `scn~tracking-api-records-feature-usage-event~1`
 
-Covers:
-* `req~tracking-api~1`
-
-Needs: impl, utest, itest
-
 * *GIVEN* the library is configured with a project short tag and `productVersion`
 * *AND* tracking is enabled
 * *WHEN* the host application records a feature-usage event
@@ -35,26 +30,26 @@ Needs: impl, utest, itest
 * *AND* the library SHALL keep `version` reserved for protocol version `0.2.0`
 * *AND* the library MUST NOT validate or reject the feature name based on application-defined naming choices
 
-### Scenario: Ignores tracking after the client is closed
-`scn~tracking-api-ignores-tracking-after-the-client-is-closed~1`
-
 Covers:
 * `req~tracking-api~1`
 
 Needs: impl, utest, itest
+
+### Scenario: Ignores tracking after the client is closed
+`scn~tracking-api-ignores-tracking-after-the-client-is-closed~1`
 
 * *GIVEN* the host application has closed the telemetry client
 * *WHEN* the host application records a feature-usage event
 * *THEN* the library SHALL ignore that call
 * *AND* the library MUST NOT enqueue the event for delivery
 
-### Scenario: Keeps caller-thread overhead low for accepted tracking
-`scn~tracking-api-keeps-caller-thread-overhead-low-for-accepted-tracking~1`
-
 Covers:
 * `req~tracking-api~1`
 
 Needs: impl, utest, itest
+
+### Scenario: Keeps caller-thread overhead low for accepted tracking
+`scn~tracking-api-keeps-caller-thread-overhead-low-for-accepted-tracking~1`
 
 * *GIVEN* tracking is enabled
 * *AND* the host application records a feature-usage event
@@ -63,29 +58,34 @@ Needs: impl, utest, itest
 * *AND* the library SHALL defer JSON serialization and HTTP delivery to background processing
 * *AND* the library SHOULD avoid avoidable heap allocations on the caller thread
 
-### Scenario: Ignores null feature names
-`scn~tracking-api-ignores-null-feature-names~1`
-
 Covers:
 * `req~tracking-api~1`
 
 Needs: impl, utest, itest
+
+### Scenario: Ignores null feature names
+`scn~tracking-api-ignores-null-feature-names~1`
 
 * *GIVEN* tracking is enabled
 * *WHEN* the host application records a `null` feature name
 * *THEN* the library SHALL ignore that call
 * *AND* the library MUST NOT enqueue or emit a telemetry event for the `null` feature name
 
-### Scenario: Makes disabled tracking a no-op without telemetry overhead
-`scn~tracking-api-makes-disabled-tracking-a-no-op-without-telemetry-overhead~1`
-
 Covers:
 * `req~tracking-api~1`
 
 Needs: impl, utest, itest
+
+### Scenario: Makes disabled tracking a no-op without telemetry overhead
+`scn~tracking-api-makes-disabled-tracking-a-no-op-without-telemetry-overhead~1`
 
 * *GIVEN* tracking is disabled
 * *WHEN* the host application records a feature-usage event
 * *THEN* the library SHALL return without queueing or delivery work
 * *AND* the library MUST NOT allocate telemetry event or protocol objects for that call
 * *AND* the library MUST NOT perform network or background coordination for that call
+
+Covers:
+* `req~tracking-api~1`
+
+Needs: impl, utest, itest

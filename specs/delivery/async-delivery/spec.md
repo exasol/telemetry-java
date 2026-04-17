@@ -21,11 +21,6 @@ Accepted telemetry events are serialized to JSON and delivered via HTTP `POST` t
 ### Scenario: Sends queued events asynchronously over HTTP
 `scn~async-delivery-sends-queued-events-asynchronously-over-http~1`
 
-Covers:
-* `req~async-delivery~1`
-
-Needs: impl, utest, itest
-
 * *GIVEN* the library is configured with an endpoint, project tag, and `productVersion`
 * *AND* an accepted usage event is queued for delivery
 * *WHEN* the background sender processes the queue
@@ -34,13 +29,13 @@ Needs: impl, utest, itest
 * *AND* the library SHALL emit protocol `version`=`0.2.0`
 * *AND* the library SHALL perform network delivery without blocking the calling thread
 
-### Scenario: Retries failed delivery with exponential backoff until timeout
-`scn~async-delivery-retries-failed-delivery-with-exponential-backoff-until-timeout~1`
-
 Covers:
 * `req~async-delivery~1`
 
 Needs: impl, utest, itest
+
+### Scenario: Retries failed delivery with exponential backoff until timeout
+`scn~async-delivery-retries-failed-delivery-with-exponential-backoff-until-timeout~1`
 
 * *GIVEN* the background sender attempts to deliver a queued event
 * *AND* the configured endpoint fails to accept the request
@@ -49,16 +44,21 @@ Needs: impl, utest, itest
 * *AND* the library SHALL stop retrying that event when the retry timeout is reached
 * *AND* the library MUST use bounded memory while retrying
 
-### Scenario: Batches multiple drained events into a single protocol message
-`scn~async-delivery-batches-multiple-drained-events-into-a-single-protocol-message~1`
-
 Covers:
 * `req~async-delivery~1`
 
 Needs: impl, utest, itest
+
+### Scenario: Batches multiple drained events into a single protocol message
+`scn~async-delivery-batches-multiple-drained-events-into-a-single-protocol-message~1`
 
 * *GIVEN* multiple accepted telemetry events are present when the background sender drains the queue
 * *WHEN* the background sender emits the next protocol message
 * *THEN* the library SHALL include the queued events in a single JSON payload
 * *AND* the library SHALL group timestamps by caller-provided feature name in the `features` map
 * *AND* the library SHALL correctly JSON-escape caller-provided feature names when serializing the `features` map
+
+Covers:
+* `req~async-delivery~1`
+
+Needs: impl, utest, itest
