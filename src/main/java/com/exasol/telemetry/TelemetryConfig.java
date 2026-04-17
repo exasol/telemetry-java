@@ -10,6 +10,7 @@ import java.util.Objects;
  * Stores the runtime settings that control telemetry delivery, retry behavior, and environment-based overrides.
  */
 public final class TelemetryConfig {
+    static final String HOST_CONFIGURATION_DISABLE = "host configuration";
     /**
      * Name of the environment variable used to detect CI environments and disable telemetry automatically.
      */
@@ -32,6 +33,7 @@ public final class TelemetryConfig {
     private final URI endpoint;
     private final String disabledEnvValue;
     private final String ciEnvValue;
+    private final boolean explicitlyDisabled;
     private final int queueCapacity;
     private final Duration retryTimeout;
     private final Duration initialRetryDelay;
@@ -47,6 +49,7 @@ public final class TelemetryConfig {
         this.environment = requireNonNull(builder.environment, "environment");
         this.disabledEnvValue = environment.getenv(DISABLED_ENV);
         this.ciEnvValue = environment.getenv(CI_ENV);
+        this.explicitlyDisabled = builder.trackingDisabled;
         this.endpoint = resolveEndpoint(builder.endpoint, environment);
         this.queueCapacity = positive(builder.queueCapacity, "queueCapacity");
         this.retryTimeout = positive(builder.retryTimeout, "retryTimeout");
@@ -54,7 +57,7 @@ public final class TelemetryConfig {
         this.maxRetryDelay = positive(builder.maxRetryDelay, "maxRetryDelay");
         this.connectTimeout = positive(builder.connectTimeout, "connectTimeout");
         this.requestTimeout = positive(builder.requestTimeout, "requestTimeout");
-        this.trackingDisabled = isDisabled(disabledEnvValue) || isDisabled(ciEnvValue);
+        this.trackingDisabled = explicitlyDisabled || isDisabled(disabledEnvValue) || isDisabled(ciEnvValue);
     }
 
     /**
@@ -123,6 +126,9 @@ public final class TelemetryConfig {
         if (isDisabled(ciEnvValue)) {
             return CI_ENV;
         }
+        if (explicitlyDisabled) {
+            return HOST_CONFIGURATION_DISABLE;
+        }
         return null;
     }
 
@@ -180,6 +186,7 @@ public final class TelemetryConfig {
         private final String projectTag;
         private final String productVersion;
         private URI endpoint;
+        private boolean trackingDisabled;
         private int queueCapacity = 256;
         private Duration retryTimeout = Duration.ofSeconds(5);
         private Duration initialRetryDelay = Duration.ofMillis(100);
@@ -196,6 +203,16 @@ public final class TelemetryConfig {
 
         Builder endpoint(final URI endpoint) {
             this.endpoint = endpoint;
+            return this;
+        }
+
+        /**
+         * Disable telemetry collection and delivery explicitly in host configuration.
+         *
+         * @return this builder
+         */
+        public Builder disableTracking() {
+            this.trackingDisabled = true;
             return this;
         }
 

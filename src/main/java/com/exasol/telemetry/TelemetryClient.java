@@ -46,8 +46,13 @@ public interface TelemetryClient extends AutoCloseable {
     }
 
     private static void logDisabled(final TelemetryConfig config) {
-        logger().info(() -> "Telemetry is disabled via " + config.getDisableMechanism() + "="
-                + formatEnvValue(config.getDisableMechanismValue()) + ".");
+        final String mechanism = config.getDisableMechanism();
+        final String mechanismValue = config.getDisableMechanismValue();
+        if (mechanismValue == null) {
+            logger().info(() -> "Telemetry is disabled via " + mechanism + ".");
+            return;
+        }
+        logger().info(() -> "Telemetry is disabled via " + mechanism + "=" + formatEnvValue(mechanismValue) + ".");
     }
 
     // Create logger in private method to avoid a public static field in the interface.

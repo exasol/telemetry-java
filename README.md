@@ -32,7 +32,7 @@ The project uses `speq` skills and recorded specs to drive planning, implementat
 - Protocol-compatible message format with `category`, protocol `version`, `productVersion`, `timestamp`, and `features`
 - Exponential backoff with retry timeout
 - Clean shutdown via `AutoCloseable`
-- Environment-variable control for disabling telemetry and overriding the endpoint
+- Host-configuration and environment-variable control for disabling telemetry, plus environment-variable endpoint override
 - Lifecycle log messages for enabled, disabled, sent-count, and stopped telemetry states
 - Zero runtime dependencies
 
@@ -56,6 +56,8 @@ try (TelemetryClient client = TelemetryClient.create(config)) {
   Overrides the endpoint configured in code.
 
 The default endpoint is `https://metrics.exasol.com`.
+
+Applications can also disable telemetry explicitly in code with `TelemetryConfig.builder(...).disableTracking()`.
 
 ## Documentation
 

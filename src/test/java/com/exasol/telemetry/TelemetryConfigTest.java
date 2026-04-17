@@ -3,6 +3,7 @@ package com.exasol.telemetry;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.net.URI;
@@ -54,6 +55,32 @@ class TelemetryConfigTest {
 
         assertThat(config.getEndpoint(), is(URI.create("https://override.example.com")));
         assertThat(config.isTrackingDisabled(), is(true));
+    }
+
+    // [utest~telemetry-config-explicit-disable~1->req~tracking-controls~1]
+    @Test
+    void disablesTrackingExplicitlyInHostConfiguration() {
+        final TelemetryConfig config = defaultBuilder()
+                .disableTracking()
+                .environment(MapEnvironment.empty())
+                .build();
+
+        assertThat(config.isTrackingDisabled(), is(true));
+        assertThat(config.getDisableMechanism(), is(TelemetryConfig.HOST_CONFIGURATION_DISABLE));
+        assertThat(config.getDisableMechanismValue(), is(nullValue()));
+    }
+
+    // [utest~telemetry-config-disable-mechanism-precedence~1->req~tracking-controls~1]
+    @Test
+    void prefersEnvironmentDisableMechanismOverHostConfiguration() {
+        final TelemetryConfig config = defaultBuilder()
+                .disableTracking()
+                .environment(new MapEnvironment(Map.of(TelemetryConfig.DISABLED_ENV, "disabled")))
+                .build();
+
+        assertThat(config.isTrackingDisabled(), is(true));
+        assertThat(config.getDisableMechanism(), is(TelemetryConfig.DISABLED_ENV));
+        assertThat(config.getDisableMechanismValue(), is("disabled"));
     }
 
     // [utest~telemetry-config-disable-in-ci~1->req~tracking-controls~1]

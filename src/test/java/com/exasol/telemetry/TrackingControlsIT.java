@@ -14,6 +14,20 @@ class TrackingControlsIT {
     private static final String VERSION = "1.2.3";
     private static final String FEATURE = "myFeature";
 
+    // [itest~tracking-controls-disable-explicit-config~1->req~tracking-controls~1]
+    @Test
+    void disablesTrackingViaExplicitConfiguration() throws Exception {
+        try (RecordingHttpServer server = RecordingHttpServer.createSuccessServer();
+                TelemetryClient client = TelemetryClient.create(server.configBuilder(PROJECT_TAG, VERSION)
+                        .disableTracking()
+                        .build())) {
+            client.track(FEATURE);
+
+            Thread.sleep(150);
+            assertThat(server.awaitRequests(1, Duration.ofMillis(150)), empty());
+        }
+    }
+
     // [itest~tracking-controls-disable-env~1->req~tracking-controls~1]
     @Test
     void disablesTrackingViaEnvironmentVariables() throws Exception {
