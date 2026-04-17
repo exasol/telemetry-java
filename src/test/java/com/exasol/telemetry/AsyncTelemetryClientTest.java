@@ -133,8 +133,8 @@ class AsyncTelemetryClientTest {
                 client.track("feature");
                 client.close();
 
-                final LogRecord logRecord = capture.await(record -> record.getLevel() == Level.FINE
-                        && record.getMessage().contains("Telemetry sending failed"), Duration.ofSeconds(1));
+                final LogRecord logRecord = capture.await(r -> r.getLevel() == Level.FINE
+                        && r.getMessage().contains("Telemetry sending failed"), Duration.ofSeconds(1));
                 assertThat(logRecord.getMessage(), containsString("server status 500 (server says no)"));
             } finally {
                 client.close();

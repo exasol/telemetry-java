@@ -76,14 +76,14 @@ class AsyncDeliveryIT {
                     .retryTimeout(Duration.ofMillis(500))
                     .build());
             try {
-            client.track("feature-a");
-            client.track("feature-b");
-            client.close();
+                client.track("feature-a");
+                client.track("feature-b");
+                client.close();
 
-            final List<RecordingHttpServer.RecordedRequest> requests = server.awaitRequests(1, Duration.ofSeconds(2));
-            assertThat(requests, hasSize(1));
-            assertThat(requests.get(0).body(), containsString("\"feature-a\":["));
-            assertThat(requests.get(0).body(), containsString("\"feature-b\":["));
+                final List<RecordingHttpServer.RecordedRequest> requests = server.awaitRequests(1, Duration.ofSeconds(2));
+                assertThat(requests, hasSize(1));
+                assertThat(requests.get(0).body(), containsString("\"feature-a\":["));
+                assertThat(requests.get(0).body(), containsString("\"feature-b\":["));
             } finally {
                 client.close();
             }
