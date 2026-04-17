@@ -8,8 +8,6 @@ import java.util.logging.Logger;
  * to {@link #create(TelemetryConfig)}.
  */
 public interface TelemetryClient extends AutoCloseable {
-    Logger LOGGER = Logger.getLogger(TelemetryClient.class.getName());
-
     /**
      * Create a telemetry client for the provided configuration.
      *
@@ -42,14 +40,19 @@ public interface TelemetryClient extends AutoCloseable {
     void close();
 
     private static void logEnabled(final TelemetryConfig config) {
-        LOGGER.info(() -> "Telemetry is enabled. Set " + TelemetryConfig.DISABLED_ENV + " to any non-empty value to disable telemetry. "
+        logger().info(() -> "Telemetry is enabled. Set " + TelemetryConfig.DISABLED_ENV + " to any non-empty value to disable telemetry. "
                 + TelemetryConfig.DISABLED_ENV + "=" + formatEnvValue(config.getDisabledEnvValue()) + ", "
                 + TelemetryConfig.CI_ENV + "=" + formatEnvValue(config.getCiEnvValue()) + ".");
     }
 
     private static void logDisabled(final TelemetryConfig config) {
-        LOGGER.info(() -> "Telemetry is disabled via " + config.getDisableMechanism() + "="
+        logger().info(() -> "Telemetry is disabled via " + config.getDisableMechanism() + "="
                 + formatEnvValue(config.getDisableMechanismValue()) + ".");
+    }
+
+    // Create logger in private method to avoid a public static field in the interface.
+    private static Logger logger() {
+        return Logger.getLogger(TelemetryClient.class.getName());
     }
 
     private static String formatEnvValue(final String value) {

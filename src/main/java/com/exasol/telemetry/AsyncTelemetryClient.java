@@ -6,8 +6,11 @@ import java.time.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
+import java.util.logging.Logger;
 
 final class AsyncTelemetryClient implements TelemetryClient {
+    private static final Logger LOGGER = Logger.getLogger(AsyncTelemetryClient.class.getName());
+
     private final TelemetryConfig config;
     private final BlockingQueue<TelemetryEvent> queue;
     private final HttpTransport transport;
