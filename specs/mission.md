@@ -64,6 +64,13 @@ Ensures queued telemetry is flushed during shutdown and background work stops wh
 
 Needs: req
 
+### Status Logging
+`feat~status-logging~1`
+
+Informs application users through operational log messages about the telemetry lifecycle, including failed delivery attempts.
+
+Needs: req
+
 ## Out of Scope
 
 The library does not collect:
