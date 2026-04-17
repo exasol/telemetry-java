@@ -10,7 +10,6 @@ import java.util.Objects;
  * Stores the runtime settings that control telemetry delivery, retry behavior, and environment-based overrides.
  */
 public final class TelemetryConfig {
-    static final String HOST_CONFIGURATION_DISABLE = "host configuration";
     /**
      * Name of the environment variable used to detect CI environments and disable telemetry automatically.
      */
@@ -63,7 +62,7 @@ public final class TelemetryConfig {
     /**
      * Creates a builder for a telemetry configuration bound to the given project tag and product version.
      *
-     * @param projectTag project identifier attached to emitted telemetry messages as {@code category}
+     * @param projectTag     project identifier attached to emitted telemetry messages as {@code category}
      * @param productVersion host product or library version attached to emitted telemetry messages as {@code productVersion}
      * @return configuration builder
      */
@@ -127,7 +126,7 @@ public final class TelemetryConfig {
             return CI_ENV;
         }
         if (explicitlyDisabled) {
-            return HOST_CONFIGURATION_DISABLE;
+            return "host configuration";
         }
         return null;
     }

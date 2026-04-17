@@ -1,9 +1,7 @@
 package com.exasol.telemetry;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.net.URI;
@@ -66,7 +64,7 @@ class TelemetryConfigTest {
                 .build();
 
         assertThat(config.isTrackingDisabled(), is(true));
-        assertThat(config.getDisableMechanism(), is(TelemetryConfig.HOST_CONFIGURATION_DISABLE));
+        assertThat(config.getDisableMechanism(), is("host configuration"));
         assertThat(config.getDisableMechanismValue(), is(nullValue()));
     }
 
