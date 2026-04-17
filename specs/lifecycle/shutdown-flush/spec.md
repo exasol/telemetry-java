@@ -10,7 +10,7 @@ The library shall flush queued telemetry work during close and stop background d
 Covers:
 * `feat~shutdown-flush~1`
 
-Needs: scn
+Needs: impl, utest, itest
 
 ## Background
 
@@ -19,12 +19,6 @@ The telemetry client participates in application shutdown through `AutoCloseable
 ## Scenarios
 
 ### Scenario: Flushes pending events on close
-`scn~shutdown-flush-flushes-pending-events-on-close~1`
-
-Covers:
-* `req~shutdown-flush~1`
-
-Needs: impl, itest
 
 * *GIVEN* one or more accepted telemetry events remain queued
 * *WHEN* the host application closes the telemetry client
@@ -32,12 +26,6 @@ Needs: impl, itest
 * *AND* the library SHALL respect the configured retry timeout while flushing
 
 ### Scenario: Stops background threads after close
-`scn~shutdown-flush-stops-background-threads-after-close~1`
-
-Covers:
-* `req~shutdown-flush~1`
-
-Needs: impl, utest, itest
 
 * *GIVEN* the telemetry client has been closed
 * *WHEN* all eligible queued work has completed or timed out

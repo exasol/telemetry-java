@@ -8,16 +8,15 @@
 
 ## OpenFastTrace Artifact Types
 
-- `feat`: high level features in the mission, covered by `req`
-- `req`: requirements in the speq spec files, covered by `scn`
-- `scn`: scenarios in the speq spec files, covered by `impl`, `utest`, `itest`
+- `feat`: high level features in the mission
+- `req`: requirements in the speq spec files
 - `impl`: implementation in code
 - `utest`: unit tests
 - `itest`: integration tests
 
 ## Tag Maintenance
 
-- Always add or update OpenFastTrace tags for features, requirements, scenarios, and code tags when updating the mission or speq spec files.
+- Always add or update OpenFastTrace tags for features, requirements, and code tags when updating the mission or speq spec files.
 
 ## Validation
 

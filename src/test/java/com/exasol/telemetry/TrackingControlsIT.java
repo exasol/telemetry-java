@@ -14,7 +14,7 @@ class TrackingControlsIT {
     private static final String VERSION = "1.2.3";
     private static final String FEATURE = "myFeature";
 
-    // [itest~tracking-controls-disable-env~1->scn~tracking-controls-disables-tracking-via-environment-variables~1]
+    // [itest~tracking-controls-disable-env~1->req~tracking-controls~1]
     @Test
     void disablesTrackingViaEnvironmentVariables() throws Exception {
         try (RecordingHttpServer server = RecordingHttpServer.createSuccessServer();
@@ -28,7 +28,7 @@ class TrackingControlsIT {
         }
     }
 
-    // [itest~tracking-controls-disable-ci~1->scn~tracking-controls-disables-tracking-automatically-in-ci~1]
+    // [itest~tracking-controls-disable-ci~1->req~tracking-controls~1]
     @Test
     void disablesTrackingAutomaticallyWhenCiIsNonEmpty() throws Exception {
         try (RecordingHttpServer server = RecordingHttpServer.createSuccessServer();
@@ -42,7 +42,7 @@ class TrackingControlsIT {
         }
     }
 
-    // [itest~tracking-controls-endpoint-override~1->scn~tracking-controls-overrides-configured-endpoint-via-environment-variable~1]
+    // [itest~tracking-controls-endpoint-override~1->req~tracking-controls~1]
     @Test
     void overridesConfiguredEndpointViaEnvironmentVariable() throws Exception {
         final List<RecordingHttpServer.RecordedRequest> requests;

@@ -10,7 +10,7 @@ The library shall emit operational telemetry lifecycle log messages for enabled,
 Covers:
 * `feat~status-logging~1`
 
-Needs: scn
+Needs: impl, itest
 
 ## Background
 
@@ -19,12 +19,6 @@ These log messages are informational lifecycle messages only. They do not includ
 ## Scenarios
 
 ### Scenario: Logs when telemetry is enabled
-`scn~status-logging-logs-when-telemetry-is-enabled~1`
-
-Covers:
-* `req~status-logging~1`
-
-Needs: impl, itest
 
 * *GIVEN* the telemetry client is created and telemetry is enabled
 * *WHEN* initialization completes
@@ -33,12 +27,6 @@ Needs: impl, itest
 * *AND* the library SHALL include the actual current values of `EXASOL_TELEMETRY_DISABLE` and `CI`
 
 ### Scenario: Logs when telemetry is disabled
-`scn~status-logging-logs-when-telemetry-is-disabled~1`
-
-Covers:
-* `req~status-logging~1`
-
-Needs: impl, itest
 
 * *GIVEN* the telemetry client is created and telemetry is disabled
 * *WHEN* initialization completes
@@ -47,12 +35,6 @@ Needs: impl, itest
 * *AND* the library SHALL include the actual env-var value that caused disablement
 
 ### Scenario: Logs message counts when telemetry is sent
-`scn~status-logging-logs-message-counts-when-telemetry-is-sent~1`
-
-Covers:
-* `req~status-logging~1`
-
-Needs: impl, itest
 
 * *GIVEN* one or more accepted telemetry events are about to be sent to the server
 * *WHEN* the sender submits a telemetry message
@@ -60,12 +42,6 @@ Needs: impl, itest
 * *AND* the library SHALL include the count of events in the message
 
 ### Scenario: Logs when telemetry sending fails
-`scn~status-logging-logs-when-telemetry-sending-fails~1`
-
-Covers:
-* `req~status-logging~1`
-
-Needs: impl, itest
 
 * *GIVEN* one or more accepted telemetry events are about to be sent to the server
 * *AND* the send attempt fails
@@ -76,12 +52,6 @@ Needs: impl, itest
 * *AND* the library SHALL include the root cause of the failed send attempt
 
 ### Scenario: Logs when telemetry is stopped
-`scn~status-logging-logs-when-telemetry-is-stopped~1`
-
-Covers:
-* `req~status-logging~1`
-
-Needs: impl, itest
 
 * *GIVEN* the telemetry client is closed
 * *WHEN* shutdown processing completes
