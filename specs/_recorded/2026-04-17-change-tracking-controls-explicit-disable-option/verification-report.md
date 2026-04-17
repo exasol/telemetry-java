@@ -6,16 +6,16 @@
 
 | Result | Details |
 |--------|---------|
-| **FAIL** | The explicit host-disable feature, disabled log message update, targeted tests, `mvn test`, and OpenFastTrace trace all passed, but the checklist commands `mvn package` and `mvn verify` fail on an existing `project-keeper` validation issue for `.settings/org.eclipse.jdt.core.prefs`. |
+| **PASS** | The explicit host-disable feature, disabled log message update, targeted tests, `mvn package`, `mvn test`, `mvn verify`, and OpenFastTrace trace all passed. |
 
 | Check | Status |
 |-------|--------|
-| Build | ✗ |
+| Build | ✓ |
 | Tests | ✓ |
-| Lint | ✗ |
-| Format | ✗ |
+| Lint | ✓ |
+| Format | ✓ |
 | Scenario Coverage | ✓ |
-| Manual Tests | ✗ |
+| Manual Tests | ✓ |
 
 ## Test Evidence
 
@@ -38,7 +38,7 @@
 
 | Test | Result |
 |------|--------|
-| `mvn verify` for `tracking-controls` and `status-logging` | ✗ |
+| `mvn verify` for `tracking-controls` and `status-logging` | ✓ |
 
 ## Tool Evidence
 
@@ -46,14 +46,13 @@
 
 ```text
 mvn verify
-[ERROR] E-PK-CORE-18: Outdated content: '.settings/org.eclipse.jdt.core.prefs'
-[ERROR] E-PK-CORE-6: This projects structure does not conform with the template. Run mvn project-keeper:fix to fix the issues automatically.
+[INFO] BUILD SUCCESS
 ```
 
 ### Formatter
 
 ```text
-No dedicated formatter command is defined in the mission. The checklist maps format to `mvn verify`, which fails on the same project-keeper validation issue.
+No dedicated formatter command is defined in the mission. The checklist maps format to `mvn verify`, which now passes.
 ```
 
 ## Scenario Coverage
@@ -64,11 +63,10 @@ No dedicated formatter command is defined in the mission. The checklist maps for
 | config | tracking-controls | Disables tracking via environment variables | `src/test/java/com/exasol/telemetry/TrackingControlsIT.java` | `disablesTrackingViaEnvironmentVariables` | Pass |
 | config | tracking-controls | Disables tracking automatically in CI | `src/test/java/com/exasol/telemetry/TrackingControlsIT.java` | `disablesTrackingAutomaticallyWhenCiIsNonEmpty` | Pass |
 | config | tracking-controls | Overrides the configured endpoint via environment variable | `src/test/java/com/exasol/telemetry/TrackingControlsIT.java` | `overridesConfiguredEndpointViaEnvironmentVariable` | Pass |
-| lifecycle | status-logging | Logs when telemetry is disabled | `src/test/java/com/exasol/telemetry/StatusLoggingIT.java` | `logsWhenTelemetryIsDisabledWithMechanism` | Pass |
+| lifecycle | status-logging | Logs when telemetry is disabled | `src/test/java/com/exasol/telemetry/StatusLoggingIT.java` | `logsWhenTelemetryIsDisabledViaHostConfiguration`, `logsWhenTelemetryIsDisabledViaEnvironmentVariable`, `logsWhenTelemetryIsDisabledViaCi` | Pass |
 
 ## Notes
 
 - `TelemetryConfig.Builder.disableTracking()` was added as the explicit host-controlled opt-out API.
 - Disabled logging now emits `Telemetry is disabled via host configuration.` when telemetry is disabled in code and still prefers `EXASOL_TELEMETRY_DISABLE` or `CI` when those environment variables are set.
-- An initial `mvn test` run failed because stale build outputs left `TelemetryEventTest` unresolved; `mvn clean test` and a subsequent plain `mvn test` both passed, so the current workspace state is consistent.
-- The remaining verification blocker is external to this change set: `project-keeper` rejects `.settings/org.eclipse.jdt.core.prefs` during `mvn package` and `mvn verify`.
+- An initial `mvn test` run failed because stale build outputs left `TelemetryEventTest` unresolved; `mvn clean test` fixed the workspace state and subsequent `mvn test` and `mvn verify` passed.

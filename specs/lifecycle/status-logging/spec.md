@@ -31,8 +31,8 @@ These log messages are informational lifecycle messages only. They do not includ
 * *GIVEN* the telemetry client is created and telemetry is disabled
 * *WHEN* initialization completes
 * *THEN* the library SHALL log at `INFO` level that telemetry is disabled
-* *AND* the library SHALL identify whether telemetry was disabled by `EXASOL_TELEMETRY_DISABLE` or `CI`
-* *AND* the library SHALL include the actual env-var value that caused disablement
+* *AND* the library SHALL identify whether telemetry was disabled by host configuration, `EXASOL_TELEMETRY_DISABLE`, or `CI`
+* *AND* the library SHALL include the actual env-var value that caused disablement when disablement came from `EXASOL_TELEMETRY_DISABLE` or `CI`
 
 ### Scenario: Logs message counts when telemetry is sent
 
