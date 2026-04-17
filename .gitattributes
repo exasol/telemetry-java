@@ -12,5 +12,5 @@ doc/changes/changelog.md                   linguist-generated=true
 .settings/org.eclipse.jdt.core.prefs       linguist-generated=true
 .settings/org.eclipse.jdt.ui.prefs         linguist-generated=true
 
-specs/_plans/                              linguist-generated=true
-specs/_recorded/                           linguist-generated=true
+specs/_plans/**                            linguist-generated=true
+specs/_recorded/**                         linguist-generated=true
