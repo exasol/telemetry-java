@@ -39,12 +39,14 @@ public interface TelemetryClient extends AutoCloseable {
     // [impl~telemetry-client-close~1->req~shutdown-flush~1]
     void close();
 
+    // [impl~telemetry-client-log-enabled~1->req~status-logging~1]
     private static void logEnabled(final TelemetryConfig config) {
         logger().info(() -> "Telemetry is enabled. Set " + TelemetryConfig.DISABLED_ENV + " to any non-empty value to disable telemetry. "
                 + TelemetryConfig.DISABLED_ENV + "=" + formatEnvValue(config.getDisabledEnvValue()) + ", "
                 + TelemetryConfig.CI_ENV + "=" + formatEnvValue(config.getCiEnvValue()) + ".");
     }
 
+    // [impl~telemetry-client-log-disabled~1->req~status-logging~1]
     private static void logDisabled(final TelemetryConfig config) {
         logger().info(() -> "Telemetry is disabled via " + config.getDisableMechanism() + "="
                 + formatEnvValue(config.getDisableMechanismValue()) + ".");
