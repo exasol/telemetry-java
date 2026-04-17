@@ -28,7 +28,8 @@ class StatusLoggingIT {
             final LogRecord enabledRecord = capture.await(logRecord -> logRecord.getLevel() == Level.INFO
                     && logRecord.getMessage().contains("Telemetry is enabled"), Duration.ofSeconds(1));
 
-            assertThat(client.isRunning(), is(true));
+            assertThat(client, instanceOf(AsyncTelemetryClient.class));
+            assertThat(((AsyncTelemetryClient) client).isRunning(), is(true));
             assertThat(enabledRecord.getMessage(), containsString("Set EXASOL_TELEMETRY_DISABLE to any non-empty value to disable telemetry."));
             assertThat(enabledRecord.getMessage(), containsString("EXASOL_TELEMETRY_DISABLE=<unset>"));
             assertThat(enabledRecord.getMessage(), containsString("CI=<unset>"));

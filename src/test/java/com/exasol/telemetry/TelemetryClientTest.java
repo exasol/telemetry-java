@@ -1,11 +1,11 @@
 package com.exasol.telemetry;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 import java.net.URI;
-import java.time.Duration;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
@@ -21,8 +21,7 @@ class TelemetryClientTest {
         final TelemetryClient client = TelemetryClient.create(config);
         try {
             client.track("feature");
-            assertThat(client.awaitStopped(Duration.ofMillis(10)), is(true));
-            assertThat(client.isRunning(), is(false));
+            assertThat(client, instanceOf(NoOpTelemetryClient.class));
         } finally {
             client.close();
         }

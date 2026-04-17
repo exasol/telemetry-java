@@ -74,11 +74,10 @@ class TrackingApiIT {
                     .environment(new MapEnvironment(Map.of(TelemetryConfig.DISABLED_ENV, "disabled")))
                     .build();
 
-            try (TelemetryClient client = new TelemetryClient(config, new FailingClock())) {
+            try (TelemetryClient client = TelemetryClient.create(config)) {
                 client.track(FEATURE);
 
-                assertThat(client.awaitStopped(Duration.ofMillis(10)), is(true));
-                assertThat(client.isRunning(), is(false));
+                assertThat(client, instanceOf(NoOpTelemetryClient.class));
                 assertThat(server.awaitRequests(1, Duration.ofMillis(150)), empty());
             }
         }
@@ -108,23 +107,6 @@ class TrackingApiIT {
 
             Thread.sleep(150);
             assertThat(server.awaitRequests(1, Duration.ofMillis(150)), empty());
-        }
-    }
-
-    private static final class FailingClock extends Clock {
-        @Override
-        public ZoneId getZone() {
-            return ZoneOffset.UTC;
-        }
-
-        @Override
-        public Clock withZone(final ZoneId zone) {
-            return this;
-        }
-
-        @Override
-        public Instant instant() {
-            throw new AssertionError("disabled tracking should not capture a timestamp");
         }
     }
 }
