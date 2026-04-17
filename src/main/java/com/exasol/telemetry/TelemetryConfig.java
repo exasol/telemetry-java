@@ -32,6 +32,7 @@ public final class TelemetryConfig {
     private final URI endpoint;
     private final String disabledEnvValue;
     private final String ciEnvValue;
+    private final boolean explicitlyDisabled;
     private final int queueCapacity;
     private final Duration retryTimeout;
     private final Duration initialRetryDelay;
@@ -47,6 +48,7 @@ public final class TelemetryConfig {
         this.environment = requireNonNull(builder.environment, "environment");
         this.disabledEnvValue = environment.getenv(DISABLED_ENV);
         this.ciEnvValue = environment.getenv(CI_ENV);
+        this.explicitlyDisabled = builder.trackingDisabled;
         this.endpoint = resolveEndpoint(builder.endpoint, environment);
         this.queueCapacity = positive(builder.queueCapacity, "queueCapacity");
         this.retryTimeout = positive(builder.retryTimeout, "retryTimeout");
@@ -54,13 +56,13 @@ public final class TelemetryConfig {
         this.maxRetryDelay = positive(builder.maxRetryDelay, "maxRetryDelay");
         this.connectTimeout = positive(builder.connectTimeout, "connectTimeout");
         this.requestTimeout = positive(builder.requestTimeout, "requestTimeout");
-        this.trackingDisabled = isDisabled(disabledEnvValue) || isDisabled(ciEnvValue);
+        this.trackingDisabled = explicitlyDisabled || isDisabled(disabledEnvValue) || isDisabled(ciEnvValue);
     }
 
     /**
      * Creates a builder for a telemetry configuration bound to the given project tag and product version.
      *
-     * @param projectTag project identifier attached to emitted telemetry messages as {@code category}
+     * @param projectTag     project identifier attached to emitted telemetry messages as {@code category}
      * @param productVersion host product or library version attached to emitted telemetry messages as {@code productVersion}
      * @return configuration builder
      */
@@ -123,6 +125,9 @@ public final class TelemetryConfig {
         if (isDisabled(ciEnvValue)) {
             return CI_ENV;
         }
+        if (explicitlyDisabled) {
+            return "host configuration";
+        }
         return null;
     }
 
@@ -180,6 +185,7 @@ public final class TelemetryConfig {
         private final String projectTag;
         private final String productVersion;
         private URI endpoint;
+        private boolean trackingDisabled;
         private int queueCapacity = 256;
         private Duration retryTimeout = Duration.ofSeconds(5);
         private Duration initialRetryDelay = Duration.ofMillis(100);
@@ -196,6 +202,16 @@ public final class TelemetryConfig {
 
         Builder endpoint(final URI endpoint) {
             this.endpoint = endpoint;
+            return this;
+        }
+
+        /**
+         * Disable telemetry collection and delivery explicitly in host configuration.
+         *
+         * @return this builder
+         */
+        public Builder disableTracking() {
+            this.trackingDisabled = true;
             return this;
         }
 

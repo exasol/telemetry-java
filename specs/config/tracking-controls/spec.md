@@ -32,6 +32,13 @@ Tracking can be deactivated by `EXASOL_TELEMETRY_DISABLE` or automatically by `C
 * *THEN* the library SHALL disable telemetry collection and delivery
 * *AND* the library MUST NOT enqueue or send usage events while disabled
 
+### Scenario: Disables tracking via explicit host configuration
+
+* *GIVEN* the host application configures telemetry as disabled in code
+* *WHEN* the host application initializes the library and records feature usage
+* *THEN* the library SHALL disable telemetry collection and delivery
+* *AND* the library MUST NOT enqueue or send usage events while disabled
+
 ### Scenario: Overrides the configured endpoint via environment variable
 
 * *GIVEN* the host application configures an endpoint, project tag, and `productVersion` in code

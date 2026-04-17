@@ -17,6 +17,7 @@ try (TelemetryClient client = TelemetryClient.create(config)) {
 
 - A project short tag and a product/library version at startup. The library adds the project tag as the telemetry category and includes the configured productVersion in every accepted telemetry event.
 - An optional HTTP endpoint for JSON `POST` delivery. If omitted, the default endpoint is `https://metrics.exasol.com`.
+- An optional host-controlled disable switch via `TelemetryConfig.Builder.disableTracking()` when the integrating application exposes its own telemetry setting.
 
 ## Required Documentation
 
@@ -51,6 +52,18 @@ For details on what is collected and how to disable telemetry, see the [document
   Overrides the endpoint configured in code.
 - `CI`
   Disables telemetry automatically when set to any non-empty value.
+
+## Host-Controlled Disablement
+
+If the integrating application already has its own telemetry switch, map that setting to `TelemetryConfig.Builder.disableTracking()`.
+
+```java
+TelemetryConfig config = TelemetryConfig.builder("MyApp", "1.2.3")
+        .disableTracking()
+        .build();
+```
+
+When telemetry is disabled this way, the lifecycle `INFO` log reports `Telemetry is disabled via host configuration.`.
 
 ### UDF Integration Tests
 

@@ -35,8 +35,23 @@ class StatusLoggingIT {
     }
 
     @Test
+    void logsWhenTelemetryIsDisabledViaHostConfiguration() throws Exception {
+        try (LogCapture capture = new LogCapture();
+                RecordingHttpServer server = RecordingHttpServer.createSuccessServer();
+                TelemetryClient client = TelemetryClient.create(server.configBuilder(PROJECT_TAG, VERSION)
+                        .disableTracking()
+                        .build())) {
+            client.track(FEATURE);
+            final LogRecord hostRecord = capture.await(logRecord -> logRecord.getLevel() == Level.INFO
+                    && logRecord.getMessage().contains("Telemetry is disabled via host configuration."), Duration.ofSeconds(1));
+
+            assertThat(hostRecord.getMessage(), is("Telemetry is disabled via host configuration."));
+        }
+    }
+
+    @Test
     // [itest~status-logging-disabled~1->req~status-logging~1]
-    void logsWhenTelemetryIsDisabledWithMechanism() throws Exception {
+    void logsWhenTelemetryIsDisabledViaEnvironmentVariable() throws Exception {
         try (LogCapture capture = new LogCapture();
                 RecordingHttpServer server = RecordingHttpServer.createSuccessServer();
                 TelemetryClient client = TelemetryClient.create(server.configBuilder(PROJECT_TAG, VERSION)
@@ -48,7 +63,10 @@ class StatusLoggingIT {
 
             assertThat(envRecord.getMessage(), containsString("EXASOL_TELEMETRY_DISABLE='disabled'"));
         }
+    }
 
+    @Test
+    void logsWhenTelemetryIsDisabledViaCi() throws Exception {
         try (LogCapture capture = new LogCapture();
                 RecordingHttpServer server = RecordingHttpServer.createSuccessServer();
                 TelemetryClient client = TelemetryClient.create(server.configBuilder(PROJECT_TAG, VERSION)
