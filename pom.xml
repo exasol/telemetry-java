@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.exasol</groupId>
     <artifactId>telemetry-java</artifactId>
-    <version>0.1.0</version>
+    <version>0.2.0</version>
     <name>telemetry-java</name>
     <description>Minimal, zero-dependency telemetry library for Java applications.</description>
     <url>https://github.com/exasol/telemetry-java/</url>
@@ -114,7 +112,7 @@
     <parent>
         <artifactId>telemetry-java-generated-parent</artifactId>
         <groupId>com.exasol</groupId>
-        <version>0.1.0</version>
+        <version>0.2.0</version>
         <relativePath>pk_generated_parent.pom</relativePath>
     </parent>
 </project>

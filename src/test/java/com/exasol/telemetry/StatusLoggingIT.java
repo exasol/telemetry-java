@@ -17,18 +17,16 @@ class StatusLoggingIT {
     private static final String VERSION = "1.2.3";
     private static final String FEATURE = "myFeature";
 
-    @SuppressWarnings("java:S3416") // Using captured logger name by intention
-    private static final Logger CAPTURED_LOGGER = Logger.getLogger(TelemetryClient.class.getName());
-
     @Test
     void logsWhenTelemetryIsEnabled() throws Exception {
-        try (LogCapture capture = new LogCapture(CAPTURED_LOGGER);
+        try (LogCapture capture = new LogCapture();
                 RecordingHttpServer server = RecordingHttpServer.createSuccessServer();
                 TelemetryClient client = TelemetryClient.create(server.configBuilder(PROJECT_TAG, VERSION).build())) {
             final LogRecord enabledRecord = capture.await(logRecord -> logRecord.getLevel() == Level.INFO
                     && logRecord.getMessage().contains("Telemetry is enabled"), Duration.ofSeconds(1));
 
-            assertThat(client.isRunning(), is(true));
+            assertThat(client, instanceOf(AsyncTelemetryClient.class));
+            assertThat(((AsyncTelemetryClient) client).isRunning(), is(true));
             assertThat(enabledRecord.getMessage(), containsString("Set EXASOL_TELEMETRY_DISABLE to any non-empty value to disable telemetry."));
             assertThat(enabledRecord.getMessage(), containsString("EXASOL_TELEMETRY_DISABLE=<unset>"));
             assertThat(enabledRecord.getMessage(), containsString("CI=<unset>"));
@@ -37,7 +35,7 @@ class StatusLoggingIT {
 
     @Test
     void logsWhenTelemetryIsDisabledWithMechanism() throws Exception {
-        try (LogCapture capture = new LogCapture(CAPTURED_LOGGER);
+        try (LogCapture capture = new LogCapture();
                 RecordingHttpServer server = RecordingHttpServer.createSuccessServer();
                 TelemetryClient client = TelemetryClient.create(server.configBuilder(PROJECT_TAG, VERSION)
                         .environment(new MapEnvironment(Map.of(TelemetryConfig.DISABLED_ENV, "disabled")))
@@ -49,7 +47,7 @@ class StatusLoggingIT {
             assertThat(envRecord.getMessage(), containsString("EXASOL_TELEMETRY_DISABLE='disabled'"));
         }
 
-        try (LogCapture capture = new LogCapture(CAPTURED_LOGGER);
+        try (LogCapture capture = new LogCapture();
                 RecordingHttpServer server = RecordingHttpServer.createSuccessServer();
                 TelemetryClient client = TelemetryClient.create(server.configBuilder(PROJECT_TAG, VERSION)
                         .environment(new MapEnvironment(Map.of(TelemetryConfig.CI_ENV, "github-actions")))
@@ -64,7 +62,7 @@ class StatusLoggingIT {
 
     @Test
     void logsSentMessageCount() throws Exception {
-        try (LogCapture capture = new LogCapture(CAPTURED_LOGGER);
+        try (LogCapture capture = new LogCapture();
                 RecordingHttpServer server = RecordingHttpServer.createSuccessServer()) {
             final TelemetryClient client = TelemetryClient.create(server.configBuilder(PROJECT_TAG, VERSION)
                     .build());
@@ -83,7 +81,7 @@ class StatusLoggingIT {
 
     @Test
     void logsWhenTelemetrySendingFails() throws Exception {
-        try (LogCapture capture = new LogCapture(CAPTURED_LOGGER);
+        try (LogCapture capture = new LogCapture();
                 RecordingHttpServer server = RecordingHttpServer.createFlakyServer(1)) {
             final TelemetryClient client = TelemetryClient.create(server.configBuilder(PROJECT_TAG, VERSION)
                     .retryTimeout(Duration.ofMillis(500))
@@ -107,7 +105,7 @@ class StatusLoggingIT {
 
     @Test
     void logsWhenTelemetryStops() throws Exception {
-        try (LogCapture capture = new LogCapture(CAPTURED_LOGGER);
+        try (LogCapture capture = new LogCapture();
                 RecordingHttpServer server = RecordingHttpServer.createSuccessServer()) {
             final TelemetryClient client = TelemetryClient.create(server.configBuilder(PROJECT_TAG, VERSION).build());
             try {
@@ -127,8 +125,8 @@ class StatusLoggingIT {
         private final Level originalLevel;
         private final boolean originalUseParentHandlers;
 
-        private LogCapture(final Logger logger) {
-            this.logger = logger;
+        private LogCapture() {
+            this.logger = Logger.getLogger("com.exasol.telemetry");
             this.originalLevel = logger.getLevel();
             this.originalUseParentHandlers = logger.getUseParentHandlers();
             logger.setLevel(Level.ALL);
