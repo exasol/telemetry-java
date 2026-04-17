@@ -10,7 +10,7 @@ The library shall batch accepted telemetry events into protocol messages and del
 Covers:
 * `feat~async-delivery~1`
 
-Needs: impl, utest, itest
+Needs: scn
 
 ## Background
 
@@ -19,6 +19,12 @@ Accepted telemetry events are serialized to JSON and delivered via HTTP `POST` t
 ## Scenarios
 
 ### Scenario: Sends queued events asynchronously over HTTP
+`scn~async-delivery-sends-queued-events-asynchronously-over-http~1`
+
+Covers:
+* `req~async-delivery~1`
+
+Needs: impl, utest, itest
 
 * *GIVEN* the library is configured with an endpoint, project tag, and `productVersion`
 * *AND* an accepted usage event is queued for delivery
@@ -29,6 +35,12 @@ Accepted telemetry events are serialized to JSON and delivered via HTTP `POST` t
 * *AND* the library SHALL perform network delivery without blocking the calling thread
 
 ### Scenario: Retries failed delivery with exponential backoff until timeout
+`scn~async-delivery-retries-failed-delivery-with-exponential-backoff-until-timeout~1`
+
+Covers:
+* `req~async-delivery~1`
+
+Needs: impl, itest
 
 * *GIVEN* the background sender attempts to deliver a queued event
 * *AND* the configured endpoint fails to accept the request
@@ -38,6 +50,12 @@ Accepted telemetry events are serialized to JSON and delivered via HTTP `POST` t
 * *AND* the library MUST use bounded memory while retrying
 
 ### Scenario: Batches multiple drained events into a single protocol message
+`scn~async-delivery-batches-multiple-drained-events-into-a-single-protocol-message~1`
+
+Covers:
+* `req~async-delivery~1`
+
+Needs: impl, utest, itest
 
 * *GIVEN* multiple accepted telemetry events are present when the background sender drains the queue
 * *WHEN* the background sender emits the next protocol message

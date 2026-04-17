@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 class ShutdownFlushIT {
     private static final String PRODUCT_VERSION = "1.2.3";
 
-    // [itest~shutdown-flush-pending-events~1->req~shutdown-flush~1]
+    // [itest~shutdown-flush-pending-events~1->scn~shutdown-flush-flushes-pending-events-on-close~1]
     @Test
     void flushesPendingEventsOnClose() throws Exception {
         final List<RecordingHttpServer.RecordedRequest> requests;
@@ -33,7 +33,7 @@ class ShutdownFlushIT {
         assertThat(requests.get(0).body(), containsString("\"features\":{\"checkout-started\":["));
     }
 
-    // [itest~shutdown-flush-stops-background-thread~1->req~shutdown-flush~1]
+    // [itest~shutdown-flush-stops-background-thread~1->scn~shutdown-flush-stops-background-threads-after-close~1]
     @Test
     void stopsBackgroundThreadsAfterClose() throws Exception {
         final AsyncTelemetryClient client;
@@ -47,7 +47,7 @@ class ShutdownFlushIT {
         assertThat(client.isRunning(), is(false));
     }
 
-    // [itest~shutdown-flush-respects-retry-timeout~1->req~shutdown-flush~1]
+    // [itest~shutdown-flush-respects-retry-timeout~1->scn~shutdown-flush-flushes-pending-events-on-close~1]
     @Test
     void respectsRetryTimeoutWhileFlushingOnClose() throws Exception {
         try (RecordingHttpServer server = RecordingHttpServer.createDelayedFlakyServer(Integer.MAX_VALUE, 1_000)) {

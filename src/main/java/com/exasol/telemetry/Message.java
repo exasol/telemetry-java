@@ -20,8 +20,8 @@ final class Message {
         this.features = requireNonNull(features, "features");
     }
 
-    // [impl~message-from-events~1->req~async-delivery~1]
-    // [impl~message-from-events-preserves-client-identity~1->req~client-identity~1]
+    // [impl~async-delivery-message-payload-map-queue-from-events~1->scn~async-delivery-batches-multiple-drained-events-into-a-single-protocol-message~1]
+    // [impl~client-identity-category-message-productVersion-version-fields~1->scn~client-identity-attaches-configured-identity-values-to-emitted-telemetry-messages~1]
     static Message fromEvents(final String category, final String productVersion, final Instant timestamp, final List<TelemetryEvent> events) {
         final Map<String, List<Instant>> features = new LinkedHashMap<>();
         for (final TelemetryEvent event : events) {
@@ -30,8 +30,8 @@ final class Message {
         return new Message(category, productVersion, timestamp, features);
     }
 
-    // [impl~message-to-json~1->req~async-delivery~1]
-    // [impl~message-to-json-client-identity-fields~1->req~client-identity~1]
+    // [impl~async-delivery-json-payload-productVersion-version-message~1->scn~async-delivery-sends-queued-events-asynchronously-over-http~1]
+    // [impl~client-identity-category-productVersion-version-message-json~1->scn~client-identity-attaches-configured-identity-values-to-emitted-telemetry-messages~1]
     String toJson() {
         final StringBuilder builder = new StringBuilder();
         builder.append('{');

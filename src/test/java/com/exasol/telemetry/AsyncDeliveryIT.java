@@ -15,7 +15,7 @@ class AsyncDeliveryIT {
     private static final String VERSION = "1.2.3";
     private static final String FEATURE = "myFeature";
 
-    // [itest~async-delivery-over-http~1->req~async-delivery~1]
+    // [itest~async-delivery-over-http~1->scn~async-delivery-sends-queued-events-asynchronously-over-http~1]
     @Test
     void sendsQueuedEventsAsynchronouslyOverHttp() throws Exception {
         try (RecordingHttpServer server = RecordingHttpServer.createDelayedSuccessServer(300);
@@ -32,7 +32,7 @@ class AsyncDeliveryIT {
         }
     }
 
-    // [itest~async-delivery-retry-with-backoff~1->req~async-delivery~1]
+    // [itest~async-delivery-retry-with-backoff~1->scn~async-delivery-retries-failed-delivery-with-exponential-backoff-until-timeout~1]
     @Test
     void retriesFailedDeliveryWithExponentialBackoffUntilTimeout() throws Exception {
         try (RecordingHttpServer server = RecordingHttpServer.createFlakyServer(2);
@@ -65,6 +65,24 @@ class AsyncDeliveryIT {
             assertThat("close should wait for retry timeout before giving up", elapsedMillis, greaterThanOrEqualTo(180L));
             assertThat("close should stop retrying once the timeout is reached", elapsedMillis, lessThan(1000L));
             assertThat("the sender should retry before timing out", attempts, greaterThanOrEqualTo(2));
+        }
+    }
+
+    // [itest~async-delivery-batches-drained-events~1->scn~async-delivery-batches-multiple-drained-events-into-a-single-protocol-message~1]
+    @Test
+    void batchesMultipleDrainedEventsIntoSingleProtocolMessage() throws Exception {
+        try (RecordingHttpServer server = RecordingHttpServer.createSuccessServer();
+                TelemetryClient client = TelemetryClient.create(server.configBuilder(PROJECT_TAG, VERSION)
+                        .retryTimeout(Duration.ofMillis(500))
+                        .build())) {
+            client.track("feature-a");
+            client.track("feature-b");
+
+            final List<RecordingHttpServer.RecordedRequest> requests = server.awaitRequests(1, Duration.ofSeconds(2));
+            assertThat(requests, hasSize(1));
+            assertThat(requests.get(0).body(), containsString("\"features\":{"));
+            assertThat(requests.get(0).body(), containsString("\"feature-a\":["));
+            assertThat(requests.get(0).body(), containsString("\"feature-b\":["));
         }
     }
 }

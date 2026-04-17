@@ -43,6 +43,7 @@ final class AsyncTelemetryClient implements TelemetryClient {
     }
 
     @SuppressWarnings("java:S899") // Intentionally ignore return value of offer() to avoid blocking the caller.
+    // [impl~tracking-api-enabled-event-admission-delivery-processing-thread-low-overhead~1->scn~tracking-api-keeps-caller-thread-overhead-low~1]
     private void enqueue(final TelemetryEvent event) {
         queue.offer(event);
     }
@@ -62,6 +63,7 @@ final class AsyncTelemetryClient implements TelemetryClient {
         }
     }
 
+    // [impl~async-delivery-queue-message-payload-map-batch~1->scn~async-delivery-batches-multiple-drained-events-into-a-single-protocol-message~1]
     private List<TelemetryEvent> drainBatch(final TelemetryEvent firstEvent) {
         final List<TelemetryEvent> batch = new ArrayList<>();
         batch.add(firstEvent);
@@ -69,7 +71,8 @@ final class AsyncTelemetryClient implements TelemetryClient {
         return batch;
     }
 
-    // [impl~telemetry-client-send-with-retry~1->req~async-delivery~1]
+    // [impl~async-delivery-queue-thread-delivery-payload-productVersion-version-POST~1->scn~async-delivery-sends-queued-events-asynchronously-over-http~1]
+    // [impl~async-delivery-request-event-retrying-backoff-until-timeout-reached-expires~1->scn~async-delivery-retries-failed-delivery-with-exponential-backoff-until-timeout~1]
     private void sendWithRetry(final List<TelemetryEvent> events) {
         final Instant start = clock.instant();
         final Message message = Message.fromEvents(config.getProjectTag(), config.getProductVersion(), start, events);
@@ -82,11 +85,11 @@ final class AsyncTelemetryClient implements TelemetryClient {
             }
             try {
                 transport.send(message);
-                // [impl~telemetry-client-log-send-count~1->req~status-logging~1]
+                // [impl~status-logging-message-count-server-sent~1->scn~status-logging-logs-message-counts-when-telemetry-is-sent~1]
                 LOGGER.fine(() -> "Telemetry sent to the server with " + events.size() + " event(s).");
                 return;
             } catch (final Exception exception) {
-                // [impl~telemetry-client-log-send-failure~1->req~status-logging~1]
+                // [impl~status-logging-failed-send-attempt-message-response-server~1->scn~status-logging-logs-when-telemetry-sending-fails~1]
                 LOGGER.fine(() -> "Telemetry sending failed for " + events.size() + " event(s): "
                         + rootCauseMessage(exception));
                 if (Thread.currentThread().isInterrupted()) {
@@ -150,10 +153,11 @@ final class AsyncTelemetryClient implements TelemetryClient {
         }
         closed = true;
         awaitSenderStop();
-        // [impl~telemetry-client-log-stopped~1->req~status-logging~1]
+        // [impl~status-logging-stopped-closed-completes~1->scn~status-logging-logs-when-telemetry-is-stopped~1]
         LOGGER.fine("Telemetry is stopped.");
     }
 
+    // [impl~shutdown-flush-closed-returns-threads-stop-after-close-timeout~1->scn~shutdown-flush-stops-background-threads-after-close~1]
     private void awaitSenderStop() {
         final long timeoutNanos = config.getRetryTimeout().toNanos();
         final long deadlineNanos = System.nanoTime() + timeoutNanos;

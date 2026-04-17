@@ -10,7 +10,7 @@ The library shall require caller-configured identity values and attach them to e
 Covers:
 * `feat~client-identity~1`
 
-Needs: impl, utest, itest
+Needs: scn
 
 ## Background
 
@@ -19,6 +19,12 @@ Telemetry messages carry three stable identity fields: `category`, which is the 
 ## Scenarios
 
 ### Scenario: Requires project tag and productVersion when creating telemetry configuration
+`scn~client-identity-requires-project-tag-and-product-version~1`
+
+Covers:
+* `req~client-identity~1`
+
+Needs: impl, utest
 
 * *GIVEN* the host application creates telemetry configuration
 * *WHEN* the host application provides a blank project tag or a blank `productVersion`
@@ -26,6 +32,12 @@ Telemetry messages carry three stable identity fields: `category`, which is the 
 * *AND* the library MUST require both values before a telemetry client can be created
 
 ### Scenario: Attaches configured identity values to emitted telemetry messages
+`scn~client-identity-attaches-configured-identity-values-to-emitted-telemetry-messages~1`
+
+Covers:
+* `req~client-identity~1`
+
+Needs: impl, utest, itest
 
 * *GIVEN* the library is configured with a project tag and `productVersion`
 * *WHEN* the library emits a telemetry message

@@ -10,7 +10,7 @@ The library shall resolve tracking controls from configuration and environment v
 Covers:
 * `feat~tracking-controls~1`
 
-Needs: impl, utest, itest
+Needs: scn
 
 ## Background
 
@@ -19,6 +19,12 @@ Tracking can be deactivated by `EXASOL_TELEMETRY_DISABLE` or automatically by `C
 ## Scenarios
 
 ### Scenario: Disables tracking via environment variables
+`scn~tracking-controls-disables-tracking-via-environment-variables~1`
+
+Covers:
+* `req~tracking-controls~1`
+
+Needs: impl, utest, itest
 
 * *GIVEN* the host environment sets `EXASOL_TELEMETRY_DISABLE` to a non-empty value
 * *WHEN* the host application initializes the library and records feature usage
@@ -26,6 +32,12 @@ Tracking can be deactivated by `EXASOL_TELEMETRY_DISABLE` or automatically by `C
 * *AND* the library MUST NOT enqueue or send usage events while disabled
 
 ### Scenario: Disables tracking automatically in CI
+`scn~tracking-controls-disables-tracking-automatically-in-ci~1`
+
+Covers:
+* `req~tracking-controls~1`
+
+Needs: impl, utest, itest
 
 * *GIVEN* the host environment sets `CI` to a non-empty value
 * *WHEN* the host application initializes the library and records feature usage
@@ -33,6 +45,12 @@ Tracking can be deactivated by `EXASOL_TELEMETRY_DISABLE` or automatically by `C
 * *AND* the library MUST NOT enqueue or send usage events while disabled
 
 ### Scenario: Overrides the configured endpoint via environment variable
+`scn~tracking-controls-overrides-configured-endpoint-via-environment-variable~1`
+
+Covers:
+* `req~tracking-controls~1`
+
+Needs: impl, utest, itest
 
 * *GIVEN* the host application configures an endpoint, project tag, and `productVersion` in code
 * *AND* the host environment defines an endpoint override
