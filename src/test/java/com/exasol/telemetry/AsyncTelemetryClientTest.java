@@ -245,15 +245,13 @@ class AsyncTelemetryClientTest {
 
         private String body() {
             final int total = buffers.stream().mapToInt(ByteBuffer::remaining).sum();
-            final byte[] all = new byte[total];
-            int offset = 0;
+            final ByteBuffer combined = ByteBuffer.allocate(total);
             for (final ByteBuffer buffer : buffers) {
                 final ByteBuffer copy = buffer.asReadOnlyBuffer();
-                final int length = copy.remaining();
-                copy.get(all, offset, length);
-                offset += length;
+                combined.put(copy);
             }
-            return new String(all, StandardCharsets.UTF_8);
+            combined.flip();
+            return StandardCharsets.UTF_8.decode(combined).toString();
         }
     }
 }
