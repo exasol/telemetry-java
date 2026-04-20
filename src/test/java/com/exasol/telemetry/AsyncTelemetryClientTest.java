@@ -155,7 +155,7 @@ class AsyncTelemetryClientTest {
     // [utest~async-telemetry-client-logs-stopped~1->scn~status-logging-logs-when-telemetry-is-stopped~1]
     @Test
     @SuppressWarnings("java:S2093") // Not using try-with-resources to be able to test close() in the middle of the test
-    void logsWhenTelemetryIsStopped() throws Exception {
+    void logsWhenTelemetryIsStopped() {
         final TelemetryConfig config = configBuilder().build();
         final RecordingRequestSender requestSender = new RecordingRequestSender(List.of(202), 0L, "");
         try (LogCapture capture = new LogCapture()) {
