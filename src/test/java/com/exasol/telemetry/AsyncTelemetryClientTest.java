@@ -2,6 +2,7 @@ package com.exasol.telemetry;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 import java.net.URI;
 import java.net.http.HttpRequest;
@@ -53,9 +54,12 @@ class AsyncTelemetryClientTest {
             client.track(FEATURE);
             client.close();
 
-            assertThat(requestSender.attempts(), is(3));
-            assertThat(Duration.between(requestSender.attemptAt(0), requestSender.attemptAt(1)).toMillis(), greaterThanOrEqualTo(30L));
-            assertThat(Duration.between(requestSender.attemptAt(1), requestSender.attemptAt(2)).toMillis(), greaterThanOrEqualTo(60L));
+            assertAll(
+                    () -> assertThat(requestSender.attempts(), is(3)),
+                    () -> assertThat(Duration.between(requestSender.attemptAt(0), requestSender.attemptAt(1)).toMillis(),
+                            greaterThanOrEqualTo(30L)),
+                    () -> assertThat(Duration.between(requestSender.attemptAt(1), requestSender.attemptAt(2)).toMillis(),
+                            greaterThanOrEqualTo(60L)));
         } finally {
             client.close();
         }
@@ -73,8 +77,9 @@ class AsyncTelemetryClientTest {
 
             client.close();
 
-            assertThat(requestSender.attempts(), is(1));
-            assertThat(requestSender.body(0), containsString("\"features\":{\"feature\":["));
+            assertAll(
+                    () -> assertThat(requestSender.attempts(), is(1)),
+                    () -> assertThat(requestSender.body(0), containsString("\"features\":{\"feature\":[")));
         } finally {
             client.close();
         }
@@ -92,8 +97,9 @@ class AsyncTelemetryClientTest {
 
             client.close();
 
-            assertThat(client.awaitStopped(Duration.ofSeconds(1)), is(true));
-            assertThat(client.isRunning(), is(false));
+            assertAll(
+                    () -> assertThat(client.awaitStopped(Duration.ofSeconds(1)), is(true)),
+                    () -> assertThat(client.isRunning(), is(false)));
         } finally {
             client.close();
         }

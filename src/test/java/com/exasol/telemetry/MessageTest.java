@@ -3,6 +3,7 @@ package com.exasol.telemetry;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 import java.time.Instant;
 import java.util.List;
@@ -29,11 +30,12 @@ class MessageTest {
 
         final String json = message.toJson();
 
-        assertThat(json, containsString("\"category\":\"shop-ui\""));
-        assertThat(json, containsString("\"version\":\"0.2.0\""));
-        assertThat(json, containsString("\"productVersion\":\"1.2.3\""));
-        assertThat(json, containsString("\"timestamp\":"));
-        assertThat(json, containsString("\"features\":{\"project.a\":[10,20],\"project.b\":[30]}"));
+        assertAll(
+                () -> assertThat(json, containsString("\"category\":\"shop-ui\"")),
+                () -> assertThat(json, containsString("\"version\":\"0.2.0\"")),
+                () -> assertThat(json, containsString("\"productVersion\":\"1.2.3\"")),
+                () -> assertThat(json, containsString("\"timestamp\":")),
+                () -> assertThat(json, containsString("\"features\":{\"project.a\":[10,20],\"project.b\":[30]}")));
     }
 
     // [utest~message-serializes-valid-json-for-http-delivery~1->scn~async-delivery-sends-queued-events-asynchronously-over-http~1]
@@ -44,11 +46,12 @@ class MessageTest {
 
         final var payload = JsonTestHelper.parseJson(message.toJson());
 
-        assertThat(payload.containsKey("category"), is(true));
-        assertThat(payload.containsKey("version"), is(true));
-        assertThat(payload.containsKey("productVersion"), is(true));
-        assertThat(payload.containsKey("timestamp"), is(true));
-        assertThat(payload.containsKey("features"), is(true));
+        assertAll(
+                () -> assertThat(payload.containsKey("category"), is(true)),
+                () -> assertThat(payload.containsKey("version"), is(true)),
+                () -> assertThat(payload.containsKey("productVersion"), is(true)),
+                () -> assertThat(payload.containsKey("timestamp"), is(true)),
+                () -> assertThat(payload.containsKey("features"), is(true)));
     }
 
     // [utest~message-escapes-feature-names-in-batched-payloads~1->scn~async-delivery-batches-multiple-drained-events-into-a-single-protocol-message~1]
@@ -70,8 +73,9 @@ class MessageTest {
 
         final String json = message.toJson();
 
-        assertThat(json, containsString("\"category\":\"shop-\\\"ui\\\"\\n\\t\\\\\""));
-        assertThat(json, containsString("\"productVersion\":\"1.2.3-\\\"beta\\\"\\n\\t\\\\\""));
+        assertAll(
+                () -> assertThat(json, containsString("\"category\":\"shop-\\\"ui\\\"\\n\\t\\\\\"")),
+                () -> assertThat(json, containsString("\"productVersion\":\"1.2.3-\\\"beta\\\"\\n\\t\\\\\"")));
     }
 
     @Test

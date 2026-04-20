@@ -3,6 +3,7 @@ package com.exasol.telemetry;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.instanceOf;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 import java.net.URI;
 import java.time.Duration;
@@ -24,9 +25,10 @@ class TelemetryClientLoggingTest {
             final LogRecord logRecord = capture.await(r -> r.getLevel() == Level.INFO
                     && r.getMessage().contains("Telemetry is enabled"), Duration.ofSeconds(1));
 
-            assertThat(client, instanceOf(AsyncTelemetryClient.class));
-            assertThat(logRecord.getMessage(), containsString("EXASOL_TELEMETRY_DISABLE=<unset>"));
-            assertThat(logRecord.getMessage(), containsString("CI=<unset>"));
+            assertAll(
+                    () -> assertThat(client, instanceOf(AsyncTelemetryClient.class)),
+                    () -> assertThat(logRecord.getMessage(), containsString("EXASOL_TELEMETRY_DISABLE=<unset>")),
+                    () -> assertThat(logRecord.getMessage(), containsString("CI=<unset>")));
         }
     }
 
@@ -41,8 +43,9 @@ class TelemetryClientLoggingTest {
             final LogRecord logRecord = capture.await(r -> r.getLevel() == Level.INFO
                     && r.getMessage().contains("Telemetry is disabled"), Duration.ofSeconds(1));
 
-            assertThat(client, instanceOf(NoOpTelemetryClient.class));
-            assertThat(logRecord.getMessage(), containsString("EXASOL_TELEMETRY_DISABLE='disabled'"));
+            assertAll(
+                    () -> assertThat(client, instanceOf(NoOpTelemetryClient.class)),
+                    () -> assertThat(logRecord.getMessage(), containsString("EXASOL_TELEMETRY_DISABLE='disabled'")));
         }
     }
 }

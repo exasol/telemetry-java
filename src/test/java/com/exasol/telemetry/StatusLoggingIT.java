@@ -2,9 +2,10 @@ package com.exasol.telemetry;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 import java.time.Duration;
-import java.util.*;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
@@ -24,11 +25,13 @@ class StatusLoggingIT {
             final LogRecord enabledRecord = capture.await(logRecord -> logRecord.getLevel() == Level.INFO
                     && logRecord.getMessage().contains("Telemetry is enabled"), Duration.ofSeconds(1));
 
-            assertThat(client, instanceOf(AsyncTelemetryClient.class));
-            assertThat(((AsyncTelemetryClient) client).isRunning(), is(true));
-            assertThat(enabledRecord.getMessage(), containsString("Set EXASOL_TELEMETRY_DISABLE to any non-empty value to disable telemetry."));
-            assertThat(enabledRecord.getMessage(), containsString("EXASOL_TELEMETRY_DISABLE=<unset>"));
-            assertThat(enabledRecord.getMessage(), containsString("CI=<unset>"));
+            assertAll(
+                    () -> assertThat(client, instanceOf(AsyncTelemetryClient.class)),
+                    () -> assertThat(((AsyncTelemetryClient) client).isRunning(), is(true)),
+                    () -> assertThat(enabledRecord.getMessage(),
+                            containsString("Set EXASOL_TELEMETRY_DISABLE to any non-empty value to disable telemetry.")),
+                    () -> assertThat(enabledRecord.getMessage(), containsString("EXASOL_TELEMETRY_DISABLE=<unset>")),
+                    () -> assertThat(enabledRecord.getMessage(), containsString("CI=<unset>")));
         }
     }
 

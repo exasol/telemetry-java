@@ -2,6 +2,7 @@ package com.exasol.telemetry;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.net.URI;
@@ -22,12 +23,13 @@ class TelemetryConfigTest {
                 .environment(MapEnvironment.empty())
                 .build();
 
-        assertThat(config.getProjectTag(), is(PROJECT_SHORT_TAG));
-        assertThat(config.getProductVersion(), is(VERSION));
-        assertThat(config.getEndpoint(), is(TelemetryConfig.DEFAULT_ENDPOINT));
-        assertThat(config.getQueueCapacity(), is(256));
-        assertThat(config.getRetryTimeout(), is(Duration.ofSeconds(5)));
-        assertThat(config.isTrackingDisabled(), is(false));
+        assertAll(
+                () -> assertThat(config.getProjectTag(), is(PROJECT_SHORT_TAG)),
+                () -> assertThat(config.getProductVersion(), is(VERSION)),
+                () -> assertThat(config.getEndpoint(), is(TelemetryConfig.DEFAULT_ENDPOINT)),
+                () -> assertThat(config.getQueueCapacity(), is(256)),
+                () -> assertThat(config.getRetryTimeout(), is(Duration.ofSeconds(5))),
+                () -> assertThat(config.isTrackingDisabled(), is(false)));
     }
 
     @Test
@@ -35,11 +37,12 @@ class TelemetryConfigTest {
         final TelemetryConfig config = TelemetryConfig.builder(PROJECT_SHORT_TAG, VERSION)
                 .build();
 
-        assertThat(config.getProjectTag(), is(PROJECT_SHORT_TAG));
-        assertThat(config.getProductVersion(), is(VERSION));
-        assertThat(config.getEndpoint(), is(TelemetryConfig.DEFAULT_ENDPOINT));
-        assertThat(config.getQueueCapacity(), is(256));
-        assertThat(config.getRetryTimeout(), is(Duration.ofSeconds(5)));
+        assertAll(
+                () -> assertThat(config.getProjectTag(), is(PROJECT_SHORT_TAG)),
+                () -> assertThat(config.getProductVersion(), is(VERSION)),
+                () -> assertThat(config.getEndpoint(), is(TelemetryConfig.DEFAULT_ENDPOINT)),
+                () -> assertThat(config.getQueueCapacity(), is(256)),
+                () -> assertThat(config.getRetryTimeout(), is(Duration.ofSeconds(5))));
         // Can't verify isTrackingDisabled() because in CI the CI env variable is set
     }
 
@@ -53,8 +56,9 @@ class TelemetryConfigTest {
                         TelemetryConfig.DISABLED_ENV, "disabled")))
                 .build();
 
-        assertThat(config.getEndpoint(), is(URI.create("https://override.example.com")));
-        assertThat(config.isTrackingDisabled(), is(true));
+        assertAll(
+                () -> assertThat(config.getEndpoint(), is(URI.create("https://override.example.com"))),
+                () -> assertThat(config.isTrackingDisabled(), is(true)));
     }
 
     // [utest~telemetry-config-explicit-disable~1->scn~tracking-controls-disables-tracking-via-explicit-host-configuration~1]
@@ -65,9 +69,10 @@ class TelemetryConfigTest {
                 .environment(MapEnvironment.empty())
                 .build();
 
-        assertThat(config.isTrackingDisabled(), is(true));
-        assertThat(config.getDisableMechanism(), is("host configuration"));
-        assertThat(config.getDisableMechanismValue(), is(nullValue()));
+        assertAll(
+                () -> assertThat(config.isTrackingDisabled(), is(true)),
+                () -> assertThat(config.getDisableMechanism(), is("host configuration")),
+                () -> assertThat(config.getDisableMechanismValue(), is(nullValue())));
     }
 
     @Test
@@ -77,9 +82,10 @@ class TelemetryConfigTest {
                 .environment(new MapEnvironment(Map.of(TelemetryConfig.DISABLED_ENV, "disabled")))
                 .build();
 
-        assertThat(config.isTrackingDisabled(), is(true));
-        assertThat(config.getDisableMechanism(), is(TelemetryConfig.DISABLED_ENV));
-        assertThat(config.getDisableMechanismValue(), is("disabled"));
+        assertAll(
+                () -> assertThat(config.isTrackingDisabled(), is(true)),
+                () -> assertThat(config.getDisableMechanism(), is(TelemetryConfig.DISABLED_ENV)),
+                () -> assertThat(config.getDisableMechanismValue(), is("disabled")));
     }
 
     // [utest~telemetry-config-disable-in-ci~1->scn~tracking-controls-disables-tracking-automatically-in-ci~1]
@@ -94,13 +100,14 @@ class TelemetryConfigTest {
 
     @Test
     void treatsAnyNonEmptyEnvironmentValueAsDisabled() {
-        assertThat(TelemetryConfig.isDisabled(null), is(false));
-        assertThat(TelemetryConfig.isDisabled("   "), is(false));
-        assertThat(TelemetryConfig.isDisabled("false"), is(true));
-        assertThat(TelemetryConfig.isDisabled("true"), is(true));
-        assertThat(TelemetryConfig.isDisabled("1"), is(true));
-        assertThat(TelemetryConfig.isDisabled("on"), is(true));
-        assertThat(TelemetryConfig.isDisabled("github-actions"), is(true));
+        assertAll(
+                () -> assertThat(TelemetryConfig.isDisabled(null), is(false)),
+                () -> assertThat(TelemetryConfig.isDisabled("   "), is(false)),
+                () -> assertThat(TelemetryConfig.isDisabled("false"), is(true)),
+                () -> assertThat(TelemetryConfig.isDisabled("true"), is(true)),
+                () -> assertThat(TelemetryConfig.isDisabled("1"), is(true)),
+                () -> assertThat(TelemetryConfig.isDisabled("on"), is(true)),
+                () -> assertThat(TelemetryConfig.isDisabled("github-actions"), is(true)));
     }
 
     // [utest~telemetry-config-rejects-blank-project-tag~1->scn~client-identity-requires-project-tag-and-product-version-when-creating-telemetry-configuration~1]
@@ -127,24 +134,25 @@ class TelemetryConfigTest {
 
     @Test
     void rejectsNonPositiveNumbersAndDurations() {
-        assertThrows(IllegalArgumentException.class, () -> defaultBuilder()
-                .queueCapacity(0)
-                .build());
-        assertThrows(IllegalArgumentException.class, () -> defaultBuilder()
-                .retryTimeout(Duration.ZERO)
-                .build());
-        assertThrows(IllegalArgumentException.class, () -> defaultBuilder()
-                .initialRetryDelay(Duration.ofMillis(-1))
-                .build());
-        assertThrows(IllegalArgumentException.class, () -> defaultBuilder()
-                .maxRetryDelay(Duration.ZERO)
-                .build());
-        assertThrows(IllegalArgumentException.class, () -> defaultBuilder()
-                .connectTimeout(Duration.ZERO)
-                .build());
-        assertThrows(IllegalArgumentException.class, () -> defaultBuilder()
-                .requestTimeout(Duration.ZERO)
-                .build());
+        assertAll(
+                () -> assertThrows(IllegalArgumentException.class, () -> defaultBuilder()
+                        .queueCapacity(0)
+                        .build()),
+                () -> assertThrows(IllegalArgumentException.class, () -> defaultBuilder()
+                        .retryTimeout(Duration.ZERO)
+                        .build()),
+                () -> assertThrows(IllegalArgumentException.class, () -> defaultBuilder()
+                        .initialRetryDelay(Duration.ofMillis(-1))
+                        .build()),
+                () -> assertThrows(IllegalArgumentException.class, () -> defaultBuilder()
+                        .maxRetryDelay(Duration.ZERO)
+                        .build()),
+                () -> assertThrows(IllegalArgumentException.class, () -> defaultBuilder()
+                        .connectTimeout(Duration.ZERO)
+                        .build()),
+                () -> assertThrows(IllegalArgumentException.class, () -> defaultBuilder()
+                        .requestTimeout(Duration.ZERO)
+                        .build()));
     }
 
     private Builder defaultBuilder() {

@@ -2,6 +2,7 @@ package com.exasol.telemetry;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -26,11 +27,12 @@ class ShutdownFlushIT {
             requests = server.awaitRequests(1, Duration.ofSeconds(1));
         }
 
-        assertThat(requests, hasSize(1));
-        assertThat(requests.get(0).body(), containsString("\"category\":\"shop-ui\""));
-        assertThat(requests.get(0).body(), containsString("\"version\":\"0.2.0\""));
-        assertThat(requests.get(0).body(), containsString("\"productVersion\":\"1.2.3\""));
-        assertThat(requests.get(0).body(), containsString("\"features\":{\"checkout-started\":["));
+        assertAll(
+                () -> assertThat(requests, hasSize(1)),
+                () -> assertThat(requests.get(0).body(), containsString("\"category\":\"shop-ui\"")),
+                () -> assertThat(requests.get(0).body(), containsString("\"version\":\"0.2.0\"")),
+                () -> assertThat(requests.get(0).body(), containsString("\"productVersion\":\"1.2.3\"")),
+                () -> assertThat(requests.get(0).body(), containsString("\"features\":{\"checkout-started\":[")));
     }
 
     // [itest~shutdown-flush-stops-background-thread~1->scn~shutdown-flush-stops-background-threads-after-close~1]
@@ -43,8 +45,9 @@ class ShutdownFlushIT {
             client.close();
         }
 
-        assertThat(client.awaitStopped(Duration.ofSeconds(1)), is(true));
-        assertThat(client.isRunning(), is(false));
+        assertAll(
+                () -> assertThat(client.awaitStopped(Duration.ofSeconds(1)), is(true)),
+                () -> assertThat(client.isRunning(), is(false)));
     }
 
     // [itest~shutdown-flush-respects-retry-timeout~1->scn~shutdown-flush-flushes-pending-events-on-close~1]
@@ -64,9 +67,12 @@ class ShutdownFlushIT {
             final long elapsedMillis = Duration.between(start, Instant.now()).toMillis();
             final int attempts = server.awaitRequests(1, Duration.ofSeconds(1)).size();
 
-            assertThat("close should wait until the configured retry timeout is reached", elapsedMillis, greaterThanOrEqualTo(180L));
-            assertThat("close should stop background flushing shortly after the retry timeout", elapsedMillis, lessThan(600L));
-            assertThat("the sender should have started flushing before the timeout is reached", attempts, is(1));
+            assertAll(
+                    () -> assertThat("close should wait until the configured retry timeout is reached", elapsedMillis,
+                            greaterThanOrEqualTo(180L)),
+                    () -> assertThat("close should stop background flushing shortly after the retry timeout", elapsedMillis,
+                            lessThan(600L)),
+                    () -> assertThat("the sender should have started flushing before the timeout is reached", attempts, is(1)));
         }
     }
 }

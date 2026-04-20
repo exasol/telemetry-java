@@ -9,6 +9,8 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
+
 class TrackingControlsIT {
     private static final String PROJECT_TAG = "projectTag";
     private static final String VERSION = "1.2.3";
@@ -68,12 +70,14 @@ class TrackingControlsIT {
             client.track(FEATURE);
 
             requests = overrideServer.awaitRequests(1, Duration.ofSeconds(2));
-            assertThat(requests, hasSize(1));
-            assertThat(configuredServer.awaitRequests(1, Duration.ofMillis(150)), empty());
+            assertAll(
+                    () -> assertThat(requests, hasSize(1)),
+                    () -> assertThat(configuredServer.awaitRequests(1, Duration.ofMillis(150)), empty()));
         }
 
-        assertThat(requests.get(0).body(), containsString("\"category\":\"" + PROJECT_TAG + "\""));
-        assertThat(requests.get(0).body(), containsString("\"productVersion\":\"" + VERSION + "\""));
-        assertThat(requests.get(0).body(), containsString("\"version\":\"0.2.0\""));
+        assertAll(
+                () -> assertThat(requests.get(0).body(), containsString("\"category\":\"" + PROJECT_TAG + "\"")),
+                () -> assertThat(requests.get(0).body(), containsString("\"productVersion\":\"" + VERSION + "\"")),
+                () -> assertThat(requests.get(0).body(), containsString("\"version\":\"0.2.0\"")));
     }
 }

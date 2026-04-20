@@ -2,8 +2,9 @@ package com.exasol.telemetry;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
-import java.time.*;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 
@@ -25,13 +26,14 @@ class TrackingApiIT {
             client.track(FEATURE);
 
             final List<RecordingHttpServer.RecordedRequest> requests = server.awaitRequests(1, Duration.ofSeconds(2));
-            assertThat(requests, hasSize(1));
-            assertThat(requests.get(0).method(), is("POST"));
-            assertThat(requests.get(0).body(), containsString("\"category\":\"shop-ui\""));
-            assertThat(requests.get(0).body(), containsString("\"version\":\"0.2.0\""));
-            assertThat(requests.get(0).body(), containsString("\"productVersion\":\"1.2.3\""));
-            assertThat(requests.get(0).body(), containsString("\"timestamp\":"));
-            assertThat(requests.get(0).body(), containsString("\"features\":{\"checkout-started\":["));
+            assertAll(
+                    () -> assertThat(requests, hasSize(1)),
+                    () -> assertThat(requests.get(0).method(), is("POST")),
+                    () -> assertThat(requests.get(0).body(), containsString("\"category\":\"shop-ui\"")),
+                    () -> assertThat(requests.get(0).body(), containsString("\"version\":\"0.2.0\"")),
+                    () -> assertThat(requests.get(0).body(), containsString("\"productVersion\":\"1.2.3\"")),
+                    () -> assertThat(requests.get(0).body(), containsString("\"timestamp\":")),
+                    () -> assertThat(requests.get(0).body(), containsString("\"features\":{\"checkout-started\":[")));
         }
     }
 
@@ -44,8 +46,9 @@ class TrackingApiIT {
             client.track(FEATURE);
 
             final List<RecordingHttpServer.RecordedRequest> requests = server.awaitRequests(1, Duration.ofSeconds(2));
-            assertThat(requests, hasSize(1));
-            assertThat(JsonTestHelper.parseJson(requests.get(0).body()).containsKey("features"), is(true));
+            assertAll(
+                    () -> assertThat(requests, hasSize(1)),
+                    () -> assertThat(JsonTestHelper.parseJson(requests.get(0).body()).containsKey("features"), is(true)));
         }
     }
 
@@ -77,8 +80,9 @@ class TrackingApiIT {
             client.track(FEATURE);
             final long elapsedMillis = Duration.ofNanos(System.nanoTime() - start).toMillis();
 
-            assertThat("track should return before the delayed HTTP request completes", elapsedMillis, lessThan(150L));
-            assertThat(server.awaitRequests(1, Duration.ofSeconds(2)), hasSize(1));
+            assertAll(
+                    () -> assertThat("track should return before the delayed HTTP request completes", elapsedMillis, lessThan(150L)),
+                    () -> assertThat(server.awaitRequests(1, Duration.ofSeconds(2)), hasSize(1)));
         }
     }
 
@@ -93,8 +97,9 @@ class TrackingApiIT {
             try (TelemetryClient client = TelemetryClient.create(config)) {
                 client.track(FEATURE);
 
-                assertThat(client, instanceOf(NoOpTelemetryClient.class));
-                assertThat(server.awaitRequests(1, Duration.ofMillis(150)), empty());
+                assertAll(
+                        () -> assertThat(client, instanceOf(NoOpTelemetryClient.class)),
+                        () -> assertThat(server.awaitRequests(1, Duration.ofMillis(150)), empty()));
             }
         }
     }
@@ -108,8 +113,9 @@ class TrackingApiIT {
             client.track(" feature ");
 
             final List<RecordingHttpServer.RecordedRequest> requests = server.awaitRequests(1, Duration.ofSeconds(2));
-            assertThat(requests, hasSize(1));
-            assertThat(requests.get(0).body(), containsString("\"features\":{\" feature \":"));
+            assertAll(
+                    () -> assertThat(requests, hasSize(1)),
+                    () -> assertThat(requests.get(0).body(), containsString("\"features\":{\" feature \":")));
         }
     }
 

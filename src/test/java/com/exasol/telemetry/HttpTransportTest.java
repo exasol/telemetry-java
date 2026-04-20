@@ -3,6 +3,7 @@ package com.exasol.telemetry;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.IOException;
@@ -35,13 +36,14 @@ class HttpTransportTest {
 
         final HttpRequest request = requestSender.request;
         final String body = bodyToString(request);
-        assertThat(request.method(), is("POST"));
-        assertThat(request.uri(), is(URI.create(DUMMY_ENDPOINT)));
-        assertThat(request.headers().firstValue("Content-Type").orElseThrow(), is("application/json"));
-        assertThat(body, containsString("\"category\":\"projectTag\""));
-        assertThat(body, containsString("\"version\":\"0.2.0\""));
-        assertThat(body, containsString("\"productVersion\":\"1.2.3\""));
-        assertThat(body, containsString("\"features\":{\"projectTag.feature\":[10]}"));
+        assertAll(
+                () -> assertThat(request.method(), is("POST")),
+                () -> assertThat(request.uri(), is(URI.create(DUMMY_ENDPOINT))),
+                () -> assertThat(request.headers().firstValue("Content-Type").orElseThrow(), is("application/json")),
+                () -> assertThat(body, containsString("\"category\":\"projectTag\"")),
+                () -> assertThat(body, containsString("\"version\":\"0.2.0\"")),
+                () -> assertThat(body, containsString("\"productVersion\":\"1.2.3\"")),
+                () -> assertThat(body, containsString("\"features\":{\"projectTag.feature\":[10]}")));
     }
 
     // [utest~http-transport-rejects-non-success~1->scn~async-delivery-retries-failed-delivery-with-exponential-backoff-until-timeout~1]
@@ -52,10 +54,12 @@ class HttpTransportTest {
                 request -> new HttpTransport.Response(500, "server says no"));
 
         final HttpException exception = assertThrows(HttpException.class,
-                () -> transport.send(Message.fromEvents(PROJECT_TAG, VERSION, Instant.ofEpochSecond(30), List.of(new TelemetryEvent(FEATURE, Instant.ofEpochSecond(10))))));
-        assertThat(exception.getStatusCode(), is(500));
-        assertThat(exception.getServerStatus(), is("server says no"));
-        assertThat(exception.getMessage(), is("server says no"));
+                () -> transport.send(
+                        Message.fromEvents(PROJECT_TAG, VERSION, Instant.ofEpochSecond(30), List.of(new TelemetryEvent(FEATURE, Instant.ofEpochSecond(10))))));
+        assertAll(
+                () -> assertThat(exception.getStatusCode(), is(500)),
+                () -> assertThat(exception.getServerStatus(), is("server says no")),
+                () -> assertThat(exception.getMessage(), is("server says no")));
     }
 
     // [utest~http-transport-handles-interruption~1->scn~async-delivery-retries-failed-delivery-with-exponential-backoff-until-timeout~1]
@@ -68,9 +72,11 @@ class HttpTransportTest {
                 });
 
         final IOException exception = assertThrows(IOException.class,
-                () -> transport.send(Message.fromEvents(PROJECT_TAG, VERSION, Instant.ofEpochSecond(30), List.of(new TelemetryEvent(FEATURE, Instant.ofEpochSecond(10))))));
-        assertThat(exception.getMessage(), containsString("Interrupted while sending telemetry"));
-        assertThat(Thread.currentThread().isInterrupted(), is(true));
+                () -> transport.send(
+                        Message.fromEvents(PROJECT_TAG, VERSION, Instant.ofEpochSecond(30), List.of(new TelemetryEvent(FEATURE, Instant.ofEpochSecond(10))))));
+        assertAll(
+                () -> assertThat(exception.getMessage(), containsString("Interrupted while sending telemetry")),
+                () -> assertThat(Thread.currentThread().isInterrupted(), is(true)));
         Thread.interrupted();
     }
 
