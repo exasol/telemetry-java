@@ -133,26 +133,39 @@ class TelemetryConfigTest {
     }
 
     @Test
-    void rejectsNonPositiveNumbersAndDurations() {
-        assertAll(
-                () -> assertThrows(IllegalArgumentException.class, () -> defaultBuilder()
-                        .queueCapacity(0)
-                        .build()),
-                () -> assertThrows(IllegalArgumentException.class, () -> defaultBuilder()
-                        .retryTimeout(Duration.ZERO)
-                        .build()),
-                () -> assertThrows(IllegalArgumentException.class, () -> defaultBuilder()
-                        .initialRetryDelay(Duration.ofMillis(-1))
-                        .build()),
-                () -> assertThrows(IllegalArgumentException.class, () -> defaultBuilder()
-                        .maxRetryDelay(Duration.ZERO)
-                        .build()),
-                () -> assertThrows(IllegalArgumentException.class, () -> defaultBuilder()
-                        .connectTimeout(Duration.ZERO)
-                        .build()),
-                () -> assertThrows(IllegalArgumentException.class, () -> defaultBuilder()
-                        .requestTimeout(Duration.ZERO)
-                        .build()));
+    void rejectsNonPositiveQueueCapacity() {
+        final Builder builder = defaultBuilder().queueCapacity(0);
+        assertThrows(IllegalArgumentException.class, builder::build);
+    }
+
+    @Test
+    void rejectsNonPositiveRetryTimeout() {
+        final Builder builder = defaultBuilder().retryTimeout(Duration.ZERO);
+        assertThrows(IllegalArgumentException.class, builder::build);
+    }
+
+    @Test
+    void rejectsNegativeInitialRetryDelay() {
+        final Builder builder = defaultBuilder().initialRetryDelay(Duration.ofMillis(-1));
+        assertThrows(IllegalArgumentException.class, builder::build);
+    }
+
+    @Test
+    void rejectsNonPositiveMaxRetryDelay() {
+        final Builder builder = defaultBuilder().maxRetryDelay(Duration.ZERO);
+        assertThrows(IllegalArgumentException.class, builder::build);
+    }
+
+    @Test
+    void rejectsNonPositiveConnectTimeout() {
+        final Builder builder = defaultBuilder().connectTimeout(Duration.ZERO);
+        assertThrows(IllegalArgumentException.class, builder::build);
+    }
+
+    @Test
+    void rejectsNonPositiveRequestTimeout() {
+        final Builder builder = defaultBuilder().requestTimeout(Duration.ZERO);
+        assertThrows(IllegalArgumentException.class, builder::build);
     }
 
     private Builder defaultBuilder() {

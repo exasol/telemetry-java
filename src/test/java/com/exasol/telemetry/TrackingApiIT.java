@@ -71,7 +71,7 @@ class TrackingApiIT {
 
     // [itest~tracking-api-low-caller-thread-overhead~1->scn~tracking-api-keeps-caller-thread-overhead-low-for-accepted-tracking~1]
     @Test
-    void keepsCallerThreadOverheadLowForAcceptedTracking() throws Exception {
+    void keepsCallerThreadOverheadLowForAcceptedTracking() {
         try (RecordingHttpServer server = RecordingHttpServer.createDelayedSuccessServer(300);
                 TelemetryClient client = TelemetryClient.create(server.configBuilder(PROJECT_TAG, PRODUCT_VERSION)
                         .retryTimeout(Duration.ofMillis(500))
@@ -88,7 +88,7 @@ class TrackingApiIT {
 
     // [itest~tracking-api-disabled-no-op~1->scn~tracking-api-makes-disabled-tracking-a-no-op-without-telemetry-overhead~1]
     @Test
-    void makesDisabledTrackingNoOpWithoutTelemetryOverhead() throws Exception {
+    void makesDisabledTrackingNoOpWithoutTelemetryOverhead() {
         try (RecordingHttpServer server = RecordingHttpServer.createSuccessServer()) {
             final TelemetryConfig config = server.configBuilder(PROJECT_TAG, PRODUCT_VERSION)
                     .environment(new MapEnvironment(Map.of(TelemetryConfig.DISABLED_ENV, "disabled")))

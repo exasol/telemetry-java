@@ -3,6 +3,7 @@ package com.exasol.telemetry;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 import java.net.URI;
 import java.net.http.HttpRequest;
@@ -88,7 +89,7 @@ class AsyncTelemetryClientTest {
     // [utest~async-telemetry-client-stops-background-threads-after-close~1->scn~shutdown-flush-stops-background-threads-after-close~1]
     @Test
     @SuppressWarnings("java:S2093") // Not using try-with-resources to be able to test close() in the middle of the test
-    void stopsBackgroundThreadsAfterClose() throws Exception {
+    void stopsBackgroundThreadsAfterClose() {
         final TelemetryConfig config = configBuilder().build();
         final RecordingRequestSender requestSender = new RecordingRequestSender(List.of(202), 0L, "");
         final AsyncTelemetryClient client = new AsyncTelemetryClient(config, Clock.systemUTC(), new HttpTransport(config, requestSender));
@@ -162,8 +163,8 @@ class AsyncTelemetryClientTest {
             try {
                 client.close();
 
-                capture.await(r -> r.getLevel() == Level.FINE && r.getMessage().equals("Telemetry is stopped."),
-                        Duration.ofSeconds(1));
+                assertDoesNotThrow(() -> capture.await(r -> r.getLevel() == Level.FINE && r.getMessage().equals("Telemetry is stopped."),
+                        Duration.ofSeconds(1)));
             } finally {
                 client.close();
             }

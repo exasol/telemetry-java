@@ -37,7 +37,7 @@ class ShutdownFlushIT {
 
     // [itest~shutdown-flush-stops-background-thread~1->scn~shutdown-flush-stops-background-threads-after-close~1]
     @Test
-    void stopsBackgroundThreadsAfterClose() throws Exception {
+    void stopsBackgroundThreadsAfterClose() {
         final AsyncTelemetryClient client;
         try (RecordingHttpServer server = RecordingHttpServer.createSuccessServer()) {
             client = new AsyncTelemetryClient(server.configBuilder("shop-ui", PRODUCT_VERSION).build());
