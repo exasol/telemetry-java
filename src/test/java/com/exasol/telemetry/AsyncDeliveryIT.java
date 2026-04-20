@@ -82,8 +82,7 @@ class AsyncDeliveryIT {
 
                 final List<RecordingHttpServer.RecordedRequest> requests = server.awaitRequests(1, Duration.ofSeconds(2));
                 assertThat(requests, hasSize(1));
-                assertThat(requests.get(0).body(), containsString("\"feature-a\":["));
-                assertThat(requests.get(0).body(), containsString("\"feature-b\":["));
+                assertThat(requests.get(0).body(), allOf(containsString("\"feature-a\":["), containsString("\"feature-b\":[")));
             } finally {
                 client.close();
             }

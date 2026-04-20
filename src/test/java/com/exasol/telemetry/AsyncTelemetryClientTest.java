@@ -156,9 +156,8 @@ class AsyncTelemetryClientTest {
             try {
                 client.close();
 
-                final LogRecord logRecord = capture.await(r -> r.getLevel() == Level.FINE
-                        && r.getMessage().contains("Telemetry is stopped."), Duration.ofSeconds(1));
-                assertThat(logRecord.getMessage(), is("Telemetry is stopped."));
+                capture.await(r -> r.getLevel() == Level.FINE && r.getMessage().equals("Telemetry is stopped."),
+                        Duration.ofSeconds(1));
             } finally {
                 client.close();
             }
