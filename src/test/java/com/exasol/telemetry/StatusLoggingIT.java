@@ -2,13 +2,12 @@ package com.exasol.telemetry;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 import java.time.Duration;
-import java.time.Instant;
-import java.util.*;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.function.Predicate;
-import java.util.logging.*;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
 
 import org.junit.jupiter.api.Test;
 
@@ -18,7 +17,7 @@ class StatusLoggingIT {
     private static final String FEATURE = "myFeature";
 
     @Test
-    // [itest~status-logging-enabled~1->req~status-logging~1]
+    // [itest~status-logging-enabled~1->scn~status-logging-logs-when-telemetry-is-enabled~1]
     void logsWhenTelemetryIsEnabled() throws Exception {
         try (LogCapture capture = new LogCapture();
                 RecordingHttpServer server = RecordingHttpServer.createSuccessServer();
@@ -26,11 +25,13 @@ class StatusLoggingIT {
             final LogRecord enabledRecord = capture.await(logRecord -> logRecord.getLevel() == Level.INFO
                     && logRecord.getMessage().contains("Telemetry is enabled"), Duration.ofSeconds(1));
 
-            assertThat(client, instanceOf(AsyncTelemetryClient.class));
-            assertThat(((AsyncTelemetryClient) client).isRunning(), is(true));
-            assertThat(enabledRecord.getMessage(), containsString("Set EXASOL_TELEMETRY_DISABLE to any non-empty value to disable telemetry."));
-            assertThat(enabledRecord.getMessage(), containsString("EXASOL_TELEMETRY_DISABLE=<unset>"));
-            assertThat(enabledRecord.getMessage(), containsString("CI=<unset>"));
+            assertAll(
+                    () -> assertThat(client, instanceOf(AsyncTelemetryClient.class)),
+                    () -> assertThat(((AsyncTelemetryClient) client).isRunning(), is(true)),
+                    () -> assertThat(enabledRecord.getMessage(),
+                            containsString("Set EXASOL_TELEMETRY_DISABLE to any non-empty value to disable telemetry.")),
+                    () -> assertThat(enabledRecord.getMessage(), containsString("EXASOL_TELEMETRY_DISABLE=<unset>")),
+                    () -> assertThat(enabledRecord.getMessage(), containsString("CI=<unset>")));
         }
     }
 
@@ -50,7 +51,7 @@ class StatusLoggingIT {
     }
 
     @Test
-    // [itest~status-logging-disabled~1->req~status-logging~1]
+    // [itest~status-logging-disabled~1->scn~status-logging-logs-when-telemetry-is-disabled~1]
     void logsWhenTelemetryIsDisabledViaEnvironmentVariable() throws Exception {
         try (LogCapture capture = new LogCapture();
                 RecordingHttpServer server = RecordingHttpServer.createSuccessServer();
@@ -81,7 +82,7 @@ class StatusLoggingIT {
     }
 
     @Test
-    // [itest~status-logging-send-count~1->req~status-logging~1]
+    // [itest~status-logging-send-count~1->scn~status-logging-logs-message-counts-when-telemetry-is-sent~1]
     void logsSentMessageCount() throws Exception {
         try (LogCapture capture = new LogCapture();
                 RecordingHttpServer server = RecordingHttpServer.createSuccessServer()) {
@@ -101,7 +102,7 @@ class StatusLoggingIT {
     }
 
     @Test
-    // [itest~status-logging-send-failure~1->req~status-logging~1]
+    // [itest~status-logging-send-failure~1->scn~status-logging-logs-when-telemetry-sending-fails~1]
     void logsWhenTelemetrySendingFails() throws Exception {
         try (LogCapture capture = new LogCapture();
                 RecordingHttpServer server = RecordingHttpServer.createFlakyServer(1)) {
@@ -126,7 +127,7 @@ class StatusLoggingIT {
     }
 
     @Test
-    // [itest~status-logging-stopped~1->req~status-logging~1]
+    // [itest~status-logging-stopped~1->scn~status-logging-logs-when-telemetry-is-stopped~1]
     void logsWhenTelemetryStops() throws Exception {
         try (LogCapture capture = new LogCapture();
                 RecordingHttpServer server = RecordingHttpServer.createSuccessServer()) {
@@ -142,51 +143,4 @@ class StatusLoggingIT {
         }
     }
 
-    private static final class LogCapture extends Handler implements AutoCloseable {
-        private final Logger logger;
-        private final CopyOnWriteArrayList<LogRecord> records = new CopyOnWriteArrayList<>();
-        private final Level originalLevel;
-        private final boolean originalUseParentHandlers;
-
-        private LogCapture() {
-            this.logger = Logger.getLogger("com.exasol.telemetry");
-            this.originalLevel = logger.getLevel();
-            this.originalUseParentHandlers = logger.getUseParentHandlers();
-            logger.setLevel(Level.ALL);
-            logger.setUseParentHandlers(false);
-            setLevel(Level.ALL);
-            logger.addHandler(this);
-        }
-
-        @Override
-        public void publish(final LogRecord logRecord) {
-            records.add(logRecord);
-        }
-
-        @Override
-        public void flush() {
-            // Nothing to do
-        }
-
-        @Override
-        public void close() {
-            logger.removeHandler(this);
-            logger.setLevel(originalLevel);
-            logger.setUseParentHandlers(originalUseParentHandlers);
-        }
-
-        private LogRecord await(final Predicate<LogRecord> predicate, final Duration timeout) throws InterruptedException {
-            final Instant deadline = Instant.now().plus(timeout);
-            while (Instant.now().isBefore(deadline)) {
-                final List<LogRecord> snapshot = new ArrayList<>(records);
-                for (final LogRecord logRecord : snapshot) {
-                    if (predicate.test(logRecord)) {
-                        return logRecord;
-                    }
-                }
-                Thread.sleep(10);
-            }
-            throw new AssertionError("Expected log record not found. Captured: " + records);
-        }
-    }
 }

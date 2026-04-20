@@ -20,20 +20,28 @@ final class AsyncTelemetryClient implements TelemetryClient {
     private volatile boolean closed;
 
     AsyncTelemetryClient(final TelemetryConfig config) {
-        this(config, Clock.systemUTC());
+        this(config, Clock.systemUTC(), new HttpTransport(config));
     }
 
     AsyncTelemetryClient(final TelemetryConfig config, final Clock clock) {
+        this(config, clock, new HttpTransport(config));
+    }
+
+    AsyncTelemetryClient(final TelemetryConfig config, final Clock clock, final HttpTransport transport) {
         this.config = requireNonNull(config, "config");
         this.clock = requireNonNull(clock, "clock");
         this.queue = new ArrayBlockingQueue<>(config.getQueueCapacity());
-        this.transport = new HttpTransport(config);
+        this.transport = requireNonNull(transport, "transport");
         this.senderThread = new Thread(this::runSender, "telemetry-java-sender");
         this.senderThread.setDaemon(true);
         this.senderThread.start();
     }
 
     @Override
+    // [impl~async-telemetry-client-records-feature-usage-events~1->scn~tracking-api-records-feature-usage-event~1]
+    // [impl~async-telemetry-client-ignores-tracking-after-close~1->scn~tracking-api-ignores-tracking-after-the-client-is-closed~1]
+    // [impl~async-telemetry-client-keeps-caller-thread-overhead-low-for-accepted-tracking~1->scn~tracking-api-keeps-caller-thread-overhead-low-for-accepted-tracking~1]
+    // [impl~async-telemetry-client-ignores-null-feature-names~1->scn~tracking-api-ignores-null-feature-names~1]
     public void track(final String feature) {
         if (closed || feature == null) {
             return;
@@ -62,6 +70,7 @@ final class AsyncTelemetryClient implements TelemetryClient {
         }
     }
 
+    // [impl~async-telemetry-client-batches-multiple-drained-events-into-a-single-protocol-message~1->scn~async-delivery-batches-multiple-drained-events-into-a-single-protocol-message~1]
     private List<TelemetryEvent> drainBatch(final TelemetryEvent firstEvent) {
         final List<TelemetryEvent> batch = new ArrayList<>();
         batch.add(firstEvent);
@@ -69,7 +78,7 @@ final class AsyncTelemetryClient implements TelemetryClient {
         return batch;
     }
 
-    // [impl~telemetry-client-send-with-retry~1->req~async-delivery~1]
+    // [impl~async-telemetry-client-retries-failed-delivery-with-exponential-backoff~1->scn~async-delivery-retries-failed-delivery-with-exponential-backoff-until-timeout~1]
     private void sendWithRetry(final List<TelemetryEvent> events) {
         final Instant start = clock.instant();
         final Message message = Message.fromEvents(config.getProjectTag(), config.getProductVersion(), start, events);
@@ -82,11 +91,11 @@ final class AsyncTelemetryClient implements TelemetryClient {
             }
             try {
                 transport.send(message);
-                // [impl~telemetry-client-log-send-count~1->req~status-logging~1]
+                // [impl~telemetry-client-log-send-count~1->scn~status-logging-logs-message-counts-when-telemetry-is-sent~1]
                 LOGGER.fine(() -> "Telemetry sent to the server with " + events.size() + " event(s).");
                 return;
             } catch (final Exception exception) {
-                // [impl~telemetry-client-log-send-failure~1->req~status-logging~1]
+                // [impl~telemetry-client-log-send-failure~1->scn~status-logging-logs-when-telemetry-sending-fails~1]
                 LOGGER.fine(() -> "Telemetry sending failed for " + events.size() + " event(s): "
                         + rootCauseMessage(exception));
                 if (Thread.currentThread().isInterrupted()) {
@@ -144,13 +153,15 @@ final class AsyncTelemetryClient implements TelemetryClient {
     }
 
     @Override
+    // [impl~async-telemetry-client-flushes-pending-events-on-close~1->scn~shutdown-flush-flushes-pending-events-on-close~1]
+    // [impl~async-telemetry-client-stops-background-threads-after-close~1->scn~shutdown-flush-stops-background-threads-after-close~1]
     public void close() {
         if (closed) {
             return;
         }
         closed = true;
         awaitSenderStop();
-        // [impl~telemetry-client-log-stopped~1->req~status-logging~1]
+        // [impl~telemetry-client-log-stopped~1->scn~status-logging-logs-when-telemetry-is-stopped~1]
         LOGGER.fine("Telemetry is stopped.");
     }
 

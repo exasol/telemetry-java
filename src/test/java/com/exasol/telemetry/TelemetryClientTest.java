@@ -10,7 +10,7 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 class TelemetryClientTest {
-    // [utest~telemetry-client-disabled-tracking~1->req~tracking-controls~1]
+    // [utest~telemetry-client-disabled-tracking~1->scn~tracking-api-makes-disabled-tracking-a-no-op-without-telemetry-overhead~1]
     @Test
     void doesNotRunSenderWhenTrackingIsDisabled() {
         final TelemetryConfig config = TelemetryConfig.builder("project", "1.2.3").endpoint(URI.create("https://example.com"))
@@ -26,7 +26,7 @@ class TelemetryClientTest {
         }
     }
 
-    // [utest~telemetry-client-invalid-feature~1->req~tracking-api~1]
+    // [utest~telemetry-client-ignores-null-feature~1->scn~tracking-api-ignores-null-feature-names~1]
     @Test
     void ignoresNullFeatureName() {
         final TelemetryConfig config = TelemetryConfig.builder("project", "1.2.3").endpoint(URI.create("https://example.com")).build();
@@ -38,7 +38,7 @@ class TelemetryClientTest {
         }
     }
 
-    // [utest~telemetry-client-after-close~1->req~tracking-api~1]
+    // [utest~telemetry-client-after-close~1->scn~tracking-api-ignores-tracking-after-the-client-is-closed~1]
     @Test
     void ignoresTrackingAfterClose() {
         final TelemetryConfig config = TelemetryConfig.builder("project", "1.2.3").endpoint(URI.create("https://example.com"))
@@ -51,7 +51,6 @@ class TelemetryClientTest {
         assertDoesNotThrow(() -> client.track("feature"));
     }
 
-    // [utest~telemetry-client-close-idempotent~1->req~shutdown-flush~1]
     @Test
     void makesCloseIdempotent() {
         final TelemetryConfig config = TelemetryConfig.builder("project", "1.2.3").endpoint(URI.create("https://example.com"))

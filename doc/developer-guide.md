@@ -24,5 +24,5 @@ OpenFastTrace tags are included in the speq-skill spec to avoid duplication.
 Tracing runs in the Maven `verify` phase. You can specifically run tracing using this command:
 
 ```sh
-mvn generate-sources org.itsallcode:openfasttrace-maven-plugin:trace
+mvn generate-sources openfasttrace:trace
 ```

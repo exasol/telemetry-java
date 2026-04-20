@@ -9,12 +9,14 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
+
 class TrackingControlsIT {
     private static final String PROJECT_TAG = "projectTag";
     private static final String VERSION = "1.2.3";
     private static final String FEATURE = "myFeature";
 
-    // [itest~tracking-controls-disable-explicit-config~1->req~tracking-controls~1]
+    // [itest~tracking-controls-disable-explicit-config~1->scn~tracking-controls-disables-tracking-via-explicit-host-configuration~1]
     @Test
     void disablesTrackingViaExplicitConfiguration() throws Exception {
         try (RecordingHttpServer server = RecordingHttpServer.createSuccessServer();
@@ -28,7 +30,7 @@ class TrackingControlsIT {
         }
     }
 
-    // [itest~tracking-controls-disable-env~1->req~tracking-controls~1]
+    // [itest~tracking-controls-disable-env~1->scn~tracking-controls-disables-tracking-via-environment-variables~1]
     @Test
     void disablesTrackingViaEnvironmentVariables() throws Exception {
         try (RecordingHttpServer server = RecordingHttpServer.createSuccessServer();
@@ -42,7 +44,7 @@ class TrackingControlsIT {
         }
     }
 
-    // [itest~tracking-controls-disable-ci~1->req~tracking-controls~1]
+    // [itest~tracking-controls-disable-ci~1->scn~tracking-controls-disables-tracking-automatically-in-ci~1]
     @Test
     void disablesTrackingAutomaticallyWhenCiIsNonEmpty() throws Exception {
         try (RecordingHttpServer server = RecordingHttpServer.createSuccessServer();
@@ -56,7 +58,7 @@ class TrackingControlsIT {
         }
     }
 
-    // [itest~tracking-controls-endpoint-override~1->req~tracking-controls~1]
+    // [itest~tracking-controls-endpoint-override~1->scn~tracking-controls-overrides-the-configured-endpoint-via-environment-variable~1]
     @Test
     void overridesConfiguredEndpointViaEnvironmentVariable() throws Exception {
         final List<RecordingHttpServer.RecordedRequest> requests;
@@ -68,12 +70,14 @@ class TrackingControlsIT {
             client.track(FEATURE);
 
             requests = overrideServer.awaitRequests(1, Duration.ofSeconds(2));
-            assertThat(requests, hasSize(1));
-            assertThat(configuredServer.awaitRequests(1, Duration.ofMillis(150)), empty());
+            assertAll(
+                    () -> assertThat(requests, hasSize(1)),
+                    () -> assertThat(configuredServer.awaitRequests(1, Duration.ofMillis(150)), empty()));
         }
 
-        assertThat(requests.get(0).body(), containsString("\"category\":\"" + PROJECT_TAG + "\""));
-        assertThat(requests.get(0).body(), containsString("\"productVersion\":\"" + VERSION + "\""));
-        assertThat(requests.get(0).body(), containsString("\"version\":\"0.2.0\""));
+        assertAll(
+                () -> assertThat(requests.get(0).body(), containsString("\"category\":\"" + PROJECT_TAG + "\"")),
+                () -> assertThat(requests.get(0).body(), containsString("\"productVersion\":\"" + VERSION + "\"")),
+                () -> assertThat(requests.get(0).body(), containsString("\"version\":\"0.2.0\"")));
     }
 }

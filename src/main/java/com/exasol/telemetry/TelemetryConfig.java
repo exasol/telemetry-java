@@ -141,12 +141,13 @@ public final class TelemetryConfig {
         return null;
     }
 
-    // [impl~telemetry-config-disable-detection~1->req~tracking-controls~1]
+    // [impl~telemetry-config-detects-disable-via-environment-variable~1->scn~tracking-controls-disables-tracking-via-environment-variables~1]
+    // [impl~telemetry-config-detects-disable-in-ci~1->scn~tracking-controls-disables-tracking-automatically-in-ci~1]
     static boolean isDisabled(final String value) {
         return value != null && !value.trim().isEmpty();
     }
 
-    // [impl~telemetry-config-resolve-endpoint~1->req~tracking-controls~1]
+    // [impl~telemetry-config-resolves-endpoint-override~1->scn~tracking-controls-overrides-the-configured-endpoint-via-environment-variable~1]
     private static URI resolveEndpoint(final URI configuredEndpoint, final Environment environment) {
         final String override = environment.getenv(ENDPOINT_ENV);
         if (override != null && !override.trim().isEmpty()) {
@@ -155,7 +156,7 @@ public final class TelemetryConfig {
         return configuredEndpoint != null ? configuredEndpoint : DEFAULT_ENDPOINT;
     }
 
-    // [impl~telemetry-config-require-client-identity~1->req~client-identity~1]
+    // [impl~telemetry-config-requires-client-identity~1->scn~client-identity-requires-project-tag-and-product-version-when-creating-telemetry-configuration~1]
     private static String requireText(final String value, final String field) {
         if (value == null || value.trim().isEmpty()) {
             throw new IllegalArgumentException(field + " must not be blank");
@@ -210,6 +211,7 @@ public final class TelemetryConfig {
          *
          * @return this builder
          */
+        // [impl~telemetry-config-disables-tracking-via-explicit-host-configuration~1->scn~tracking-controls-disables-tracking-via-explicit-host-configuration~1]
         public Builder disableTracking() {
             this.trackingDisabled = true;
             return this;
