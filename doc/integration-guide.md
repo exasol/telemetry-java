@@ -29,9 +29,13 @@ Applications integrating `telemetry-java` need to link to the [App User Guide](a
 Example changelog entry:
 
 ```markdown
-## Added
+## Summary
 
-- Added anonymous feature-usage telemetry via `telemetry-java`. See the [documentation](https://github.com/exasol/telemetry-java/blob/main/doc/app-user-guide.md) for details on collected data and opt-out behavior.
+This release adds anonymous feature-usage telemetry via `telemetry-java`. See the [documentation](https://github.com/exasol/telemetry-java/blob/main/doc/app-user-guide.md) for details on collected data and opt-out behavior.
+
+## Features
+
+* #??: Added anonymous feature tracking
 ```
 
 Example end-user documentation entry:
