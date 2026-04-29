@@ -55,7 +55,7 @@ try (TelemetryClient client = TelemetryClient.create(config)) {
 * `EXASOL_TELEMETRY_ENDPOINT`
   Overrides the endpoint configured in code.
 
-The default endpoint is `https://metrics.exasol.com`.
+The default endpoint is `https://metrics.exasol.com/telemetry`.
 
 Applications can also disable telemetry explicitly in code with `TelemetryConfig.builder(...).disableTracking()`.
 

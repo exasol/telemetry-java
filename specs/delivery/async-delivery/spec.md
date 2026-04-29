@@ -14,7 +14,7 @@ Needs: scn
 
 ## Background
 
-Accepted telemetry events are serialized to JSON and delivered via HTTP `POST` to a configured endpoint or the default endpoint `https://metrics.exasol.com`. The JSON payload contains `category`, protocol `version`, `productVersion`, `timestamp`, and `features` fields, and the library uses bounded in-memory buffering with no persistent local storage.
+Accepted telemetry events are serialized to JSON and delivered via HTTP `POST` to a configured endpoint or the default endpoint `https://metrics.exasol.com/telemetry`. The JSON payload contains `category`, protocol `version`, `productVersion`, `timestamp`, and `features` fields, and the library uses bounded in-memory buffering with no persistent local storage.
 
 ## Scenarios
 

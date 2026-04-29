@@ -126,10 +126,13 @@ class TelemetryConfigTest {
         assertThat(exception.getMessage(), containsString("productVersion"));
     }
 
+    // [utest~telemetry-config-default-endpoint~1->scn~tracking-controls-uses-default-telemetry-endpoint~1]
     @Test
     void usesDefaultEndpointWhenNoEndpointIsConfigured() {
-        final TelemetryConfig config = TelemetryConfig.builder(PROJECT_SHORT_TAG, VERSION).build();
-        assertThat(config.getEndpoint(), is(TelemetryConfig.DEFAULT_ENDPOINT));
+        final TelemetryConfig config = TelemetryConfig.builder(PROJECT_SHORT_TAG, VERSION)
+                .environment(MapEnvironment.empty())
+                .build();
+        assertThat(config.getEndpoint(), is(URI.create("https://metrics.exasol.com/telemetry")));
     }
 
     @Test
