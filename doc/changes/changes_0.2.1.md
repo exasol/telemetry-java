@@ -1,4 +1,4 @@
-# Telemetry Java 0.2.1, released 2026-04-29
+# Telemetry Java 0.2.1, released 2026-04-30
 
 Code name: Telemetry Endpoint URL
 
