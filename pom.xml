@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.exasol</groupId>
     <artifactId>telemetry-java</artifactId>
-    <version>0.2.0</version>
+    <version>0.2.1</version>
     <name>telemetry-java</name>
     <description>Minimal, zero-dependency telemetry library for Java applications.</description>
     <url>https://github.com/exasol/telemetry-java/</url>
@@ -59,7 +59,7 @@
             <plugin>
                 <groupId>com.exasol</groupId>
                 <artifactId>project-keeper-maven-plugin</artifactId>
-                <version>5.4.6</version>
+                <version>5.5.2</version>
                 <executions>
                     <execution>
                         <goals>
@@ -112,7 +112,7 @@
     <parent>
         <artifactId>telemetry-java-generated-parent</artifactId>
         <groupId>com.exasol</groupId>
-        <version>0.2.0</version>
+        <version>0.2.1</version>
         <relativePath>pk_generated_parent.pom</relativePath>
     </parent>
 </project>

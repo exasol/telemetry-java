@@ -14,9 +14,22 @@ Needs: scn
 
 ## Background
 
-Tracking can be deactivated by `EXASOL_TELEMETRY_DISABLE` or automatically by `CI` when either environment variable is set to any non-empty value. If the host application does not configure an endpoint, the library uses `https://metrics.exasol.com`. The configured endpoint can be overridden by `EXASOL_TELEMETRY_ENDPOINT`.
+Tracking can be deactivated by `EXASOL_TELEMETRY_DISABLE` or automatically by `CI` when either environment variable is set to any non-empty value. If the host application does not configure an endpoint, the library uses `https://metrics.exasol.com/telemetry`. The configured endpoint can be overridden by `EXASOL_TELEMETRY_ENDPOINT`.
 
 ## Scenarios
+
+### Scenario: Uses default telemetry endpoint
+`scn~tracking-controls-uses-default-telemetry-endpoint~1`
+
+* *GIVEN* the host application does not configure a telemetry endpoint
+* *AND* the host environment does not define `EXASOL_TELEMETRY_ENDPOINT`
+* *WHEN* the library initializes
+* *THEN* the library SHALL use `https://metrics.exasol.com/telemetry` for delivery
+
+Covers:
+* `req~tracking-controls~1`
+
+Needs: impl, utest
 
 ### Scenario: Disables tracking via environment variables
 `scn~tracking-controls-disables-tracking-via-environment-variables~1`

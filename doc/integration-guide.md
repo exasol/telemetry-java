@@ -16,7 +16,7 @@ try (TelemetryClient client = TelemetryClient.create(config)) {
 ## Required Configuration
 
 - A project short tag and a product/library version at startup. The library adds the project tag as the telemetry category and includes the configured productVersion in every accepted telemetry event.
-- An optional HTTP endpoint for JSON `POST` delivery. If omitted, the default endpoint is `https://metrics.exasol.com`.
+- An optional HTTP endpoint for JSON `POST` delivery. If omitted, the default endpoint is `https://metrics.exasol.com/telemetry`.
 - An optional host-controlled disable switch via `TelemetryConfig.Builder.disableTracking()` when the integrating application exposes its own telemetry setting.
 
 ## Required Documentation

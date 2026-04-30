@@ -25,7 +25,8 @@ public final class TelemetryConfig {
     /**
      * Default endpoint that receives telemetry events when no override is configured.
      */
-    static final URI DEFAULT_ENDPOINT = URI.create("https://metrics.exasol.com");
+    // [impl~telemetry-config-default-endpoint~1->scn~tracking-controls-uses-default-telemetry-endpoint~1]
+    static final URI DEFAULT_ENDPOINT = URI.create("https://metrics.exasol.com/telemetry");
 
     private final String projectTag;
     private final String productVersion;

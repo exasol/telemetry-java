@@ -25,7 +25,7 @@ It does not collect:
 - high-frequency event streams
 - numeric measurements
 
-The library sends telemetry to `https://metrics.exasol.com`.
+The library sends telemetry to `https://metrics.exasol.com/telemetry`.
 
 For Exasol's general privacy information, see the [Exasol Privacy Policy](https://www.exasol.com/privacy-policy/).
 
